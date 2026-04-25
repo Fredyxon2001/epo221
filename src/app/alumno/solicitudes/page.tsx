@@ -2,8 +2,8 @@
 import { getAlumnoActual } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
-import { cerrarSolicitud } from './actions';
 import { Adjunto } from '@/components/mensajes/Adjunto';
+import { ConversacionSolicitud } from '@/components/solicitudes/Conversacion';
 import Link from 'next/link';
 
 const estadoLabel: Record<string, { label: string; tone: any; icon: string }> = {
@@ -34,10 +34,20 @@ export default async function MisSolicitudes() {
     .order('created_at', { ascending: false });
 
   const items = data ?? [];
-  const paths = items.flatMap((s: any) => [s.adjunto_url, s.respuesta_adjunto_url].filter(Boolean));
+  const ids = items.map((s: any) => s.id);
+  const { data: msgs } = ids.length
+    ? await supabase.from('solicitudes_mensajes').select('*').in('solicitud_id', ids).order('created_at', { ascending: true })
+    : { data: [] as any[] };
+  const msgsBySolicitud: Record<string, any[]> = {};
+  for (const m of msgs ?? []) (msgsBySolicitud[(m as any).solicitud_id] ??= []).push(m);
+
+  const allPaths = [
+    ...items.flatMap((s: any) => [s.adjunto_url, s.respuesta_adjunto_url].filter(Boolean)),
+    ...(msgs ?? []).map((m: any) => m.adjunto_url).filter(Boolean),
+  ];
   const signedMap: Record<string, string> = {};
-  if (paths.length) {
-    const { data: signed } = await supabase.storage.from('solicitudes').createSignedUrls(paths, 3600);
+  if (allPaths.length) {
+    const { data: signed } = await supabase.storage.from('solicitudes').createSignedUrls(allPaths, 3600);
     (signed ?? []).forEach((s: any) => { if (s.path && s.signedUrl) signedMap[s.path] = s.signedUrl; });
   }
 
@@ -126,21 +136,21 @@ export default async function MisSolicitudes() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="text-[11px] text-gray-400">
-                      Enviada: {new Date(s.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
-                    </div>
-                    {['respondida', 'aceptada', 'rechazada'].includes(s.estado) && (
-                      <form action={cerrarSolicitud}>
-                        <input type="hidden" name="id" value={s.id} />
-                        <button
-                          type="submit"
-                          className="text-[11px] font-semibold text-gray-500 hover:text-verde-oscuro hover:bg-white px-2.5 py-1 rounded-md transition"
-                        >
-                          ✓ Dar por cerrada
-                        </button>
-                      </form>
-                    )}
+                  <div className="text-[11px] text-gray-400 pt-1">
+                    Enviada: {new Date(s.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-3 mt-2">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-2">💬 Conversación</div>
+                    <ConversacionSolicitud
+                      solicitudId={s.id}
+                      estado={s.estado}
+                      miRol="alumno"
+                      mensajes={(msgsBySolicitud[s.id] ?? []).map((m: any) => ({
+                        ...m,
+                        signedUrl: m.adjunto_url ? signedMap[m.adjunto_url] : null,
+                      }))}
+                    />
                   </div>
                 </div>
               </Card>
