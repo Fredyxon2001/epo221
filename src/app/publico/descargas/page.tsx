@@ -39,7 +39,7 @@ const REQUISITOS_REINS = [
   'Carnet de seguridad social actualizado (copia)',
   'Vigencia de derechos del IMSS Digital — imss.gob.mx/imssdigital',
   'Copia del INE del padre, madre o tutor',
-  'Comprobante de la donación voluntaria de inscripción (incluye seguro escolar) — acércate a Control Escolar para conocer el monto del apoyo y los medios de pago',
+  'Comprobante de la donación voluntaria de inscripción (apoya el mantenimiento y operación de la institución) — acércate a Control Escolar para conocer el monto del apoyo y los medios de pago',
   'Comprobante de domicilio actualizado',
   'Un folder tamaño carta color verde pistache',
 ];
@@ -87,10 +87,10 @@ export default function Descargas() {
                 <div className="text-xs uppercase tracking-[0.4em] text-verde-claro mb-2">Concepto de inscripción</div>
                 <h2 className="font-serif text-3xl">Donación voluntaria · Ciclo 2025-2026-2</h2>
                 <p className="text-white/85 text-sm mt-3 max-w-xl leading-relaxed">
-                  La inscripción se cubre mediante una <strong>donación voluntaria</strong> que incluye el
-                  <strong> seguro escolar contra accidentes</strong>. Acércate a <strong>Control Escolar</strong>
-                  para conocer el monto del apoyo, los medios de pago disponibles y recibir tu comprobante
-                  para entregarlo con los demás requisitos en ventanilla.
+                  La inscripción se cubre mediante una <strong>donación voluntaria</strong> que se destina al
+                  <strong> mantenimiento, operación y mejora continua de las instalaciones</strong> de la institución.
+                  Acércate a <strong>Control Escolar</strong> para conocer el monto del apoyo, los medios de pago
+                  disponibles y recibir tu comprobante para entregarlo con los demás requisitos en ventanilla.
                 </p>
               </div>
               <div className="text-center">
