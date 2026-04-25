@@ -39,7 +39,7 @@ const REQUISITOS_REINS = [
   'Carnet de seguridad social actualizado (copia)',
   'Vigencia de derechos del IMSS Digital — imss.gob.mx/imssdigital',
   'Copia del INE del padre, madre o tutor',
-  'Váucher de pago por $1,095 a cuenta Banorte 0651424927 o Farmacias Guadalajara (incluye seguro escolar)',
+  'Comprobante de la donación voluntaria de inscripción (incluye seguro escolar) — acércate a Control Escolar para conocer el monto del apoyo y los medios de pago',
   'Comprobante de domicilio actualizado',
   'Un folder tamaño carta color verde pistache',
 ];
@@ -78,32 +78,27 @@ export default function Descargas() {
           subtitle="Descarga los formatos, llénalos en casa y entrégalos impresos en ventanilla para agilizar tu trámite."
         />
 
-        {/* Pago / banco */}
+        {/* Donación voluntaria de inscripción */}
         <Reveal delay={0.05}>
           <div className="spotlight lift bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio text-white rounded-3xl p-8 shadow-2xl shadow-verde/30 relative overflow-hidden mb-12">
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 blob blur-3xl" aria-hidden />
             <div className="relative grid md:grid-cols-3 gap-6 items-center">
               <div className="md:col-span-2">
                 <div className="text-xs uppercase tracking-[0.4em] text-verde-claro mb-2">Concepto de inscripción</div>
-                <h2 className="font-serif text-3xl">Cuota anual · Ciclo 2025-2026-2</h2>
+                <h2 className="font-serif text-3xl">Donación voluntaria · Ciclo 2025-2026-2</h2>
                 <p className="text-white/85 text-sm mt-3 max-w-xl leading-relaxed">
-                  Incluye <strong>seguro escolar contra accidentes</strong>. Realiza el depósito o
-                  transferencia y conserva el váucher para entregarlo con los demás requisitos en
-                  ventanilla.
+                  La inscripción se cubre mediante una <strong>donación voluntaria</strong> que incluye el
+                  <strong> seguro escolar contra accidentes</strong>. Acércate a <strong>Control Escolar</strong>
+                  para conocer el monto del apoyo, los medios de pago disponibles y recibir tu comprobante
+                  para entregarlo con los demás requisitos en ventanilla.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-3 text-sm">
-                  <span className="bg-white/15 rounded-full px-4 py-1.5 border border-white/20">
-                    🏦 Banorte · <span className="font-mono font-semibold">0651424927</span>
-                  </span>
-                  <span className="bg-white/15 rounded-full px-4 py-1.5 border border-white/20">
-                    💊 o pago en Farmacias Guadalajara
-                  </span>
-                </div>
               </div>
               <div className="text-center">
-                <div className="text-xs uppercase tracking-[0.4em] text-verde-claro mb-1">Importe</div>
-                <div className="font-serif text-6xl font-black">$1,095</div>
-                <div className="text-white/70 text-xs mt-1">MXN</div>
+                <div className="text-xs uppercase tracking-[0.4em] text-verde-claro mb-2">Información del apoyo</div>
+                <div className="text-4xl mb-2">🏫</div>
+                <div className="font-serif text-base leading-snug px-2">
+                  Acércate a <strong>Control Escolar</strong> para conocer de cuánto es el apoyo
+                </div>
               </div>
             </div>
           </div>
