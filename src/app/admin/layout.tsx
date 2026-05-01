@@ -28,6 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       items: [
         { href: '/admin/alumnos', label: 'Alumnos', icon: '🎓' },
         { href: '/admin/profesores', label: 'Profesores', icon: '👨‍🏫' },
+        { href: '/admin/usuarios', label: 'Usuarios y contraseñas', icon: '🔑' },
       ],
     },
     {

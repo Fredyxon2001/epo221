@@ -49,6 +49,27 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
   const { items: notiItems, noLeidas } = await getNotificaciones(user.id, 10);
   const { data: sitioCfg } = await supabase.from('sitio_config').select('logo_url').maybeSingle();
 
+  // Conteos del orientador (solo si tiene grupos a cargo)
+  let propPendientes = 0;
+  let solOrient = 0;
+  if (orientaCount > 0 && profesor?.id) {
+    const { data: misGrupos } = await supabase
+      .from('grupos').select('id').eq('orientador_id', profesor.id).is('deleted_at', null);
+    const gIds = (misGrupos ?? []).map((g: any) => g.id);
+    if (gIds.length) {
+      const { data: asigOrient } = await supabase.from('asignaciones').select('id').in('grupo_id', gIds);
+      const aIds = (asigOrient ?? []).map((a: any) => a.id);
+      if (aIds.length) {
+        const { count: cp } = await supabase.from('calificaciones_propuestas')
+          .select('id', { count: 'exact', head: true }).in('asignacion_id', aIds).eq('estado', 'pendiente');
+        propPendientes = cp ?? 0;
+      }
+    }
+    const { count: so } = await supabase.from('solicitudes_revision')
+      .select('id', { count: 'exact', head: true }).eq('orientador_id', profesor.id).eq('estado', 'abierta');
+    solOrient = so ?? 0;
+  }
+
   const groups = [
     {
       title: 'Docencia',
@@ -56,12 +77,20 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
         { href: '/profesor', label: 'Inicio', icon: '🏠' },
         { href: '/profesor/grupos', label: 'Mis grupos', icon: '📚' },
         { href: '/profesor/horario', label: 'Mi horario', icon: '📅' },
-        { href: '/profesor/orientacion', label: 'Orientación', icon: '🧭', badge: orientaCount || undefined },
+        { href: '/profesor/calificaciones-proponer', label: 'Enviar calificaciones', icon: '📤' },
         { href: '/profesor/riesgo', label: 'Alumnos en riesgo', icon: '⚠️' },
         { href: '/profesor/conducta', label: 'Reportar conducta', icon: '📣' },
         { href: '/profesor/conducta/bandeja', label: 'Bandeja conducta', icon: '📥' },
       ],
     },
+    ...(orientaCount > 0 ? [{
+      title: '🧭 Orientación',
+      items: [
+        { href: '/profesor/orientacion', label: 'Mis grupos orientados', icon: '🎒', badge: orientaCount || undefined },
+        { href: '/profesor/orientacion/calificaciones', label: 'Validar calificaciones', icon: '✅', badge: propPendientes || undefined },
+        { href: '/profesor/orientacion/solicitudes', label: 'Acompañar solicitudes', icon: '🧭', badge: solOrient || undefined },
+      ],
+    }] : []),
     {
       title: 'Herramientas',
       items: [
