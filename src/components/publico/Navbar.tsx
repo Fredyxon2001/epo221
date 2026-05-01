@@ -28,6 +28,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
     { href: '/publico',                label: 'Inicio',        icon: '✦' },
     { href: '/publico/oferta',         label: 'Oferta',        icon: '◈' },
     { href: '/publico/noticias',       label: 'Noticias',      icon: '❖' },
+    { href: '/publico/conoce',         label: 'Recorrido',     icon: '✈' },
     { href: '/publico/albumes',        label: 'Galería',       icon: '◐' },
     { href: '/publico/convocatorias',  label: 'Convocatorias', icon: '✧' },
     { href: '/publico/descargas',      label: 'Descargas',     icon: '↓' },
