@@ -30,20 +30,20 @@ const VIDEOS: Video[] = [
     slug: 'recorrido-escuela',
     titulo: 'Recorrido completo',
     descripcion: 'Tour aéreo por las instalaciones, canchas, áreas verdes y aulas que conforman nuestro plantel.',
-    duracion: '3:13',
+    duracion: '2:42',
     destacado: true,
   },
   {
     slug: 'construccion-auditorio',
     titulo: 'Construcción del auditorio',
     descripcion: 'El crecimiento es constante: documentamos el avance de obra del nuevo auditorio escolar.',
-    duracion: '2:22',
+    duracion: '1:30',
   },
   {
     slug: 'construccion',
     titulo: 'Avance de obra · Vista panorámica',
     descripcion: 'Toma extendida de las áreas en desarrollo para futuras generaciones de estudiantes.',
-    duracion: '3:11',
+    duracion: '2:10',
   },
   {
     slug: 'piloteando',
