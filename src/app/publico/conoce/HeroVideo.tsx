@@ -1,13 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-// Hero con video de fondo (autoplay loop muted) — usa el video más cinematográfico
+// Hero con video de fondo (autoplay loop) — usa el video más cinematográfico
 const HERO_VIDEO = '/videos/recorrido-escuela.mp4';
 const HERO_POSTER = '/videos/recorrido-escuela.jpg';
 
 export function HeroVideo() {
   const ref = useRef<HTMLVideoElement>(null);
   const [reduced, setReduced] = useState(false);
+  const [muted, setMuted] = useState(true); // navegadores requieren muted para autoplay
 
   useEffect(() => {
     const m = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -17,6 +18,15 @@ export function HeroVideo() {
     return () => m.removeEventListener('change', onChange);
   }, []);
 
+  const toggleMute = () => {
+    if (!ref.current) return;
+    const next = !muted;
+    ref.current.muted = next;
+    setMuted(next);
+    // Si vamos a desmutear, asegurar volumen razonable
+    if (!next) ref.current.volume = 0.6;
+  };
+
   return (
     <section className="relative h-[78vh] min-h-[500px] overflow-hidden bg-verde-oscuro">
       {/* Video de fondo */}
@@ -25,7 +35,10 @@ export function HeroVideo() {
           ref={ref}
           src={HERO_VIDEO}
           poster={HERO_POSTER}
-          autoPlay muted loop playsInline
+          autoPlay
+          muted
+          loop
+          playsInline
           preload="metadata"
           className="absolute inset-0 w-full h-full object-cover scale-105"
           aria-hidden
@@ -39,6 +52,18 @@ export function HeroVideo() {
       {/* Overlay degradado */}
       <div className="absolute inset-0 bg-gradient-to-b from-verde-oscuro/40 via-verde-oscuro/60 to-verde-oscuro/95" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
+
+      {/* Botón mute/unmute en esquina */}
+      {!reduced && (
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-label={muted ? 'Activar sonido' : 'Silenciar'}
+          className="absolute top-6 right-6 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur border border-white/30 text-white text-xl hover:bg-black/60 hover:scale-110 transition shadow-xl"
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
+      )}
 
       {/* Contenido del hero */}
       <div className="relative h-full flex flex-col items-center justify-center text-white text-center px-6 max-w-5xl mx-auto">
