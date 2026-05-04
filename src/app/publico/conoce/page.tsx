@@ -53,9 +53,9 @@ const VIDEOS: Video[] = [
   },
   {
     slug: 'grabacion-360',
-    titulo: 'Toma 360°',
-    descripcion: 'Plano envolvente que muestra la magnitud completa de las instalaciones.',
-    duracion: '0:22',
+    titulo: 'Toma 360° envolvente',
+    descripcion: 'Barrido panorámico cinematográfico que muestra la magnitud completa de las instalaciones.',
+    duracion: '0:43',
   },
 ];
 
