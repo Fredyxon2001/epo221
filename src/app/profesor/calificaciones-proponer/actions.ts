@@ -85,13 +85,16 @@ export async function validarPropuesta(fd: FormData): Promise<{ ok?: boolean; er
   // Verificar que el user es orientador del grupo de esta propuesta
   const { data: prop } = await supabase
     .from('calificaciones_propuestas')
-    .select('id, estado, alumno_id, asignacion_id, parcial, propuesta_por, asignacion:asignaciones(grupo:grupos(orientador:profesores(perfil_id)))')
+    .select('id, estado, alumno_id, asignacion_id, parcial, propuesta_por, calificacion, alumno:alumnos(perfil_id, nombre), asignacion:asignaciones(materia:materias(nombre), grupo:grupos(orientador:profesores(perfil_id)))')
     .eq('id', id).maybeSingle();
   if (!prop) return { error: 'Propuesta no encontrada' };
   if ((prop as any).asignacion?.grupo?.orientador?.perfil_id !== user.id) {
     return { error: 'No eres el orientador del grupo' };
   }
   if (prop.estado !== 'pendiente') return { error: 'La propuesta ya fue procesada' };
+
+  const materia = (prop as any).asignacion?.materia?.nombre ?? 'la materia';
+  const alumnoPerfilId = (prop as any).alumno?.perfil_id;
 
   if (accion === 'validar') {
     const { error } = await supabase
@@ -104,15 +107,23 @@ export async function validarPropuesta(fd: FormData): Promise<{ ok?: boolean; er
     const { error: rpcErr } = await supabase.rpc('aplicar_propuesta_calificacion', { p_propuesta_id: id });
     if (rpcErr) return { error: rpcErr.message };
 
-    // Notificar al maestro y al alumno
-    await admin.from('notificaciones').insert([
-      {
-        perfil_id: prop.propuesta_por,
-        titulo: '✅ Calificación validada',
-        mensaje: `El orientador validó tu propuesta del parcial ${prop.parcial}.`,
-        url: '/profesor/calificaciones-proponer',
-      },
-    ]);
+    // Notificar al maestro
+    const noti: any[] = [{
+      perfil_id: prop.propuesta_por,
+      titulo: '✅ Calificación validada',
+      mensaje: `El orientador validó tu propuesta de ${materia}, parcial ${prop.parcial}.`,
+      url: '/profesor/calificaciones-proponer',
+    }];
+    // Notificar al alumno (si tiene perfil para login)
+    if (alumnoPerfilId) {
+      noti.push({
+        perfil_id: alumnoPerfilId,
+        titulo: '📊 Nueva calificación disponible',
+        mensaje: `Ya está disponible tu calificación de ${materia}, parcial ${prop.parcial}: ${prop.calificacion ?? '—'}.`,
+        url: '/alumno/calificaciones',
+      });
+    }
+    await admin.from('notificaciones').insert(noti);
   } else {
     const { error } = await supabase
       .from('calificaciones_propuestas')
