@@ -38,7 +38,6 @@ export default async function AlumnoLayout({ children }: { children: React.React
       </div>
     );
   }
-  const { data: { user } } = await supabase.auth.getUser();
 
   // Contador de solicitudes abiertas del alumno (badge)
   const { count: solicitudesAbiertas } = await supabase
