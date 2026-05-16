@@ -13,12 +13,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const { data: perfil } = await supabase
     .from('perfiles').select('nombre, email, rol').eq('id', user.id).single();
-  if (!perfil || (perfil.rol !== 'admin' && perfil.rol !== 'staff')) redirect('/');
+  // Acceso al panel admin: admin, staff, director, finanzas (vista limitada para finanzas)
+  if (!perfil || !['admin', 'staff', 'director', 'finanzas'].includes(perfil.rol)) redirect('/');
+
+  const esFinanzas = perfil.rol === 'finanzas';
 
   const { items: notiItems, noLeidas } = await getNotificaciones(user.id, 10);
   const { data: sitioCfg } = await supabase.from('sitio_config').select('logo_url').maybeSingle();
 
-  const groups = [
+  // Para FINANZAS: solo ven módulos administrativos/financieros
+  const groupsFinanzas = [
+    {
+      title: 'Resumen',
+      items: [{ href: '/admin', label: 'Panel', icon: '🏠' }],
+    },
+    {
+      title: '💰 Finanzas',
+      items: [
+        { href: '/admin/pagos', label: 'Pagos', icon: '💰' },
+        { href: '/admin/conceptos', label: 'Conceptos', icon: '🏷️' },
+        { href: '/admin/extraordinarios', label: 'Extraordinarios', icon: '📘' },
+        { href: '/admin/alumnos', label: 'Buscar alumno', icon: '🎓' },
+      ],
+    },
+  ];
+
+  const groupsCompleto = [
     {
       title: 'Resumen',
       items: [{ href: '/admin', label: 'Panel', icon: '🏠' }],
@@ -81,21 +101,23 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     },
   ];
 
+  const groups = esFinanzas ? groupsFinanzas : groupsCompleto;
   const saludo = saludoPorHora();
+  const roleDisplay: 'admin' | 'staff' = esFinanzas ? 'staff' : (perfil.rol === 'staff' ? 'staff' : 'admin');
 
   return (
     <PrivateShell
-      role={perfil.rol === 'staff' ? 'staff' : 'admin'}
+      role={roleDisplay}
       groups={groups}
-      userName={perfil.nombre ?? 'Administrador'}
+      userName={perfil.nombre ?? 'Usuario'}
       userSub={perfil.email ?? undefined}
       logoUrl={sitioCfg?.logo_url ?? null}
     >
       <Topbar
         greeting={saludo}
-        userName={(perfil.nombre ?? 'Admin').split(' ')[0]}
+        userName={(perfil.nombre ?? 'Usuario').split(' ')[0]}
         userSub={perfil.email ?? undefined}
-        role={perfil.rol === 'staff' ? 'staff' : 'admin'}
+        role={roleDisplay}
         notiCount={noLeidas}
         notiItems={notiItems}
       />

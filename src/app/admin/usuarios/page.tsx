@@ -1,16 +1,18 @@
-// Gestión universal de usuarios y reset de contraseñas (5 roles)
+// Gestión universal de usuarios, alta unificada, edición de rol y reset de contraseñas
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { ResetPasswordRow } from './ResetPasswordRow';
+import { EditarRolDropdown } from './EditarRolDropdown';
+import Link from 'next/link';
 
 const ROL_TONO: Record<string, any> = {
   alumno: 'azul', profesor: 'verde', orientador: 'dorado',
-  director: 'rosa', admin: 'gray', staff: 'gray',
+  director: 'rosa', admin: 'gray', staff: 'gray', finanzas: 'ambar',
 };
 
 const ROL_ICON: Record<string, string> = {
   alumno: '🎓', profesor: '👨‍🏫', orientador: '🧭',
-  director: '🏛️', admin: '⚙️', staff: '🛠️',
+  director: '🏛️', admin: '⚙️', staff: '🛠️', finanzas: '💰',
 };
 
 export default async function UsuariosPage({ searchParams }: { searchParams?: { rol?: string; q?: string } }) {
@@ -45,6 +47,7 @@ export default async function UsuariosPage({ searchParams }: { searchParams?: { 
     { key: 'director', label: '🏛️ Director', count: counts.director ?? 0 },
     { key: 'admin', label: '⚙️ Admin', count: counts.admin ?? 0 },
     { key: 'staff', label: '🛠️ Staff', count: counts.staff ?? 0 },
+    { key: 'finanzas', label: '💰 Finanzas', count: counts.finanzas ?? 0 },
   ];
 
   return (
@@ -52,7 +55,13 @@ export default async function UsuariosPage({ searchParams }: { searchParams?: { 
       <PageHeader
         eyebrow="Cuentas y accesos"
         title="🔑 Gestión de usuarios y contraseñas"
-        description="Resetea contraseñas para cualquier rol. Genera password temporal o envía un magic link al correo del usuario."
+        description="Alta, edición de rol y reset de contraseñas para cualquier rol del sistema."
+        actions={
+          <Link href="/admin/usuarios/nuevo"
+            className="bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-lg shadow inline-flex items-center gap-2">
+            ➕ Nuevo usuario
+          </Link>
+        }
       />
 
       <Card>
@@ -104,10 +113,13 @@ export default async function UsuariosPage({ searchParams }: { searchParams?: { 
                       </td>
                       <td className="px-3 py-2 text-xs font-mono text-gray-600">{u.email}</td>
                       <td className="px-3 py-2">
-                        <Badge tone={ROL_TONO[rolDisplay] ?? 'gray'} size="sm">
-                          <span className="mr-1">{ROL_ICON[rolDisplay] ?? '👤'}</span>
-                          {rolDisplay}
-                        </Badge>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge tone={ROL_TONO[rolDisplay] ?? 'gray'} size="sm">
+                            <span className="mr-1">{ROL_ICON[rolDisplay] ?? '👤'}</span>
+                            {rolDisplay}
+                          </Badge>
+                          <EditarRolDropdown perfilId={u.id} rolActual={u.rol} />
+                        </div>
                       </td>
                       <td className="px-3 py-2 text-xs text-gray-500">
                         {u.password_reset_at ? new Date(u.password_reset_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
