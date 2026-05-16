@@ -5,8 +5,10 @@
 
 const DOMINIO_SINTETICO = 'epo221.local';
 
+// IMPORTANTE: email SIEMPRE en minúsculas para evitar problemas de login case-sensitive
+// (Supabase auth.users.email es case-sensitive en algunas configuraciones)
 export const curpAEmail = (curp: string) =>
-  `${curp.trim().toUpperCase()}@${DOMINIO_SINTETICO}`;
+  `${curp.trim().toLowerCase()}@${DOMINIO_SINTETICO}`;
 
 export const esCurpValida = (curp: string) =>
   /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/i.test(curp.trim());

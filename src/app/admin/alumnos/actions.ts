@@ -161,7 +161,8 @@ export async function importarAlumnosExcel(formData: FormData) {
 
     // Crear cuenta de acceso (si aún no tiene perfil y hay matrícula)
     if (alumnoId && !existente?.perfil_id && matricula) {
-      const emailLogin = curpAEmail(curp);
+      // CRÍTICO: el email DEBE ir en minúsculas para evitar problemas de login case-sensitive
+      const emailLogin = curpAEmail(curp).toLowerCase();
       try {
         const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
           email: emailLogin, password: matricula, email_confirm: true,
@@ -174,7 +175,7 @@ export async function importarAlumnosExcel(formData: FormData) {
             rol: 'alumno',
             nombre: `${nombre} ${apellidoPaterno}`,
             email: emailLogin,
-            debe_cambiar_password: true,
+            debe_cambiar_password: false,  // No forzar cambio en primer login para evitar confusión
           });
           await admin.from('alumnos').update({ perfil_id: authUser.user.id }).eq('id', alumnoId);
         }
