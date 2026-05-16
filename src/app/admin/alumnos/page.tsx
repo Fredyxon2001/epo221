@@ -1,71 +1,87 @@
-// Lista de alumnos + importador masivo (XLSX oficial de inscripción).
+// Lista de alumnos + importador masivo (XLSX/CSV con plantilla descargable).
 import { createClient } from '@/lib/supabase/server';
-import { importarAlumnosExcel } from './actions';
 import { AdminResetPasswordButton } from '@/components/AdminResetPasswordButton';
+import { ImportadorMasivo, ResultadoImportacion } from './ImportadorMasivo';
+import { PageHeader, Card } from '@/components/privado/ui';
 
-export default async function AdminAlumnos() {
+export default async function AdminAlumnos({ searchParams }: {
+  searchParams?: { creados?: string; actualizados?: string; errores?: string; detalle?: string; motivo?: string };
+}) {
   const supabase = createClient();
   const { data: alumnos } = await supabase
     .from('alumnos')
     .select('id, curp, matricula, nombre, apellido_paterno, apellido_materno, estatus, generacion, perfil_id')
+    .is('deleted_at', null)
     .order('apellido_paterno').limit(500);
 
   return (
-    <div className="max-w-6xl space-y-6">
-      <h1 className="font-serif text-3xl text-verde">Alumnos</h1>
+    <div className="space-y-5">
+      <PageHeader
+        eyebrow="Personas"
+        title="🎓 Alumnos"
+        description="Gestión de alumnos. Puedes registrarlos manualmente o importar masivamente desde XLSX/CSV con la plantilla."
+      />
 
-      <section className="bg-white rounded-lg p-5 shadow-sm">
-        <h2 className="font-semibold text-verde mb-2">Importar desde Excel</h2>
-        <p className="text-sm text-gray-600 mb-3">
-          Sube el archivo <code>LIBRO INSCRIPCION.xlsx</code> oficial. El sistema detecta las columnas
-          automáticamente y crea/actualiza alumnos por CURP. También crea sus cuentas de acceso
-          (usuario = CURP, contraseña inicial = matrícula).
-        </p>
-        <form action={importarAlumnosExcel} className="flex gap-3 items-center">
-          <input name="archivo" type="file" accept=".xlsx,.xls" required className="text-sm" />
-          <button className="bg-verde text-white px-4 py-2 rounded text-sm hover:bg-verde-medio">
-            Importar
-          </button>
-        </form>
-      </section>
+      {/* Resultado de importación previa (si viene en querystring) */}
+      <ResultadoImportacion
+        creados={searchParams?.creados}
+        actualizados={searchParams?.actualizados}
+        errores={searchParams?.errores}
+        detalle={searchParams?.detalle}
+      />
 
-      <section className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <header className="px-4 py-2 bg-gray-50 text-sm font-semibold flex justify-between">
-          <span>Total: {alumnos?.length ?? 0}</span>
-        </header>
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100 text-xs uppercase text-gray-600">
-            <tr>
-              <th className="text-left p-2">Matrícula</th>
-              <th className="text-left p-2">CURP</th>
-              <th className="text-left p-2">Nombre</th>
-              <th className="text-left p-2">Generación</th>
-              <th className="text-left p-2">Estatus</th>
-              <th className="text-center p-2">Historial</th>
-              <th className="text-center p-2">Acceso</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(alumnos ?? []).map((a) => (
-              <tr key={a.id} className="border-t hover:bg-gray-50">
-                <td className="p-2 font-mono text-xs">{a.matricula ?? '—'}</td>
-                <td className="p-2 font-mono text-xs">{a.curp}</td>
-                <td className="p-2">{a.apellido_paterno} {a.apellido_materno} {a.nombre}</td>
-                <td className="p-2">{a.generacion ?? '—'}</td>
-                <td className="p-2"><span className="text-xs">{a.estatus}</span></td>
-                <td className="p-2 text-center">
-                  <a href={`/admin/alumnos/${a.id}/historial`} className="text-xs text-verde hover:underline">Timeline →</a>
-                </td>
-                <td className="p-2 text-center">
-                  {a.perfil_id && (
-                    <AdminResetPasswordButton perfilId={a.perfil_id} nombre={`${a.nombre} ${a.apellido_paterno}`} />
-                  )}
-                </td>
+      {searchParams?.motivo && (
+        <div className="bg-rose-50 border border-rose-300 rounded-lg p-3 text-sm text-rose-800">
+          ⚠️ <strong>Error:</strong> {decodeURIComponent(searchParams.motivo)}
+        </div>
+      )}
+
+      <Card eyebrow="Importación masiva" title="Subir alumnos desde XLSX o CSV">
+        <ImportadorMasivo />
+      </Card>
+
+      <Card eyebrow={`Total: ${alumnos?.length ?? 0}`} title="Listado de alumnos">
+        <div className="overflow-x-auto -mx-5">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-600">
+              <tr>
+                <th className="text-left px-3 py-2">Matrícula</th>
+                <th className="text-left px-3 py-2">CURP</th>
+                <th className="text-left px-3 py-2">Nombre</th>
+                <th className="text-left px-3 py-2">Generación</th>
+                <th className="text-left px-3 py-2">Estatus</th>
+                <th className="text-center px-3 py-2">Historial</th>
+                <th className="text-center px-3 py-2">Acceso</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+            </thead>
+            <tbody>
+              {(alumnos ?? []).map((a: any) => (
+                <tr key={a.id} className="border-t border-gray-100 hover:bg-gray-50">
+                  <td className="px-3 py-2 font-mono text-xs">{a.matricula ?? '—'}</td>
+                  <td className="px-3 py-2 font-mono text-xs">{a.curp}</td>
+                  <td className="px-3 py-2">{a.apellido_paterno} {a.apellido_materno ?? ''} {a.nombre}</td>
+                  <td className="px-3 py-2">{a.generacion ?? '—'}</td>
+                  <td className="px-3 py-2">
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${
+                      a.estatus === 'activo' ? 'bg-verde-claro/30 text-verde-oscuro' : 'bg-gray-200 text-gray-700'
+                    }`}>{a.estatus}</span>
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    <a href={`/admin/alumnos/${a.id}/historial`} className="text-xs text-verde hover:underline">Timeline →</a>
+                  </td>
+                  <td className="px-3 py-2 text-center">
+                    {a.perfil_id ? (
+                      <AdminResetPasswordButton perfilId={a.perfil_id} nombre={`${a.nombre} ${a.apellido_paterno}`} />
+                    ) : (
+                      <span className="text-[10px] text-gray-400">Sin login</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
   );
 }
