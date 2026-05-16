@@ -36,6 +36,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { href: '/admin/alumnos', label: 'Buscar alumno', icon: '🎓' },
       ],
     },
+    {
+      title: 'Mi cuenta',
+      items: [{ href: '/admin/perfil', label: 'Mi perfil', icon: '👤' }],
+    },
   ];
 
   const groupsCompleto = [
@@ -97,6 +101,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       title: 'Sistema',
       items: [
         { href: '/admin/auditoria', label: 'Auditoría', icon: '🔍' },
+        { href: '/admin/perfil', label: 'Mi perfil', icon: '👤' },
       ],
     },
   ];

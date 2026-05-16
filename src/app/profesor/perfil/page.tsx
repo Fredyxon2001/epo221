@@ -1,50 +1,59 @@
-// Perfil del docente: foto de perfil + datos básicos (solo lectura por ahora).
+// Perfil editable del docente / orientador.
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card } from '@/components/privado/ui';
-import { AvatarUploader } from '@/components/AvatarUploader';
+import { PerfilEditor } from '@/components/perfil/PerfilEditor';
 
 export default async function PerfilProfesor() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: p } = await supabase
-    .from('profesores')
-    .select('id, nombre, apellido_paterno, apellido_materno, rfc, email, telefono, foto_url')
-    .eq('perfil_id', user!.id)
+  if (!user) return null;
+
+  // Datos del perfil base
+  const { data: perfil } = await supabase
+    .from('perfiles')
+    .select('nombre, email, telefono, cargo, bio, avatar_url, apellido_paterno, apellido_materno, rol')
+    .eq('id', user.id)
     .maybeSingle();
 
-  if (!p) return <div className="p-6">Perfil no disponible.</div>;
-  const iniciales = `${p.nombre?.[0] ?? ''}${p.apellido_paterno?.[0] ?? ''}`.toUpperCase();
+  // Datos del profesor (si existe)
+  const { data: prof } = await supabase
+    .from('profesores')
+    .select('id, nombre, apellido_paterno, apellido_materno, rfc, email, telefono, foto_url')
+    .eq('perfil_id', user.id)
+    .maybeSingle();
+
+  if (!perfil) return <div className="p-6">Perfil no disponible.</div>;
+
+  // Si hay datos en profesores, los preferimos para mostrar
+  const data = {
+    nombre: prof?.nombre || perfil.nombre?.split(' ')[0] || '',
+    apellido_paterno: prof?.apellido_paterno ?? perfil.apellido_paterno ?? '',
+    apellido_materno: prof?.apellido_materno ?? perfil.apellido_materno ?? '',
+    email: perfil.email ?? prof?.email ?? '',
+    telefono: prof?.telefono ?? perfil.telefono ?? '',
+    cargo: perfil.cargo ?? '',
+    bio: perfil.bio ?? '',
+    avatar_url: perfil.avatar_url ?? prof?.foto_url ?? null,
+    rfc: prof?.rfc ?? '',
+    rol: perfil.rol,
+  };
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-5">
       <PageHeader
         eyebrow="Mi cuenta"
-        title="Mi perfil"
-        description="Actualiza tu foto y revisa tus datos registrados."
+        title="👤 Mi perfil"
+        description="Edita tu foto, datos de contacto y configura cómo apareces en el sistema."
       />
 
-      <AvatarUploader fotoActual={p.foto_url} iniciales={iniciales} />
+      <PerfilEditor data={data} esProfesor={true} />
 
-      <Card eyebrow="Datos" title="Información registrada">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-          <Info k="Nombre" v={`${p.nombre} ${p.apellido_paterno} ${p.apellido_materno ?? ''}`} />
-          <Info k="RFC" v={p.rfc ?? '—'} mono />
-          <Info k="Correo" v={p.email ?? '—'} />
-          <Info k="Teléfono" v={p.telefono ?? '—'} />
-        </dl>
-        <p className="text-xs text-gray-400 mt-4">
-          Si necesitas actualizar tus datos oficiales, contacta a la Dirección.
-        </p>
+      <Card>
+        <div className="text-xs text-gray-500 space-y-1">
+          <p>📌 <strong>¿Quieres cambiar tu contraseña?</strong> Pídele al administrador que te resetée el password desde <code>/admin/usuarios</code>.</p>
+          <p>📌 <strong>¿Datos oficiales incorrectos?</strong> (CURP, RFC, fecha de nacimiento) — contacta a Control Escolar para corrección documentada.</p>
+        </div>
       </Card>
     </div>
-  );
-}
-
-function Info({ k, v, mono = false }: { k: string; v: string; mono?: boolean }) {
-  return (
-    <>
-      <dt className="text-gray-500">{k}</dt>
-      <dd className={mono ? 'font-mono text-xs' : ''}>{v}</dd>
-    </>
   );
 }

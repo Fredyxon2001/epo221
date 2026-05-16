@@ -46,6 +46,12 @@ export default async function DirectorLayout({ children }: { children: React.Rea
         { href: '/admin/publico', label: 'Sitio público', icon: '🌐' },
       ],
     },
+    {
+      title: 'Mi cuenta',
+      items: [
+        { href: '/director/perfil', label: 'Mi perfil', icon: '👤' },
+      ],
+    },
   ];
 
   const saludo = saludoPorHora();
