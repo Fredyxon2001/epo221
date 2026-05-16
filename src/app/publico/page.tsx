@@ -304,9 +304,9 @@ export default async function PublicoHome() {
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
             </div>
-            <Stagger className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[180px]" stagger={0.08}>
+            <Stagger className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]" stagger={0.08}>
               {albumes.map((a: any, i: number) => (
-                <MotionItem key={a.slug} variants={staggerItem} className={i === 0 ? 'md:col-span-2 md:row-span-2' : ''}>
+                <MotionItem key={a.slug} variants={staggerItem}>
                   <Link
                     href={`/publico/albumes/${a.slug}`}
                     className="bento-card group block relative w-full h-full rounded-2xl overflow-hidden shadow-lg"
