@@ -8,10 +8,36 @@ import { saludoPorHora } from '@/lib/saludo';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function AlumnoLayout({ children }: { children: React.ReactNode }) {
-  const alumno = await getAlumnoActual();
-  if (!alumno) redirect('/login');
-
   const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const alumno = await getAlumnoActual();
+
+  // NO redirigir si no hay alumno (causa loop con middleware).
+  // En su lugar, mostrar shell mínimo con mensaje útil.
+  if (!alumno) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-crema p-6">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h2 className="font-serif text-2xl text-verde-oscuro mb-3">Tu cuenta no está vinculada</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Iniciaste sesión correctamente, pero <strong>tu perfil de alumno no está vinculado a tu cuenta de acceso</strong>.
+            Acércate a <strong>Control Escolar</strong> con tu CURP y matrícula para que vinculen tu ficha.
+          </p>
+          <a href="/cambiar-password" className="inline-block text-xs text-verde hover:underline">Cambiar mi contraseña</a>
+          <div className="mt-4">
+            <form action="/login" method="post">
+              <button formAction="/api/logout" className="text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded">
+                Cerrar sesión
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const { data: { user } } = await supabase.auth.getUser();
 
   // Contador de solicitudes abiertas del alumno (badge)

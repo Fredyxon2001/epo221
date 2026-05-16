@@ -7,8 +7,24 @@ import { DataTable } from '@/components/privado/DataTable';
 import { DashboardHero } from '@/components/privado/DashboardHero';
 
 export default async function AlumnoDashboard() {
-  const alumno = (await getAlumnoActual())!;
+  const alumno = await getAlumnoActual();
   const supabase = createClient();
+
+  // Si el usuario tiene perfil pero NO está registrado como alumno (caso raro post-import),
+  // mostramos un fallback amigable en vez de crashear.
+  if (!alumno) {
+    return (
+      <div className="space-y-5">
+        <div className="bg-amber-50 border border-amber-300 rounded-lg p-5">
+          <h2 className="font-serif text-2xl text-amber-900 mb-2">⚠️ Tu cuenta no tiene perfil de alumno</h2>
+          <p className="text-sm text-amber-800">
+            Tu sesión está activa pero no encontramos tu ficha de alumno en el sistema.
+            Por favor acércate a <strong>Control Escolar</strong> con tu matrícula y CURP para que verifiquen el registro.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const [eval_, semestres, anuales, historial] = await Promise.all([
     getEvaluacionGeneral(alumno.id),

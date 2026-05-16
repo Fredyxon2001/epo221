@@ -6,15 +6,16 @@ export async function getAlumnoActual() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
+  // maybeSingle() devuelve null si no hay match (en vez de throw)
   const { data: alumno } = await supabase
-    .from('alumnos').select('*').eq('perfil_id', user.id).single();
+    .from('alumnos').select('*').eq('perfil_id', user.id).maybeSingle();
   return alumno;
 }
 
 export async function getEvaluacionGeneral(alumnoId: string) {
   const supabase = createClient();
   const { data } = await supabase
-    .from('vista_evaluacion_general').select('*').eq('alumno_id', alumnoId).single();
+    .from('vista_evaluacion_general').select('*').eq('alumno_id', alumnoId).maybeSingle();
   return data;
 }
 
