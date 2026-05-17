@@ -3020,4 +3020,221 @@ Cualquier persona técnica que herede el proyecto puede:
 4. Levantar el ambiente local en minutos
 5. Empezar a iterar sin perder el contexto histórico
 
-— **Fin del manual**
+— **Fin del manual (versión abril 2026)**
+
+---
+
+# 🆕 ADENDA — Cambios y mejoras de Mayo 2026
+
+> Esta adenda complementa el manual base con los cambios realizados durante mayo 2026.
+> Para el detalle completo de cada implementación ver `BITACORA_MAYO_2026.md` y `CODIGO_DETALLADO.md`.
+
+## A1. Sistema de Conversación en Solicitudes de Revisión
+
+**Nueva tabla**: `solicitudes_mensajes` permite hilo de chat con archivos adjuntos dentro de cada solicitud.
+
+**UI:** dentro de cada solicitud (tanto en `/alumno/solicitudes` como en `/profesor/solicitudes`) aparece la sección **"💬 Conversación"** con:
+- Hilo tipo chat con burbujas alineadas según autor
+- Form para enviar mensaje + adjunto (15 MB máx)
+- Botón **🔒 Cerrar** (cualquier rol)
+- Botón **🔓 Reabrir** (cuando está cerrada)
+
+Cada mensaje genera notificación automática a la contraparte (alumno↔profesor↔orientador).
+
+## A2. Flujo MAESTRO → ORIENTADOR → ALUMNO (calificaciones)
+
+**Cambio crítico:** los maestros ya NO capturan calificaciones directamente. **Las proponen** al orientador del grupo, quien valida o rechaza antes de que se apliquen al expediente.
+
+### Reglas
+- Máximo **4 grupos por orientador** (constraint a nivel BD)
+- Solo el orientador del grupo puede validar las propuestas de ese grupo
+- Calificaciones validadas se aplican automáticamente vía RPC `aplicar_propuesta_calificacion` (SECURITY DEFINER)
+- Rechazos requieren motivo y se devuelven al maestro para reenvío
+
+### Páginas nuevas
+| Ruta | Para quién | Función |
+|---|---|---|
+| `/profesor/calificaciones-proponer` | Maestro | Form masivo por parcial — captura calificaciones del grupo y envía |
+| `/profesor/orientacion` | Orientador | Vista panorámica de grupos orientados con alumnos, riesgo, faltas |
+| `/profesor/orientacion/calificaciones` | Orientador | Bandeja de propuestas pendientes con filtros |
+| `/profesor/orientacion/solicitudes` | Orientador | Tickets de revisión de sus grupos con conversación completa |
+
+### Sidebar dinámico
+La sección **"🧭 Orientación"** aparece SOLO si el profesor tiene grupos a su cargo, con badges de pendientes.
+
+## A3. Gestión universal de usuarios — `/admin/usuarios`
+
+### Nuevas funcionalidades
+- **Buscador** por nombre/email
+- **Filtros pestaña** por rol con conteos
+- **Edición inline de rol** (botón Cambiar → dropdown → confirmar)
+- **Detección visual de orientador** (profesores con grupos aparecen con tono dorado)
+- **Reset de password** en 2 modos:
+  - 🔑 **Temporal**: password aleatoria 12 chars (se muestra una sola vez con botón copiar)
+  - 📧 **Magic**: link de recuperación al email
+
+### Alta universal — `/admin/usuarios/nuevo`
+Form único para cualquier rol con sub-opciones específicas:
+- **Profesor**: checkboxes "Da clases" / "Es orientador" (puede ser combo)
+- Si es orientador: selector multi de grupos (máx 4)
+- RFC y teléfono opcionales para profesores
+- Password aleatoria o manual
+
+## A4. Nuevo rol `finanzas`
+
+Agregado al enum `rol_usuario`. Acceso restringido al panel admin:
+- Solo ve: Pagos, Conceptos, Extraordinarios, Búsqueda de alumnos, Mi perfil
+- NO ve: alumnos completos, profesores, configuración, sitio público, etc.
+
+## A5. Perfiles editables para TODOS los roles
+
+### Migración
+`perfiles` ahora tiene columnas: `avatar_url`, `apellido_paterno`, `apellido_materno`, `cargo`, `bio`.
+
+### Páginas
+| Ruta | Rol |
+|---|---|
+| `/profesor/perfil` | Profesor, Orientador (refactorizada a editable) |
+| `/admin/perfil` | Admin, Staff, Finanzas (nueva) |
+| `/director/perfil` | Director (nueva) |
+| `/alumno/ficha` | Alumno (ya existía) |
+
+### Componente reutilizable `PerfilEditor.tsx`
+- Avatar circular con preview o iniciales sobre gradient
+- Subir/cambiar/eliminar foto (sincroniza a perfiles + profesores/alumnos)
+- Form: nombre, apellidos, teléfono, cargo, bio (y RFC si es profesor)
+- Email no editable (canal institucional)
+
+### Perfil del Profesor — vista mejorada
+Detecta automáticamente y muestra:
+- **"👨‍🏫 Solo Maestro"** si solo da clases
+- **"🧭 Solo Orientador"** si solo orienta
+- **"🧭 + 👨‍🏫 Maestro y Orientador"** si combo
+
+Cards visuales:
+- 🧭 ámbar: grupos orientados (N/4)
+- 👨‍🏫 verde: materias impartidas en el ciclo activo
+
+## A6. Galería pública de videos DJI — `/publico/conoce`
+
+6 tomas aéreas procesadas con polish cinematográfico:
+- 4K HEVC → H.264 1080p 30fps
+- Watermark logo EPO 221
+- Música cinematográfica de fondo (TuneTank, royalty-free, 30% volumen, fade in/out)
+- 360° con 3x slow + Ken Burns
+- Total: 264 MB (reducción 95%)
+
+### Componentes
+- `HeroVideo.tsx` — video de fondo autoplay con toggle 🔇/🔊
+- `VideoCard.tsx` — galería con 2 destacados + 4 estándar
+
+Link "Recorrido" agregado al navbar público.
+
+## A7. Contenido público actualizado
+
+### 7 noticias publicadas con imágenes
+Todas con título, slug, resumen, contenido markdown extenso e imagen 1200×630 de Unsplash CC0:
+1. SEP analiza adelantar vacaciones al 5 de junio
+2. Calendario escolar 2026-2027
+3. Nueva Escuela Mexicana (NEM)
+4. La Escuela es Nuestra 2026
+5. Cultura Digital I y II
+6. Becas Benito Juárez 2026
+7. Apoyos económicos Edomex/Puebla
+
+### 4 convocatorias activas
+- Beca Benito Juárez 2026-2027
+- Aprovechamiento Académico SEIEM
+- Apoyo al Bachillerato Puebla
+- Excelencia Académica EPO 221
+
+### 1 aviso institucional con confirmación de lectura
+"🌡️ Posible adelanto del periodo vacacional al 5 de junio" — alcance: todos, prioridad: importante.
+
+### Álbum "Maratón por la Lectura 2026"
+6 fotos del evento del 8 de marzo con descripción completa y hashtags institucionales.
+
+## A8. Cambios en `/publico/descargas`
+
+- **"Cuota anual"** → **"Donación voluntaria"** (evita implicaciones legales)
+- **Monto removido** — ahora dice "Acércate a Control Escolar para conocer el monto"
+- **"Seguro escolar contra accidentes"** → **"Apoya el mantenimiento y operación de la institución"**
+
+## A9. Importación masiva de alumnos — overhaul completo
+
+### Nuevo patrón de email
+**Antes:** `garm050312hdfrzr01@epo221.local` (CURP, ilegible)
+**Ahora:** `diego.ramirez@epo221.local` (nombre.apellido)
+
+Manejo de duplicados: si dos alumnos tienen mismo nombre+apellido, al segundo se le agrega la matrícula: `diego.ramirez.20260005@epo221.local`.
+
+### Password universal
+**Todos los alumnos**: `TEMPORALEPO221!` — no se les fuerza cambio.
+
+### Plantilla XLSX descargable
+`/api/plantilla-alumnos` devuelve XLSX con **3 hojas**:
+1. **ALUMNOS** — 19 columnas con 3 ejemplos
+2. **INSTRUCCIONES** — campo por campo + sección "REGLAS DE LOGIN AUTOMÁTICO"
+3. **VISTA PREVIA LOGIN** — muestra cómo se generarán los emails
+
+### UI mejorada
+- Banner amarillo con botón **📥 Descargar plantilla XLSX**
+- Zona drag & drop con validación visual
+- Después de importar: dashboard de resultados + **botón verde "📥 Descargar credenciales XLSX"** con la lista completa de cuentas creadas listo para imprimir
+
+### Endpoint nuevo `/api/credenciales-import/[id]`
+Devuelve XLSX con título "CREDENCIALES DE ACCESO — EPO 221", tabla nombre/matrícula/email/password e instrucciones para el alumno.
+
+### Auto-vinculación robusta
+Si re-importas un CURP existente:
+- Se actualizan datos del alumno
+- Se actualiza email al nuevo formato
+- Se resetea password
+- `alumnos.perfil_id` se vincula correctamente (rompe el bug previo)
+
+## A10. Fix `/api/logout`
+
+Endpoint nuevo que acepta GET y POST, hace `signOut()` y redirige a `/login`. Antes no existía, causando 404 al cerrar sesión.
+
+## A11. Auto-vinculación en `alumno/layout.tsx`
+
+Red de seguridad: si el usuario entra y por alguna inconsistencia no hay match directo entre `alumnos.perfil_id` y `auth.user.id`, el layout intenta dos fallbacks:
+1. Buscar alumno por email del user contra `perfiles.email`
+2. Extraer `nombre.apellido` del email y buscar por nombre+apellido_paterno
+
+Si encuentra match, re-vincula automáticamente. Si no, muestra pantalla diagnóstica con el email e ID del user para que admin pueda identificar.
+
+## A12. Bug crítico RLS — `alumnos_select_self`
+
+**Problema:** la policy original comparaba `perfil_id` contra `mi_alumno_id()`, pero esa función devuelve `alumnos.id` (UUID interno), no `perfil_id`. **Nunca podía hacer match — ningún alumno podía leer su propia fila vía RLS.**
+
+**Fix:** policy reescrita para usar `perfil_id = auth.uid()` directamente. Sin función intermedia, sin recursiones.
+
+```sql
+CREATE POLICY alumnos_select_self ON alumnos FOR SELECT TO authenticated
+USING (
+  perfil_id = auth.uid()
+  OR es_admin()
+  OR es_profesor()
+);
+```
+
+## A13. Nuevas variables de entorno
+
+Agregadas en Vercel:
+- `CRON_SECRET` ✅ (configurada vía API Vercel)
+
+Pendiente de agregar cuando se requiera:
+- `RESEND_API_KEY` ⏸ — para activar correos reales a tutores
+- `CORREO_REMITENTE` ⏸
+
+---
+
+## Documentos relacionados
+
+- `BITACORA_DESARROLLO.md` — abril 2026 (instalación inicial y bloques 1-5)
+- `BITACORA_MAYO_2026.md` — mayo 2026 (esta adenda explicada al detalle)
+- `CODIGO_DETALLADO.md` — referencia técnica archivo por archivo
+- `PLAN_PRUEBA_SABADO.md` — credenciales y flujo de prueba
+
+— **Fin de adenda mayo 2026**

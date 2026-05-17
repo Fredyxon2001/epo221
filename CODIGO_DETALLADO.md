@@ -1504,4 +1504,268 @@ Cualquier developer puede:
 2. Leer este documento para entender CÓMO está implementado
 3. Ir al archivo concreto en el repo para ver el código
 
-— **Fin del documento técnico**
+— **Fin del documento técnico (versión abril 2026)**
+
+---
+
+# 🆕 ADENDA TÉCNICA — Mayo 2026
+
+> Esta adenda documenta TODOS los archivos nuevos y cambios estructurales realizados durante mayo 2026.
+
+## Z1. Nuevos módulos en `src/lib/`
+
+### Z1.1 `src/lib/auth.ts` — refactor de helpers de autenticación
+
+Exporta:
+
+```typescript
+export const DOMINIO_SINTETICO = 'epo221.local';
+export const PASSWORD_TEMPORAL = 'TEMPORALEPO221!';
+
+// Slug: normaliza texto a ASCII lowercase sin espacios ni símbolos
+export const aSlug = (s: string): string;
+
+// Genera email institucional nombre.apellido@epo221.local
+// con manejo de sufijo opcional para duplicados
+export const nombreApellidoAEmail = (
+  nombre: string,
+  apellidoPaterno: string,
+  sufijo?: string
+): string;
+
+// LEGACY: para compatibilidad pero ya no se usa en nuevos alumnos
+export const curpAEmail = (curp: string): string;
+
+export const esCurpValida = (curp: string): boolean;
+
+// Ahora ignora la matrícula y siempre devuelve PASSWORD_TEMPORAL
+export const passwordInicialDesdeMatricula = (_matricula: string): string;
+```
+
+## Z2. Nuevos Server Actions
+
+### Z2.1 `src/app/solicitudes/thread-actions.ts`
+Acciones compartidas para conversación en solicitudes.
+- `enviarMensajeSolicitud(fd)` — cualquier rol envía mensaje
+- `cerrarSolicitudThread(fd)` — cierra solicitud
+- `reabrirSolicitudThread(fd)` — reabre solicitud
+- Internal `getRolYAcceso(supabase, solicitudId, userId)` — determina rol y valida acceso
+
+### Z2.2 `src/app/profesor/calificaciones-proponer/actions.ts`
+- `enviarPropuestasCalificaciones(fd)` — maestro propone calificaciones por parcial; notifica al orientador del grupo
+- `validarPropuesta(fd)` — orientador valida o rechaza con motivo; al validar llama RPC `aplicar_propuesta_calificacion`
+- `validarLote(fd)` — valida múltiples propuestas en batch
+
+### Z2.3 `src/app/admin/usuarios/actions.ts`
+- `crearUsuarioGenerico(fd)` — alta para cualquier rol con sub-opciones para profesor (da clases / es orientador) y selector de grupos
+- `editarRolUsuario(fd)` — cambia `perfiles.rol`
+- `asignarGruposOrientador(fd)` — asigna múltiples grupos a un profesor como orientador
+
+### Z2.4 `src/app/admin/usuarios/reset-actions.ts` (refactorizada)
+- `adminResetPassword(fd)` — modos: `temporal` (password aleatoria 12 chars) o `magic` (link de recuperación al correo)
+
+### Z2.5 `src/app/perfil/actions.ts`
+- `actualizarMiPerfil(fd)` — edita nombre/apellidos/teléfono/cargo/bio (RFC si es profesor)
+- `subirMiAvatar(fd)` — bypass RLS con adminClient, sube a bucket avatares, sincroniza perfiles+profesores+alumnos
+- `eliminarMiAvatar()` — limpia foto en las 3 tablas
+
+## Z3. Nuevos componentes
+
+### Z3.1 `src/components/solicitudes/Conversacion.tsx`
+Hilo de chat tipo WhatsApp dentro de cada solicitud:
+- Burbujas alineadas según autor (esMio vs no)
+- Form de envío con input texto + file input + botón enviar
+- Botones cerrar/reabrir
+- Props: `solicitudId`, `estado`, `mensajes[]`, `miRol`
+
+### Z3.2 `src/components/perfil/PerfilEditor.tsx`
+Componente universal de edición de perfil reutilizado por profesor/admin/director:
+- Sección AVATAR: preview circular, botones subir/cambiar/eliminar
+- Sección DATOS: form con nombre, apellidos, teléfono, RFC (si es profesor), cargo, bio
+- `useTransition` para llamar actions
+- Mensajes ok/error inline
+
+### Z3.3 `src/app/admin/usuarios/EditarRolDropdown.tsx`
+Dropdown inline para cambiar rol sin recargar:
+- Botón "Cambiar" → muestra select + confirmar/cancelar
+- Estados: idle / editing / pending
+
+### Z3.4 `src/app/admin/usuarios/ResetPasswordRow.tsx`
+Dos botones por fila: 🔑 Temporal / 📧 Magic
+- Para temporal: muestra password generada en cuadro amarillo con botón copiar al clipboard
+- Para magic: muestra confirmación de que se envió el correo
+
+### Z3.5 `src/app/admin/usuarios/nuevo/NuevoUsuarioForm.tsx`
+Form completo para crear cualquier rol:
+- Selector de rol con descripciones por opción
+- Sub-form condicional si rol = profesor (RFC, teléfono, da clases, es orientador, grupos)
+- Modo password: aleatoria o manual
+- Muestra password generada con botón copiar (una sola vez)
+
+### Z3.6 `src/app/admin/alumnos/ImportadorMasivo.tsx`
+Drag & drop component con:
+- Banner amarillo "Descargar plantilla XLSX"
+- Zona drop con estados visuales (dragOver, archivo, tipo inválido)
+- Validación de tipo (.xlsx, .xls, .csv)
+- `ResultadoImportacion` con stats y botón descargar credenciales
+
+### Z3.7 `src/app/publico/conoce/HeroVideo.tsx`
+Hero con video de fondo autoplay loop muted:
+- Toggle 🔇/🔊 en esquina (requiere interacción del usuario para activar audio)
+- Respeta `prefers-reduced-motion`
+- `<video>` con poster JPG de respaldo
+
+### Z3.8 `src/app/publico/conoce/VideoCard.tsx`
+Card de video con:
+- Poster + botón ▶ overlay
+- Click para reproducir con controles
+- Variant "destacado" (más grande, fondo oscuro) o "estandar"
+- Badge de duración
+
+### Z3.9 `src/app/profesor/calificaciones-proponer/ProponerCalificacionesForm.tsx`
+Form masivo para enviar calificaciones del grupo entero:
+- Tabla con todos los alumnos inscritos
+- Inputs de calificación y faltas por alumno
+- Bloqueo si ya hay propuesta pendiente
+- Textarea de observaciones para el orientador
+
+### Z3.10 `src/app/profesor/orientacion/calificaciones/AccionPropuestaForm.tsx`
+Botones inline en cada fila de propuesta:
+- ✅ Validar (sin motivo)
+- ❌ Rechazar (prompt para motivo)
+
+## Z4. Nuevas páginas (routes)
+
+| Ruta | Tipo | Función |
+|---|---|---|
+| `/profesor/calificaciones-proponer` | page | Maestro envía calificaciones |
+| `/profesor/orientacion/calificaciones` | page | Orientador valida propuestas |
+| `/profesor/orientacion/solicitudes` | page | Orientador acompaña tickets |
+| `/admin/usuarios` | page (mejorada) | Gestión universal con buscador, filtros, edit inline |
+| `/admin/usuarios/nuevo` | page | Alta unificada para cualquier rol |
+| `/admin/perfil` | page | Perfil editable de admin/staff/finanzas |
+| `/director/perfil` | page | Perfil editable del director |
+| `/profesor/perfil` | page (refactorizada) | Perfil editable con sub-tipo funcional |
+| `/publico/conoce` | page | Galería de videos DJI con hero |
+
+## Z5. Nuevos API routes
+
+| Ruta | Devuelve |
+|---|---|
+| `/api/logout` | Redirect a `/login` tras `signOut()` (acepta GET y POST) |
+| `/api/plantilla-alumnos` | XLSX con 3 hojas (ALUMNOS + INSTRUCCIONES + VISTA PREVIA LOGIN) |
+| `/api/credenciales-import/[id]` | XLSX con las credenciales generadas en una importación masiva |
+
+## Z6. Migraciones SQL aplicadas
+
+Ver `BITACORA_MAYO_2026.md` sección 16 para la lista completa cronológica con SQL. Resumen:
+
+| Migración | Qué hace |
+|---|---|
+| `solicitudes_mensajes_thread` | Tabla nueva para chat en solicitudes |
+| `orientador_flujo_calificaciones` | Tabla `calificaciones_propuestas`, RPC `aplicar_propuesta_calificacion`, triggers `max_orientador_grupos` y `set_solicitud_orientador` |
+| `videos_publicos_bucket` | Bucket Supabase `videos-publicos` |
+| `perfiles_avatar_y_extras` | Columnas avatar_url/apellido_paterno/apellido_materno/cargo/bio en perfiles |
+| `agregar_rol_finanzas` | Agrega valor al enum `rol_usuario` |
+| `imports_credenciales_log` | Tabla para guardar credenciales generadas en importación masiva |
+| `migrar_emails_alumnos_a_nombre_apellido` | Función `slug_email_alumno` + actualiza todos los emails al patrón `nombre.apellido` y resetea passwords |
+| `fix_rls_alumnos_simple_no_recursion` | **FIX CRÍTICO** — policy `alumnos_select_self` usa `auth.uid()` directo |
+
+## Z7. Patrones de código nuevos
+
+### Z7.1 Auto-vinculación robusta en layout
+
+Pattern para `/alumno/layout.tsx`:
+
+```typescript
+let alumno = await getAlumnoActual();
+
+if (!alumno && user.email) {
+  const admin = adminClient();
+  // 1) Match por email
+  const { data: porEmail } = await admin
+    .from('alumnos')
+    .select('*, perfiles!inner(email)')
+    .ilike('perfiles.email', user.email)
+    .is('deleted_at', null)
+    .maybeSingle();
+  if (porEmail) {
+    await admin.from('alumnos').update({ perfil_id: user.id }).eq('id', porEmail.id);
+    alumno = porEmail;
+  } else {
+    // 2) Match por nombre.apellido extraído del email
+    const partes = user.email.split('@')[0].split('.');
+    if (partes.length >= 2) {
+      const { data: byName } = await admin.from('alumnos')
+        .select('*')
+        .ilike('nombre', `%${partes[0]}%`)
+        .ilike('apellido_paterno', `%${partes[1]}%`)
+        .maybeSingle();
+      if (byName) {
+        await admin.from('alumnos').update({ perfil_id: user.id }).eq('id', byName.id);
+        alumno = byName;
+      }
+    }
+  }
+}
+```
+
+### Z7.2 Sidebar dinámico por sub-rol
+
+Pattern para `/profesor/layout.tsx`:
+
+```typescript
+const orientaCount = ... // grupos donde es orientador
+
+const groups = [
+  { title: 'Docencia', items: [...] },
+  // Solo aparece si tiene grupos a cargo
+  ...(orientaCount > 0 ? [{
+    title: '🧭 Orientación',
+    items: [
+      { href: '/profesor/orientacion/calificaciones', badge: propPendientes },
+      { href: '/profesor/orientacion/solicitudes', badge: solOrient },
+    ],
+  }] : []),
+  { title: 'Herramientas', items: [...] },
+];
+```
+
+### Z7.3 Importador robusto con re-vinculación
+
+Pattern para `importarAlumnosExcel`:
+
+```typescript
+// Si CURP ya existe, actualizar email/password Y revincular perfil_id
+const emailLogin = nombreApellidoAEmail(nombre, apellidoPaterno);
+
+if (existente?.perfil_id) {
+  // Actualizar usuario existente
+  await admin.auth.admin.updateUserById(existente.perfil_id, {
+    email: emailLogin, password: PASSWORD_TEMPORAL,
+  });
+  await admin.from('perfiles').update({ email: emailLogin }).eq('id', existente.perfil_id);
+  perfilId = existente.perfil_id;
+} else {
+  // Crear nuevo
+  const { data: authUser } = await admin.auth.admin.createUser({
+    email: emailLogin, password: PASSWORD_TEMPORAL, email_confirm: true,
+  });
+  perfilId = authUser?.user?.id;
+  await admin.from('perfiles').insert({ id: perfilId, rol: 'alumno', email: emailLogin });
+}
+
+// CRÍTICO: re-vincular SIEMPRE
+await admin.from('alumnos').update({ perfil_id: perfilId }).eq('id', alumnoId);
+```
+
+## Z8. Lecciones técnicas registradas
+
+1. **`.maybeSingle()` siempre sobre `.single()`** en server components que no tienen 100% certeza de match.
+2. **Evitar recursión en RLS**: si policy de A consulta B y B consulta A → loop infinito.
+3. **`SECURITY DEFINER` para RPC** que necesita escribir bypassing RLS de manera controlada.
+4. **No redirigir desde layouts si puede causar loop con middleware** — mejor UI in-place.
+5. **El service role bypass es trampa** si solo se usa en algunas vistas — síntomas inconsistentes.
+6. **Vercel mantiene deploy anterior si build falla** — siempre verificar el estado del último deploy.
+
+— **Fin de adenda técnica mayo 2026**
