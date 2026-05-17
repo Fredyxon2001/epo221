@@ -59,28 +59,62 @@ export default async function ProponerCalificacionesPage({ searchParams }: { sea
 
       <Card>
         <form method="get" className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-          <label className="block">
-            <span className="text-xs text-gray-600">Asignación</span>
-            <select name="asignacion_id" defaultValue={asignacion_id} className="mt-1 w-full border rounded-lg px-3 py-2">
+          <label className="block md:col-span-2">
+            <span className="text-xs text-gray-600 font-semibold">📚 Asignación (materia + grupo)</span>
+            <select name="asignacion_id" defaultValue={asignacion_id} className="mt-1 w-full border rounded-lg px-3 py-2 font-medium">
               {(asigs ?? []).map((a: any) => {
                 const g = a.grupo;
-                const grupo = g ? `${g.grado}°${String.fromCharCode(64 + (g.grupo ?? 1))} (${g.turno ?? ''})` : '—';
-                return <option key={a.id} value={a.id}>{a.materia?.nombre} · {grupo}</option>;
+                const grupo = g ? `${g.grado}°${String.fromCharCode(64 + (g.grupo ?? 1))} ${g.turno ?? ''}` : '—';
+                return (
+                  <option key={a.id} value={a.id}>
+                    {a.materia?.nombre} 〉 {grupo}
+                  </option>
+                );
               })}
             </select>
+            {asigs && asigs.length > 1 && (
+              <span className="text-[10px] text-gray-500 mt-0.5 block">
+                💡 Tienes <strong>{asigs.length}</strong> asignaciones. Si das 2 materias al mismo grupo aparecen como entradas distintas.
+              </span>
+            )}
           </label>
           <label className="block">
-            <span className="text-xs text-gray-600">Parcial</span>
+            <span className="text-xs text-gray-600 font-semibold">Parcial</span>
             <select name="parcial" defaultValue={String(parcial)} className="mt-1 w-full border rounded-lg px-3 py-2">
               <option value="1">Parcial 1</option>
               <option value="2">Parcial 2</option>
               <option value="3">Parcial 3</option>
             </select>
           </label>
-          <div className="flex items-end">
-            <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-2 rounded-lg w-full">Cargar grupo</button>
+          <div className="md:col-span-3 flex justify-end">
+            <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-5 py-2 rounded-lg">
+              🔄 Cargar grupo
+            </button>
           </div>
         </form>
+
+        {asignacion_id && (
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <a
+              href={`/api/plantilla-calificaciones/${asignacion_id}?parcial=${parcial}`}
+              className="bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-lg p-3 flex items-center gap-2 transition"
+              download
+            >
+              <span className="text-2xl">📥</span>
+              <div>
+                <div className="font-semibold text-amber-900">Descargar plantilla XLSX</div>
+                <div className="text-amber-700">Trae los alumnos del grupo precargados. Capturas y subes.</div>
+              </div>
+            </a>
+            <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 flex items-center gap-2 text-sky-800">
+              <span className="text-2xl">📤</span>
+              <div>
+                <div className="font-semibold">Subir XLSX (más abajo)</div>
+                <div className="text-xs">O captura directo en la tabla.</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {orientNombre && (
           <div className="mt-3 text-xs text-gray-600 bg-amber-50 border-l-2 border-amber-400 p-2 rounded">

@@ -117,25 +117,50 @@ export default async function OrientadorCalificaciones({ searchParams }: { searc
                   const nombre = al ? `${al.nombre} ${al.apellido_paterno ?? ''} ${al.apellido_materno ?? ''}`.trim() : '—';
                   const maestro = p.asignacion?.profesor
                     ? `${p.asignacion.profesor.nombre} ${p.asignacion.profesor.apellido_paterno ?? ''}`.trim() : '—';
+                  const esModif = p.es_modificacion;
+                  const valAnt = p.valor_anterior;
                   return (
-                    <tr key={p.id} className="border-t border-gray-100">
+                    <tr key={p.id} className={`border-t border-gray-100 ${esModif ? 'bg-amber-50/50' : ''}`}>
                       <td className="px-2 py-2">
                         <div className="font-semibold">{nombre}</div>
                         <div className="text-[10px] text-gray-500">{al?.matricula ?? '—'}</div>
+                        {esModif && (
+                          <div className="text-[9px] mt-1 inline-block bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">
+                            🔄 Modificación
+                          </div>
+                        )}
                       </td>
                       <td className="px-2 py-2">{p.asignacion?.materia?.nombre}</td>
                       <td className="px-2 py-2 text-gray-600">{maestro}</td>
                       <td className="px-2 py-2 text-center">{p.parcial}</td>
                       <td className="px-2 py-2 text-center font-semibold tabular-nums">
-                        <span className={p.calificacion != null && Number(p.calificacion) < 6 ? 'text-rose-700' : 'text-verde-oscuro'}>
-                          {p.calificacion ?? '—'}
-                        </span>
+                        {esModif && valAnt ? (
+                          <div className="text-[10px] leading-tight">
+                            <span className="line-through text-gray-400">{valAnt.calificacion ?? '—'}</span>
+                            <span className="mx-1 text-amber-700">→</span>
+                            <span className={p.calificacion != null && Number(p.calificacion) < 6 ? 'text-rose-700 font-bold' : 'text-verde-oscuro font-bold'}>
+                              {p.calificacion ?? '—'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className={p.calificacion != null && Number(p.calificacion) < 6 ? 'text-rose-700' : 'text-verde-oscuro'}>
+                            {p.calificacion ?? '—'}
+                          </span>
+                        )}
                       </td>
-                      <td className="px-2 py-2 text-center">{p.faltas ?? 0}</td>
+                      <td className="px-2 py-2 text-center">
+                        {esModif && valAnt ? (
+                          <div className="text-[10px] leading-tight">
+                            <span className="line-through text-gray-400">{valAnt.faltas ?? 0}</span>
+                            <span className="mx-1 text-amber-700">→</span>
+                            <span className="font-bold">{p.faltas ?? 0}</span>
+                          </div>
+                        ) : (p.faltas ?? 0)}
+                      </td>
                       <td className="px-2 py-2 max-w-[200px] truncate" title={p.observaciones ?? ''}>{p.observaciones ?? ''}</td>
                       <td className="px-2 py-2">
-                        <Badge tone={p.estado === 'validada' ? 'verde' : p.estado === 'rechazada' ? 'rosa' : 'ambar'} size="sm">
-                          {p.estado}
+                        <Badge tone={p.estado === 'validada' ? 'verde' : p.estado === 'rechazada' ? 'rosa' : esModif ? 'dorado' : 'ambar'} size="sm">
+                          {esModif && p.estado === 'pendiente' ? 'modif' : p.estado}
                         </Badge>
                       </td>
                       <td className="px-2 py-2">

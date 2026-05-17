@@ -1,6 +1,6 @@
 'use client';
-import { useState, useTransition } from 'react';
-import { enviarPropuestasCalificaciones } from './actions';
+import { useState, useTransition, useRef } from 'react';
+import { enviarPropuestasCalificaciones, importarCalificacionesXLSX } from './actions';
 
 export function ProponerCalificacionesForm({
   asignacionId, parcial, alumnos, propuestasPrevias,
@@ -13,6 +13,13 @@ export function ProponerCalificacionesForm({
   const [err, setErr] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [archivo, setArchivo] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Contar cuántas alumnos tienen calificación VALIDADA (para mostrar aviso de modificación)
+  const totalValidadas = Object.values(propuestasPrevias).filter((p: any) =>
+    p.parcial === parcial && p.estado === 'validada'
+  ).length;
 
   // Map de propuestas previas por alumno (último estado)
   const previas: Record<string, any> = {};
@@ -35,6 +42,53 @@ export function ProponerCalificacionesForm({
       }}
       className="space-y-3 text-sm"
     >
+      {totalValidadas > 0 && (
+        <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs">
+          <div className="font-semibold text-amber-900 mb-1">🔄 Hay {totalValidadas} calificación(es) ya VALIDADA(s) en este parcial</div>
+          <p className="text-amber-800">
+            Si cambias alguna, se enviará al orientador como <strong>MODIFICACIÓN</strong> (requiere su aprobación explícita).
+            Si la dejas igual, no se enviará nada para ese alumno.
+          </p>
+        </div>
+      )}
+
+      {/* SUBIR XLSX precargado */}
+      <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
+        <div className="text-xs font-semibold text-sky-900 mb-2">📤 Opción rápida: subir plantilla XLSX llenada</div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            ref={fileRef} type="file" accept=".xlsx,.xls"
+            onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
+            className="text-xs flex-1 min-w-[150px]"
+          />
+          {archivo && (
+            <button
+              type="button" disabled={pending}
+              onClick={() => {
+                setErr(null); setOk(null);
+                const fd = new FormData();
+                fd.set('asignacion_id', asignacionId);
+                fd.set('parcial', String(parcial));
+                fd.set('archivo', archivo);
+                start(async () => {
+                  const r = await importarCalificacionesXLSX(fd);
+                  if (r?.error && !r?.ok) setErr(r.error);
+                  else setOk(`✅ Importado: ${r?.total ?? 0} enviadas · ${r?.saltados ?? 0} saltadas`);
+                  setArchivo(null);
+                  if (fileRef.current) fileRef.current.value = '';
+                });
+              }}
+              className="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3 py-1.5 rounded text-xs disabled:opacity-50"
+            >
+              📥 Procesar XLSX
+            </button>
+          )}
+        </div>
+        <p className="text-[10px] text-sky-700 mt-1">
+          O usa la tabla de abajo para capturar directo. Descarga primero la plantilla desde el botón amarillo de arriba.
+        </p>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead className="bg-gray-50">
@@ -48,9 +102,10 @@ export function ProponerCalificacionesForm({
           <tbody>
             {alumnos.map((a: any) => {
               const prev = previas[a.id];
+              // Bloqueo SOLO si hay propuesta PENDIENTE (esperando validación). Si está validada o rechazada, sí se puede cambiar.
               const disabled = prev?.estado === 'pendiente';
               return (
-                <tr key={a.id} className="border-t border-gray-100">
+                <tr key={a.id} className={`border-t border-gray-100 ${prev?.estado === 'validada' ? 'bg-verde-claro/5' : ''}`}>
                   <td className="px-2 py-1">
                     <div className="font-semibold">{a.nombre} {a.apellido_paterno}</div>
                     <div className="text-[10px] text-gray-500">{a.matricula ?? '—'}</div>
@@ -61,6 +116,7 @@ export function ProponerCalificacionesForm({
                       name={`calificacion_${a.id}`}
                       defaultValue={prev?.calificacion ?? ''}
                       disabled={disabled}
+                      title={disabled ? 'Esperando validación del orientador' : (prev?.estado === 'validada' ? 'Si modificas, se enviará como solicitud de modificación' : '')}
                       className="w-20 border rounded px-2 py-1 text-center disabled:bg-gray-100"
                     />
                   </td>
@@ -79,7 +135,7 @@ export function ProponerCalificacionesForm({
                         prev.estado === 'validada' ? 'bg-verde-claro/30 text-verde-oscuro'
                         : prev.estado === 'rechazada' ? 'bg-rose-100 text-rose-700'
                         : 'bg-amber-100 text-amber-800'
-                      }`}>{prev.estado}</span>
+                      }`}>{prev.estado === 'validada' ? '🔒 validada' : prev.estado}</span>
                     ) : <span className="text-gray-400">—</span>}
                   </td>
                 </tr>
