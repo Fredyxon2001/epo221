@@ -108,6 +108,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { href: '/admin/auditoria', label: 'Auditoría', icon: '🔍' },
         { href: '/admin/reglamento', label: 'Reglamento', icon: '📜' },
         { href: '/admin/seiem', label: 'Reportes SEIEM', icon: '📑' },
+        { href: '/admin/push', label: 'Push notifications', icon: '🔔' },
         { href: '/admin/perfil', label: 'Mi perfil', icon: '👤' },
       ],
     },

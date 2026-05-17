@@ -1,11 +1,11 @@
 'use client';
-// Buscador global Cmd+K. Indexa rutas admin y permite navegar.
+// Buscador global Cmd+K. Mezcla rutas estáticas + búsqueda live cross-entidad (admin).
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-type Item = { label: string; href: string; group: string; icon?: string; keywords?: string };
+type Item = { label: string; href: string; group: string; icon?: string; sub?: string };
 
-const DEFAULT_ITEMS: Item[] = [
+const STATIC_ITEMS: Item[] = [
   // Personas
   { group: 'Personas', label: 'Alumnos', href: '/admin/alumnos', icon: '🎓' },
   { group: 'Personas', label: 'Solicitudes de ficha', href: '/admin/alumnos/solicitudes-ficha', icon: '📝' },
@@ -42,51 +42,91 @@ const DEFAULT_ITEMS: Item[] = [
   { group: 'Difusión', label: 'Sitio público', href: '/admin/publico', icon: '🌐' },
   // Sistema
   { group: 'Sistema', label: 'Auditoría', href: '/admin/auditoria', icon: '🔍' },
-  { group: 'Sistema', label: 'Mi perfil', href: '/admin/perfil', icon: '👤' },
+  { group: 'Sistema', label: 'Reglamento', href: '/admin/reglamento', icon: '📜' },
   { group: 'Sistema', label: 'Reportes SEIEM', href: '/admin/seiem', icon: '📑' },
+  { group: 'Sistema', label: 'Push notifications', href: '/admin/push', icon: '🔔' },
+  { group: 'Sistema', label: 'Mi perfil', href: '/admin/perfil', icon: '👤' },
 ];
 
-export function CommandPalette({ items = DEFAULT_ITEMS }: { items?: Item[] }) {
+export function CommandPalette() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
+  const [live, setLive] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setOpen((v) => !v);
-      } else if (e.key === 'Escape') {
-        setOpen(false);
-      }
+      } else if (e.key === 'Escape') setOpen(false);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const filtered = useMemo(() => {
+  // Búsqueda live cross-entidad (debounced 250ms)
+  useEffect(() => {
+    if (!open || q.trim().length < 2) { setLive([]); return; }
+    setLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/admin/search?q=${encodeURIComponent(q)}`);
+        if (!r.ok) { setLive([]); setLoading(false); return; }
+        const d = await r.json();
+        const items: Item[] = [
+          ...(d.alumnos ?? []).map((a: any) => ({
+            group: '🎓 Alumno', label: a.nombre,
+            sub: `${a.matricula}${a.grupo ? ' · ' + a.grupo : ''}`,
+            href: a.href, icon: '🎓',
+          })),
+          ...(d.profesores ?? []).map((p: any) => ({
+            group: '👨‍🏫 Profesor', label: p.nombre, sub: p.email,
+            href: p.href, icon: '👨‍🏫',
+          })),
+          ...(d.grupos ?? []).map((g: any) => ({
+            group: '🏫 Grupo', label: g.nombre, sub: g.ciclo,
+            href: g.href, icon: '🏫',
+          })),
+          ...(d.materias ?? []).map((m: any) => ({
+            group: '📚 Materia', label: m.nombre,
+            sub: m.semestre ? `Sem ${m.semestre}` : '',
+            href: m.href, icon: '📚',
+          })),
+        ];
+        setLive(items);
+      } catch { setLive([]); }
+      setLoading(false);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [q, open]);
+
+  const filteredStatic = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return items;
-    return items.filter((it) =>
-      `${it.label} ${it.group} ${it.keywords ?? ''}`.toLowerCase().includes(term),
+    if (!term) return STATIC_ITEMS;
+    return STATIC_ITEMS.filter((it) =>
+      `${it.label} ${it.group}`.toLowerCase().includes(term),
     );
-  }, [q, items]);
+  }, [q]);
+
+  // Live primero (más relevante), luego rutas
+  const all = useMemo(() => [...live, ...filteredStatic], [live, filteredStatic]);
 
   useEffect(() => setCursor(0), [q, open]);
 
   if (!open) return null;
 
   const go = (it: Item) => {
-    setOpen(false);
-    setQ('');
+    setOpen(false); setQ(''); setLive([]);
     router.push(it.href);
   };
 
   const onKeyInput = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') { e.preventDefault(); setCursor((c) => Math.min(c + 1, filtered.length - 1)); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setCursor((c) => Math.min(c + 1, all.length - 1)); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setCursor((c) => Math.max(c - 1, 0)); }
-    else if (e.key === 'Enter') { e.preventDefault(); if (filtered[cursor]) go(filtered[cursor]); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (all[cursor]) go(all[cursor]); }
   };
 
   return (
@@ -98,21 +138,28 @@ export function CommandPalette({ items = DEFAULT_ITEMS }: { items?: Item[] }) {
         className="w-full max-w-xl bg-white dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <input
-          autoFocus
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onKeyDown={onKeyInput}
-          placeholder="Buscar páginas, módulos…  (↑↓ Enter)"
-          className="w-full px-4 py-3 text-sm outline-none border-b border-gray-100 dark:border-gray-800 bg-transparent dark:text-white"
-        />
+        <div className="relative">
+          <input
+            autoFocus value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={onKeyInput}
+            placeholder="Buscar alumno, profesor, grupo, materia, página…  (↑↓ Enter)"
+            className="w-full px-4 py-3 text-sm outline-none border-b border-gray-100 dark:border-gray-800 bg-transparent dark:text-white pr-10"
+          />
+          {loading && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 animate-pulse">…</span>
+          )}
+        </div>
+
         <div className="max-h-[60vh] overflow-y-auto py-1">
-          {filtered.length === 0 ? (
-            <div className="p-6 text-center text-sm text-gray-400">Sin resultados</div>
+          {all.length === 0 ? (
+            <div className="p-6 text-center text-sm text-gray-400">
+              {q.trim().length < 2 ? 'Escribe al menos 2 letras' : 'Sin resultados'}
+            </div>
           ) : (
-            filtered.map((it, idx) => (
+            all.map((it, idx) => (
               <button
-                key={it.href}
+                key={`${it.group}-${it.href}-${idx}`}
                 onMouseEnter={() => setCursor(idx)}
                 onClick={() => go(it)}
                 className={`w-full text-left px-4 py-2 text-sm flex items-center gap-3 ${
@@ -120,7 +167,10 @@ export function CommandPalette({ items = DEFAULT_ITEMS }: { items?: Item[] }) {
                 }`}
               >
                 <span className="text-lg">{it.icon}</span>
-                <span className="flex-1 dark:text-white">{it.label}</span>
+                <span className="flex-1 dark:text-white">
+                  {it.label}
+                  {it.sub && <span className="ml-2 text-[11px] text-gray-400">· {it.sub}</span>}
+                </span>
                 <span className="text-[10px] uppercase text-gray-400">{it.group}</span>
               </button>
             ))

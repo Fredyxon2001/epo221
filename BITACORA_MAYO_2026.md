@@ -940,4 +940,67 @@ Se sincronizaron `perfiles.nombre` con `alumnos` (había residuo de migraciones 
 **FINAL Sprint 1 — 17 mayo 2026.**
 Features entregadas: auditoría, modo oscuro, exportes Excel, Cmd+K, búsqueda chats, push (sin VAPID), PMI, NEM, banco preguntas, reglamento firmado, portafolio enriquecido, SEIEM (3 reportes), docs backup/móvil/multi-tenant/E2E.
 
-**Próximo Sprint 2:** Generar VAPID + endpoint `/api/push/send` + integrar con notificaciones existentes. Setup Playwright. Crear primera versión del reglamento institucional.
+---
+
+# 27. Sprint 1.5 (mismo 17 mayo 2026, tarde)
+
+## 27.1 VAPID + push automático vía trigger DB
+- Generadas VAPID keys y agregadas a `.env.local` + `.env.example`.
+- `src/lib/push.ts`: `sendPushToUser(perfilId, payload)` y `sendPushToUsers([...])`. Usa `web-push`, limpia subscriptions 404/410.
+- `src/app/api/push/send/route.ts`: endpoint manual (admin para masivo, self para test).
+- `src/app/api/push/from-trigger/route.ts`: webhook que recibe payload del trigger DB y dispara push.
+- **Trigger DB con `pg_net`:** `notificacion_push_trigger` AFTER INSERT ON `notificaciones` llama a webhook configurable. Esto cubre los 20+ sitios que insertan en `notificaciones` sin tocar código.
+- `push_webhook_config(webhook_url, webhook_secret, enabled)` — config single-row.
+- `/admin/push`: UI para configurar URL/secret/enabled.
+
+**Cómo activar en producción:**
+1. Desplegar Vercel/etc. → URL pública.
+2. `/admin/push` → Webhook URL = `https://tu-dominio.com/api/push/from-trigger`.
+3. Generar secret: `openssl rand -hex 32`.
+4. Habilitar casilla y guardar.
+5. Usuarios pulsan "🔔 Activar push" para suscribirse.
+
+## 27.2 Cmd+K cross-entity
+- `/api/admin/search?q=…`: busca paralelo en `alumnos` (nombre/apellidos/matrícula/CURP/email), `profesores`, `grupos`, `materias`. Solo admin/staff/director.
+- `CommandPalette` ahora:
+  - Static items (35 rutas) + live items (alumnos/profesores/grupos/materias).
+  - Debounce 250ms.
+  - Resultados live aparecen primero con sub-info (matrícula, grupo, email).
+  - Deep links a `/admin/alumnos/[id]`, `/admin/grupos/[id]`.
+
+## 27.3 Seed reglamento institucional
+- Insertada versión `2026.1` "Reglamento institucional EPO 221 — Ciclo 2026" como VIGENTE.
+- Estructura 9 capítulos / 22 artículos: disposiciones, inscripciones, asistencia, evaluación, conducta, uniforme, derechos/deberes, procedimientos, vigencia.
+- Alumnos pueden firmarlo en `/alumno/reglamento`.
+
+## 27.4 Seed NEM (1° semestre)
+- **Pensamiento Matemático I** (8 aprendizajes): números reales, propiedades, razones/proporciones, jerarquía, notación científica, sucesiones, magnitudes, argumentación.
+- **Lengua y Comunicación I** (8 aprendizajes): comprensión, funciones del lenguaje, producción de textos, ortografía, citas, oralidad, lectura crítica, estereotipos.
+- Pablo y Concilio ya pueden vincular tareas/planeaciones a estos aprendizajes desde sus paneles.
+
+## 27.5 Playwright E2E
+- `playwright.config.ts`: chromium, locale es-MX, base URL env-configurable, dev server auto.
+- `e2e/fixtures.ts`: helper `login(page, who)` con credenciales reales del entorno limpio.
+- Specs incluidas (6 archivos, 11 tests):
+  - `auth.spec.ts` (4 tests: login admin/profesor/alumno + credenciales inválidas)
+  - `admin-search.spec.ts` (Cmd+K + API search)
+  - `reglamento.spec.ts`
+  - `pmi.spec.ts`
+  - `nem-banco.spec.ts`
+  - `seiem-export.spec.ts` (UI + verifica content-type XLSX)
+- Scripts npm: `e2e`, `e2e:ui`, `e2e:install`.
+
+**Correr en local:**
+```bash
+npm run e2e:install   # primera vez (descarga Chromium)
+npm run e2e           # corre todos los tests
+npm run e2e:ui        # modo interactivo
+```
+
+## 27.6 App móvil RN (documentado)
+- Archivo `APP_MOVIL_RN.md` en raíz: setup Expo, dependencias, supabase client compartido (reusa RLS), pantallas Sprint 1, push nativas con Expo Notifications + tabla `expo_push_tokens`, builds con EAS, opciones de monorepo para compartir tipos, roadmap 4 sprints.
+
+---
+
+**FINAL Sprint 1.5 — 17 mayo 2026 (tarde).**
+**Próximo Sprint 2:** decidir si arrancamos app móvil + setup CI/CD con tests E2E + activar push en producción cuando haya URL pública.
