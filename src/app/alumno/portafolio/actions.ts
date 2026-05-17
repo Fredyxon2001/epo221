@@ -17,6 +17,11 @@ export async function subirEvidencia(fd: FormData): Promise<{ error?: string; ok
   const asignacion_id = String(fd.get('asignacion_id') ?? '') || null;
   const destacada = fd.get('destacada') === 'on';
   const archivo = fd.get('archivo') as File | null;
+  const reflexion = String(fd.get('reflexion') ?? '').trim() || null;
+  const aprendizaje_id = String(fd.get('aprendizaje_id') ?? '') || null;
+  const calificacion_propia = fd.get('calificacion_propia') ? Number(fd.get('calificacion_propia')) : null;
+  const tagsCsv = String(fd.get('tags') ?? '').trim();
+  const tags = tagsCsv ? tagsCsv.split(',').map((s) => s.trim()).filter(Boolean) : [];
 
   if (titulo.length < 3) return { error: 'Título demasiado corto' };
   if (!archivo || archivo.size === 0) return { error: 'Archivo requerido' };
@@ -37,6 +42,7 @@ export async function subirEvidencia(fd: FormData): Promise<{ error?: string; ok
     archivo_url: key, archivo_nombre: archivo.name,
     archivo_tipo: archivo.type, archivo_tamano: archivo.size,
     destacada,
+    reflexion, aprendizaje_id, calificacion_propia, tags,
   });
   if (error) return { error: error.message };
 

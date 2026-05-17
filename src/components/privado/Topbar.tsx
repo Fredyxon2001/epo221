@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { NotificationBell } from './NotificationBell';
 import { saludoPorHora } from '@/lib/saludo';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
+import { CommandPalette } from '@/components/CommandPalette';
 
 export function Topbar({
   greeting,
@@ -65,7 +67,20 @@ export function Topbar({
           {hora}
         </div>
 
+        <button
+          type="button"
+          onClick={() => {
+            const ev = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true });
+            window.dispatchEvent(ev);
+          }}
+          title="Buscar (Cmd/Ctrl + K)"
+          className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-white/70 hover:bg-white border border-gray-200 text-gray-500"
+        >
+          🔎 Buscar… <kbd className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded">⌘K</kbd>
+        </button>
+        <DarkModeToggle />
         <NotificationBell count={notiCount} items={notiItems} />
+        <CommandPalette />
 
         <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-gray-200">
           <div className="text-right min-w-0 max-w-[180px]">

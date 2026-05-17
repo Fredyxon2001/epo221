@@ -818,3 +818,126 @@ El sistema **solo cuenta como modificación** si REALMENTE cambió algún campo.
 
 **Bitácora de mayo 2026 (FINAL).**
 **Próxima fase:** ejecutar prueba del sábado → recopilar feedback → priorizar Sprint 1.
+
+---
+
+# 26. ADENDA — Limpieza de datos + Sprint 1 (17 mayo 2026)
+
+## 26.1 Limpieza de datos de prueba
+
+Se eliminaron todos los datos de prueba dejando sólo:
+- Admin: `alfredo.teran@maxikash.mx`
+- Grupo activo: **1°P** (con orientadora Patricia Najera)
+- Profesores activos: **Pablo (Matemáticas)** y **Concilio (Lengua y Comunicación)**
+- 6 alumnos de 1°P (raul, jose, kevin, manuel, diego, alejandra)
+- 2 asignaciones (Mate Pablo + Lengua Concilio)
+
+Se sincronizaron `perfiles.nombre` con `alumnos` (había residuo de migraciones previas con nombres mezclados).
+
+## 26.2 Auditoría visible
+- `/admin/auditoria` ya existía con filtros por tabla/operación + paginación + diff JSON.
+
+## 26.3 Modo oscuro
+- `tailwind.config.ts`: `darkMode: 'class'`.
+- `src/components/DarkModeToggle.tsx`: toggle Sol/Luna, persiste en `localStorage.epo221-theme`, respeta `prefers-color-scheme` la primera vez.
+- Integrado en `Topbar`.
+
+## 26.4 Exportes universales a Excel
+- `src/lib/excel-export.ts`: helper `exportToExcel(rows, columns, filename, sheetName)` y `exportAuto(rows, filename)`.
+- `src/components/ExportExcelButton.tsx`: botón reusable. Uso:
+  ```tsx
+  <ExportExcelButton rows={alumnos} columns={[
+    { header: 'Matrícula', key: 'matricula', width: 12 },
+    { header: 'Nombre', key: (a) => `${a.apellido_paterno} ${a.nombre}`, width: 28 },
+  ]} filename="alumnos.xlsx" />
+  ```
+
+## 26.5 Buscador global Cmd+K
+- `src/components/CommandPalette.tsx`: indexa 30+ rutas del admin.
+- Atajo `Cmd/Ctrl + K`. Flechas + Enter para navegar.
+- Botón "🔎 Buscar… ⌘K" en Topbar.
+
+## 26.6 Búsqueda en chats
+- `/profesor/mensajes?q=palabra`: ilike en `mensajes.cuerpo`, filtra hilos que contengan el término.
+- Formulario simple arriba del listado de hilos.
+
+## 26.7 Push notifications web
+- Migración: tabla `push_subscriptions(perfil_id, endpoint, p256dh, auth, user_agent)` con RLS self.
+- `public/sw.js` extendido con handlers `push` + `notificationclick`.
+- `src/components/PushNotifToggle.tsx`: pide permisos, suscribe, guarda en `/api/push/subscribe`.
+- `src/app/api/push/subscribe/route.ts`: upsert por endpoint.
+- **Falta para producción:** generar VAPID keys (`npx web-push generate-vapid-keys`), exponer pública como `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, y crear endpoint `/api/push/send` que use `web-push` con la privada. Disparar desde `lib/notificaciones.ts` cuando se cree una notificación.
+
+## 26.8 PMI (Plan de Mejora Individual)
+- Tabla `pmi(alumno_id, motivo, objetivos, acciones, responsable_id, fecha_inicio, fecha_revision, estado, resultado)`.
+- `/admin/pmi`: panel con counts (activos/cumplidos/cancelados), formulario nuevo PMI, listado con cierre inline.
+- Alumno ve sus propios PMI vía RLS.
+
+## 26.9 Aprendizajes esperados (NEM)
+- Tabla `aprendizajes_esperados(materia_id, campo_disciplinar_id smallint, codigo, descripcion, semestre)`.
+- Columnas `aprendizaje_id` añadidas a `tareas`, `planeaciones`, `portafolio_evidencias`.
+- `/admin/aprendizajes`: CRUD con filtro por materia.
+
+## 26.10 Banco de preguntas reusables
+- `examen_preguntas` extendido: `es_banco`, `tema`, `dificultad`, `materia_id`, `autor_id`. `examen_id` ya no es NOT NULL.
+- `/admin/banco-preguntas`: alta + filtros (materia/dificultad/tema).
+
+## 26.11 Reglamento firmado digitalmente
+- Tablas `reglamento_versiones(version, titulo, contenido_md, vigente)` y `reglamento_firmas(reglamento_id, firmante_id, hash_sha256, ip, user_agent)` UNIQUE.
+- `/admin/reglamento`: publicar versión, marcar vigente, ver lista de firmantes.
+- `/alumno/reglamento`: leer + checkbox + firmar (genera SHA-256 del payload).
+
+## 26.12 Portafolio enriquecido
+- `portafolio_evidencias` ahora con: `tags text[]`, `reflexion`, `aprendizaje_id`, `calificacion_propia`.
+- `SubirEvidenciaForm` actualizado con campos para reflexión, tags, autoevaluación y aprendizaje vinculado.
+
+## 26.13 Reporte SEIEM (XLSX)
+- `/admin/seiem`: 3 reportes:
+  - **Plantilla de grupo:** `/api/seiem/grupo?grupo_id=…` (matrícula, CURP, nombre completo, sexo, fecha nac., tutor, etc.).
+  - **Concentrado de calificaciones:** `/api/seiem/calificaciones?ciclo_id=…`.
+  - **911 Estadística básica:** `/api/seiem/estadistica` (matrícula H/M por grupo).
+
+## 26.14 Backup automático con cron en Supabase
+**Setup gratuito (Supabase plan free incluye backups automáticos 7 días):**
+1. **Backups nativos:** Dashboard → Database → Backups. Ya activos diarios 7 días sin configurar nada.
+2. **Backup adicional manual a Storage propio** (opcional, gratis):
+   - Crear edge function `daily-backup` que use `pg_dump` (vía `supabase functions deploy daily-backup`).
+   - En Dashboard → Database → Cron Jobs (extensión `pg_cron`):
+     ```sql
+     SELECT cron.schedule('backup-diario', '0 3 * * *',
+       $$ SELECT net.http_post(url := 'https://<project>.functions.supabase.co/daily-backup',
+                                headers := '{"Authorization":"Bearer <service_role>"}'::jsonb) $$);
+     ```
+3. **Punto-in-time recovery:** requiere plan Pro ($25/mes).
+
+## 26.15 App móvil React Native (documentación)
+- Crear repo separado `epo221-mobile` con Expo (`npx create-expo-app`).
+- Reutilizar mismo backend Supabase + RLS (cero cambios en BD).
+- Pantallas iniciales recomendadas (alumno): Login, Calificaciones, Horario, Avisos, Chat.
+- Push nativas: usar Expo Notifications (sustituye a Web Push).
+- Compartir tipos TypeScript: extraer carpeta `packages/shared-types` con `pnpm` o npm workspaces.
+
+## 26.16 Multi-plantel (multi-tenant)
+- Agregar `plantel_id uuid` a tablas top-level: `alumnos`, `profesores`, `grupos`, `materias`, `ciclos_escolares`, `noticias`, `convocatorias`, `eventos_calendario`.
+- Crear tabla `planteles(id, nombre, cct, direccion, logo_url, dominio)`.
+- Tabla `perfiles_planteles(perfil_id, plantel_id, rol)` para usuarios con acceso multi-plantel.
+- Actualizar RLS con función `mi_plantel_actual()` (lee de `auth.jwt() ->> 'plantel_id'`).
+- Selector de plantel en topbar para usuarios con varios.
+
+## 26.17 Tests E2E completos
+- Instalar Playwright: `npm i -D @playwright/test && npx playwright install`.
+- Estructura sugerida `e2e/`:
+  - `auth.spec.ts` (login admin/profesor/alumno)
+  - `flujo-calificaciones.spec.ts` (profesor sube → orientadora valida → alumno ve)
+  - `flujo-ficha.spec.ts` (alumno modifica 2 veces libre, 3ª solicita admin)
+  - `flujo-parciales.spec.ts` (profesor solicita → admin aprueba)
+  - `flujo-pmi.spec.ts`
+  - `flujo-reglamento.spec.ts`
+- Correr en CI: `.github/workflows/e2e.yml` con `actions/setup-node` + `npx playwright test`.
+
+---
+
+**FINAL Sprint 1 — 17 mayo 2026.**
+Features entregadas: auditoría, modo oscuro, exportes Excel, Cmd+K, búsqueda chats, push (sin VAPID), PMI, NEM, banco preguntas, reglamento firmado, portafolio enriquecido, SEIEM (3 reportes), docs backup/móvil/multi-tenant/E2E.
+
+**Próximo Sprint 2:** Generar VAPID + endpoint `/api/push/send` + integrar con notificaciones existentes. Setup Playwright. Crear primera versión del reglamento institucional.

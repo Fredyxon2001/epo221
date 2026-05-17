@@ -36,6 +36,24 @@ export function SubirEvidenciaForm({ asignaciones }: { asignaciones: any[] }) {
         <span className="text-xs text-gray-600">Descripción</span>
         <textarea name="descripcion" rows={2} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
       </label>
+      <label className="block">
+        <span className="text-xs text-gray-600">✍️ Reflexión personal (qué aprendiste, cómo lo usarías…)</span>
+        <textarea name="reflexion" rows={3} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Esta evidencia me ayudó a…" />
+      </label>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <label className="block">
+          <span className="text-xs text-gray-600">Tags (separados por coma)</span>
+          <input name="tags" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="proyecto, ensayo, lab" />
+        </label>
+        <label className="block">
+          <span className="text-xs text-gray-600">Mi autoevaluación (0-10)</span>
+          <input name="calificacion_propia" type="number" min={0} max={10} step={1} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2" />
+        </label>
+        <label className="block">
+          <span className="text-xs text-gray-600">Aprendizaje esperado (opcional)</span>
+          <input name="aprendizaje_id" placeholder="ID NEM si aplica" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-xs font-mono" />
+        </label>
+      </div>
       <div className="flex items-center gap-4 flex-wrap">
         <label className="block flex-1 min-w-[200px]">
           <span className="text-xs text-gray-600">Archivo (máx 25 MB)</span>

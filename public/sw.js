@@ -1,5 +1,5 @@
-// Service worker básico para PWA instalable + caché ligero.
-const VERSION = 'epo221-v1';
+// Service worker EPO 221: PWA + caché ligero + push notifications.
+const VERSION = 'epo221-v2';
 const PRECACHE = ['/', '/login', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
@@ -16,22 +16,17 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Estrategia: network-first para navegación/HTML, stale-while-revalidate para el resto.
+// Estrategia caché
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-
-  // No cachear rutas dinámicas autenticadas ni llamadas a Supabase
   if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) return;
 
   if (req.mode === 'navigate') {
-    e.respondWith(
-      fetch(req).catch(() => caches.match(req).then((c) => c || caches.match('/')))
-    );
+    e.respondWith(fetch(req).catch(() => caches.match(req).then((c) => c || caches.match('/'))));
     return;
   }
-
   if (url.origin === location.origin && /\.(png|jpg|jpeg|svg|webp|ico|woff2?|css|js)$/.test(url.pathname)) {
     e.respondWith(
       caches.open(VERSION).then(async (cache) => {
@@ -41,4 +36,33 @@ self.addEventListener('fetch', (e) => {
       })
     );
   }
+});
+
+// ── Push notifications ─────────────────────────────────────────
+self.addEventListener('push', (event) => {
+  let data = { title: 'EPO 221', body: 'Tienes una notificación nueva', url: '/' };
+  try {
+    if (event.data) data = { ...data, ...event.data.json() };
+  } catch {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/img/icon-192.png',
+      badge: '/img/icon-192.png',
+      data: { url: data.url ?? '/' },
+    }),
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url ?? '/';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((wins) => {
+      for (const w of wins) {
+        if (w.url.includes(url) && 'focus' in w) return w.focus();
+      }
+      return self.clients.openWindow(url);
+    }),
+  );
 });

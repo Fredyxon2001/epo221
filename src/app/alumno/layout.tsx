@@ -129,6 +129,7 @@ export default async function AlumnoLayout({ children }: { children: React.React
       items: [
         { href: '/alumno/estado-cuenta', label: 'Estado de cuenta', icon: '💳' },
         { href: '/alumno/ficha', label: 'Mi ficha', icon: '👤' },
+        { href: '/alumno/reglamento', label: 'Reglamento', icon: '📜' },
       ],
     },
   ];
