@@ -23,25 +23,25 @@ export async function GET(req: Request) {
 
   const [alumnosRes, profesoresRes, gruposRes, materiasRes] = await Promise.all([
     // Alumnos: busca en nombre, apellidos, matrícula, curp, email
-    supabase
+    admin
       .from('alumnos')
-      .select('id, matricula, curp, nombre, apellido_paterno, apellido_materno, email, grupo:inscripciones!inner(grupo:grupos(nombre))')
+      .select('id, matricula, curp, nombre, apellido_paterno, apellido_materno, email, inscripciones(grupo:grupos(nombre), estatus)')
       .or(`nombre.ilike.${like},apellido_paterno.ilike.${like},apellido_materno.ilike.${like},matricula.ilike.${like},curp.ilike.${like},email.ilike.${like}`)
       .limit(8),
     // Profesores: por nombre del perfil
-    supabase
+    admin
       .from('profesores')
       .select('id, perfil:perfiles!inner(nombre, email)')
       .or(`nombre.ilike.${like},email.ilike.${like}`, { foreignTable: 'perfil' })
       .limit(6),
     // Grupos: por nombre
-    supabase
+    admin
       .from('grupos')
       .select('id, nombre, ciclo:ciclos_escolares(nombre)')
       .ilike('nombre', like)
       .limit(5),
     // Materias: por nombre
-    supabase
+    admin
       .from('materias')
       .select('id, nombre, semestre')
       .ilike('nombre', like)
@@ -49,13 +49,16 @@ export async function GET(req: Request) {
   ]);
 
   return NextResponse.json({
-    alumnos: (alumnosRes.data ?? []).map((a: any) => ({
-      id: a.id,
-      matricula: a.matricula,
-      nombre: `${a.nombre} ${a.apellido_paterno ?? ''} ${a.apellido_materno ?? ''}`.trim(),
-      grupo: a.grupo?.[0]?.grupo?.nombre ?? null,
-      href: `/admin/alumnos/${a.id}`,
-    })),
+    alumnos: (alumnosRes.data ?? []).map((a: any) => {
+      const insActiva = (a.inscripciones ?? []).find((i: any) => i.estatus === 'activa') ?? a.inscripciones?.[0];
+      return {
+        id: a.id,
+        matricula: a.matricula,
+        nombre: `${a.nombre} ${a.apellido_paterno ?? ''} ${a.apellido_materno ?? ''}`.trim(),
+        grupo: insActiva?.grupo?.nombre ?? null,
+        href: `/admin/alumnos/${a.id}`,
+      };
+    }),
     profesores: (profesoresRes.data ?? []).map((p: any) => ({
       id: p.id,
       nombre: p.perfil?.nombre ?? '—',

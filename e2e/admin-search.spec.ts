@@ -36,6 +36,7 @@ test('API /api/admin/search devuelve resultados cross-entity', async ({ page }) 
     const r = await fetch('/api/admin/search?q=raul');
     return { status: r.status, body: await r.json() };
   });
+  console.log('SEARCH RESPONSE:', JSON.stringify(data));
   expect(data.status).toBe(200);
   expect(Array.isArray(data.body.alumnos)).toBeTruthy();
   expect(data.body.alumnos.length).toBeGreaterThan(0);
