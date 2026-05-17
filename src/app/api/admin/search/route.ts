@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     // Alumnos: busca en nombre, apellidos, matrícula, curp, email
     admin
       .from('alumnos')
-      .select('id, matricula, curp, nombre, apellido_paterno, apellido_materno, email, inscripciones(grupo:grupos(nombre), estatus)')
+      .select('id, matricula, curp, nombre, apellido_paterno, apellido_materno, email')
       .or(`nombre.ilike.${like},apellido_paterno.ilike.${like},apellido_materno.ilike.${like},matricula.ilike.${like},curp.ilike.${like},email.ilike.${like}`)
       .limit(8),
     // Profesores: por nombre del perfil
@@ -49,16 +49,13 @@ export async function GET(req: Request) {
   ]);
 
   return NextResponse.json({
-    alumnos: (alumnosRes.data ?? []).map((a: any) => {
-      const insActiva = (a.inscripciones ?? []).find((i: any) => i.estatus === 'activa') ?? a.inscripciones?.[0];
-      return {
-        id: a.id,
-        matricula: a.matricula,
-        nombre: `${a.nombre} ${a.apellido_paterno ?? ''} ${a.apellido_materno ?? ''}`.trim(),
-        grupo: insActiva?.grupo?.nombre ?? null,
-        href: `/admin/alumnos/${a.id}`,
-      };
-    }),
+    alumnos: (alumnosRes.data ?? []).map((a: any) => ({
+      id: a.id,
+      matricula: a.matricula,
+      nombre: `${a.nombre} ${a.apellido_paterno ?? ''} ${a.apellido_materno ?? ''}`.trim(),
+      grupo: null,
+      href: `/admin/alumnos/${a.id}`,
+    })),
     profesores: (profesoresRes.data ?? []).map((p: any) => ({
       id: p.id,
       nombre: p.perfil?.nombre ?? '—',
