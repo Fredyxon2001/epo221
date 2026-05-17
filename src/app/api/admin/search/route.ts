@@ -2,14 +2,17 @@
 // Solo accesible para admin/staff/director. Devuelve alumnos, profesores, grupos, materias.
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 
 export async function GET(req: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });
-  const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).single();
-  if (!['admin', 'staff', 'director'].includes(perfil?.rol ?? '')) {
-    return NextResponse.json({ error: 'sin-permiso' }, { status: 403 });
+  // Verificar rol con adminClient (bypass RLS) para evitar falsos negativos
+  const admin = adminClient();
+  const { data: perfil } = await admin.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
+  if (!['admin', 'staff', 'director'].includes((perfil as any)?.rol ?? '')) {
+    return NextResponse.json({ error: 'sin-permiso', rol: (perfil as any)?.rol ?? null }, { status: 403 });
   }
 
   const url = new URL(req.url);
