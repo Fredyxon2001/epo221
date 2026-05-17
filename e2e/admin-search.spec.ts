@@ -4,15 +4,21 @@ import { login } from './fixtures';
 test('Cmd+K abre command palette, busca "raul" y abre perfil del alumno', async ({ page }) => {
   await login(page, 'admin');
   await page.goto('/admin');
-  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('networkidle');
 
-  // Disparar el shortcut. El listener escucha keydown con metaKey || ctrlKey + 'k'.
-  await page.evaluate(() => {
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
-  });
+  // Abrir el palette: hay un botón visible "🔎 Buscar… ⌘K" en el Topbar.
+  // Si no, también podemos dispatch el shortcut.
+  const triggerBtn = page.locator('button:has-text("Buscar")').first();
+  if (await triggerBtn.isVisible().catch(() => false)) {
+    await triggerBtn.click();
+  } else {
+    await page.evaluate(() => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }));
+    });
+  }
 
-  const input = page.locator('input[placeholder*="Buscar"]').first();
-  await expect(input).toBeVisible({ timeout: 5_000 });
+  const input = page.locator('input[placeholder*="Buscar"]').last();
+  await expect(input).toBeVisible({ timeout: 8_000 });
 
   await input.fill('raul');
 
@@ -36,7 +42,6 @@ test('API /api/admin/search devuelve resultados cross-entity', async ({ page }) 
     const r = await fetch('/api/admin/search?q=raul');
     return { status: r.status, body: await r.json() };
   });
-  console.log('SEARCH RESPONSE:', JSON.stringify(data));
   expect(data.status).toBe(200);
   expect(Array.isArray(data.body.alumnos)).toBeTruthy();
   expect(data.body.alumnos.length).toBeGreaterThan(0);

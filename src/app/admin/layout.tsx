@@ -3,6 +3,7 @@ import { PrivateShell } from '@/components/privado/PrivateShell';
 import { Topbar } from '@/components/privado/Topbar';
 import { PageTransition } from '@/components/privado/PageTransition';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
@@ -11,8 +12,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: perfil } = await supabase
-    .from('perfiles').select('nombre, email, rol').eq('id', user.id).single();
+  // Usar adminClient (bypass RLS) para leer el perfil — evita falsos negativos
+  const admin = adminClient();
+  const { data: perfil } = await admin
+    .from('perfiles').select('nombre, email, rol').eq('id', user.id).maybeSingle();
   // Acceso al panel admin: admin, staff, director, finanzas (vista limitada para finanzas)
   if (!perfil || !['admin', 'staff', 'director', 'finanzas'].includes(perfil.rol)) redirect('/');
 
