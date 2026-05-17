@@ -29,6 +29,7 @@ type ResumenImport = {
   actualizados: number;
   errores: number;
   detalles: Array<{ fila: number; curp?: string; razon: string }>;
+  credenciales: Array<{ nombre: string; matricula: string; email: string; password: string }>;
 };
 
 export async function importarAlumnosExcel(formData: FormData) {
@@ -65,7 +66,7 @@ export async function importarAlumnosExcel(formData: FormData) {
   }
 
   const admin = adminClient();
-  const resumen: ResumenImport = { creados: 0, actualizados: 0, errores: 0, detalles: [] };
+  const resumen: ResumenImport = { creados: 0, actualizados: 0, errores: 0, detalles: [], credenciales: [] };
 
   // Ciclo activo para auto-calcular generación
   const { data: cicloActivo } = await admin
@@ -207,6 +208,13 @@ export async function importarAlumnosExcel(formData: FormData) {
         // VINCULAR alumno con su perfil (clave para evitar el bug de "cuenta no vinculada")
         if (perfilIdParaVincular) {
           await admin.from('alumnos').update({ perfil_id: perfilIdParaVincular }).eq('id', alumnoId);
+          // Registrar credencial generada para mostrar al admin
+          resumen.credenciales.push({
+            nombre: `${nombre} ${apellidoPaterno}${apellidoMaterno ? ' ' + apellidoMaterno : ''}`,
+            matricula: matricula ?? '',
+            email: emailLogin,
+            password: PASSWORD_TEMPORAL,
+          });
         }
       } catch (e: any) {
         resumen.detalles.push({
@@ -217,17 +225,29 @@ export async function importarAlumnosExcel(formData: FormData) {
     }
   }
 
+  // Persistir credenciales en BD para descarga posterior
+  let importId: string | null = null;
+  if (resumen.credenciales.length) {
+    const { data: { user } } = await (await import('@/lib/supabase/server')).createClient().auth.getUser();
+    const { data: imp } = await admin.from('imports_credenciales').insert({
+      creado_por: user?.id ?? null,
+      total: resumen.credenciales.length,
+      credenciales: resumen.credenciales,
+    }).select('id').single();
+    importId = imp?.id ?? null;
+  }
+
   revalidatePath('/admin/alumnos');
 
-  // Pasar resumen via querystring (truncado para no exceder URL)
+  // Pasar resumen via querystring
   const params = new URLSearchParams({
     creados: String(resumen.creados),
     actualizados: String(resumen.actualizados),
     errores: String(resumen.errores),
   });
   if (resumen.detalles.length) {
-    // Pasar primeros 10 detalles
     params.set('detalle', JSON.stringify(resumen.detalles.slice(0, 10)));
   }
+  if (importId) params.set('import_id', importId);
   redirect(`/admin/alumnos?${params.toString()}`);
 }

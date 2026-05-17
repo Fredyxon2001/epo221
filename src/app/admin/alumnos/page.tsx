@@ -5,7 +5,7 @@ import { ImportadorMasivo, ResultadoImportacion } from './ImportadorMasivo';
 import { PageHeader, Card } from '@/components/privado/ui';
 
 export default async function AdminAlumnos({ searchParams }: {
-  searchParams?: { creados?: string; actualizados?: string; errores?: string; detalle?: string; motivo?: string };
+  searchParams?: { creados?: string; actualizados?: string; errores?: string; detalle?: string; motivo?: string; import_id?: string };
 }) {
   const supabase = createClient();
   const { data: alumnos } = await supabase
@@ -28,6 +28,7 @@ export default async function AdminAlumnos({ searchParams }: {
         actualizados={searchParams?.actualizados}
         errores={searchParams?.errores}
         detalle={searchParams?.detalle}
+        importId={searchParams?.import_id}
       />
 
       {searchParams?.motivo && (

@@ -99,20 +99,23 @@ export function ImportadorMasivo() {
         </div>
       </form>
 
-      <div className="text-[11px] text-gray-500 leading-relaxed">
-        💡 <strong>Cómo funciona:</strong> el sistema detecta las columnas del archivo automáticamente
-        (en cualquier orden). Crea o actualiza alumnos por CURP. Si tiene matrícula, también crea cuenta
-        de login (usuario = CURP, password = matrícula, debe cambiarse al primer ingreso).
+      <div className="text-[11px] text-gray-600 leading-relaxed bg-sky-50 border border-sky-200 rounded p-2 space-y-1">
+        <p>💡 <strong>Cómo funciona la cuenta de login:</strong></p>
+        <p>• <strong>Email:</strong> se genera como <code className="bg-white px-1">nombre.apellido@epo221.local</code></p>
+        <p>• <strong>Password:</strong> <code className="bg-white px-1">TEMPORALEPO221!</code> (igual para todos)</p>
+        <p>• <strong>Vinculación:</strong> si re-importas el mismo CURP, se actualiza email y password sin romper la cuenta.</p>
+        <p>• Al terminar verás un <strong>botón para descargar las credenciales</strong> en XLSX listo para imprimir.</p>
       </div>
     </div>
   );
 }
 
-export function ResultadoImportacion({ creados, actualizados, errores, detalle }: {
+export function ResultadoImportacion({ creados, actualizados, errores, detalle, importId }: {
   creados?: string;
   actualizados?: string;
   errores?: string;
   detalle?: string;
+  importId?: string;
 }) {
   if (!creados && !actualizados && !errores) return null;
 
@@ -140,6 +143,26 @@ export function ResultadoImportacion({ creados, actualizados, errores, detalle }
           <div className="text-[10px] uppercase text-gray-500">Errores</div>
         </div>
       </div>
+
+      {importId && (
+        <div className="bg-white rounded p-3 mb-3 border border-verde/30">
+          <div className="text-sm font-semibold text-verde-oscuro mb-1">📋 Credenciales generadas</div>
+          <p className="text-xs text-gray-600 mb-2">
+            Descarga el XLSX con email y contraseña inicial de cada alumno para imprimirlo y entregarlo.
+          </p>
+          <a
+            href={`/api/credenciales-import/${importId}`}
+            className="inline-flex items-center gap-2 bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-lg shadow"
+            download
+          >
+            📥 Descargar credenciales XLSX
+          </a>
+          <p className="text-[10px] text-gray-500 mt-2">
+            Patrón de email: <code className="bg-gray-100 px-1">nombre.apellido@epo221.local</code> ·
+            Password: <code className="bg-gray-100 px-1">TEMPORALEPO221!</code>
+          </p>
+        </div>
+      )}
 
       {detalleParsed.length > 0 && (
         <div className="bg-white rounded p-2 text-xs">
