@@ -462,5 +462,359 @@ Confirmadas/agregadas en producción:
 
 ---
 
-**Bitácora de mayo 2026 completa.**
-**Próxima:** depende del resultado del sábado.
+**Bitácora de mayo 2026 (primera parte) completa.**
+
+---
+
+# 🔧 SEGUNDA PARTE — 17 de mayo (sábado de la prueba)
+
+Lo construido el día anterior al test real. Foco: refinamiento del flujo académico crítico.
+
+## 20. Flujo de modificaciones de calificaciones validadas
+
+**Problema:** ¿qué pasa si una calificación ya fue validada por el orientador y aplicada al expediente, pero el maestro necesita corregirla (caso típico: alumno reclamó y tiene razón)?
+
+**Solución implementada:**
+
+### Migración
+- `ALTER TABLE calificaciones_propuestas` con dos columnas nuevas:
+  - `es_modificacion boolean DEFAULT false`
+  - `valor_anterior jsonb` (guarda `{calificacion, faltas}` previos)
+
+### Lógica
+En `enviarPropuestasCalificaciones`:
+1. Detecta cuáles alumnos del envío ya tienen calificación VALIDADA en (asignacion, parcial)
+2. Para esos: marca `es_modificacion=true` y guarda `valor_anterior`
+3. Para los nuevos: propuesta normal
+4. Salta entradas idénticas a las validadas (sin cambio = no enviar)
+5. Notificación al orientador distintiva: "🔄 Modificaciones de calificaciones — requieren tu aprobación"
+
+### UI bandeja del orientador
+- Filas con fondo ámbar si son modificaciones
+- Badge `modif` en lugar de `pendiente`
+- Tag "🔄 Modificación" al lado del nombre del alumno
+- Visual diff: `5.5` → **7.0** (anterior tachado, nuevo en bold)
+- Misma visualización para faltas
+
+### Notificaciones
+- Al maestro al aprobarse: "✅ Modificación aprobada (cambio de 5.5 → 7.0)"
+- Al alumno: "📊 Nueva calificación disponible"
+
+## 21. Plantilla XLSX de calificaciones precargada
+
+**Endpoint nuevo:** `/api/plantilla-calificaciones/[asignacionId]?parcial=N`
+
+Devuelve XLSX con dos hojas:
+
+### Hoja CALIFICACIONES
+- 5 columnas: MATRICULA · NOMBRE COMPLETO · CALIFICACION (0-10) · FALTAS · OBSERVACIONES
+- **Precargada con todos los alumnos del grupo** (no es plantilla vacía)
+- Si ya hay calificaciones validadas previas, las precarga (para que el maestro solo modifique lo que cambie)
+
+### Hoja INFO
+- Datos de la asignación (materia, grupo, parcial, total alumnos)
+- Instrucciones paso a paso
+- Reglas del flujo (validación, modificación, etc.)
+- Soporte
+
+## 22. Importador XLSX de calificaciones
+
+**Action nueva:** `importarCalificacionesXLSX(fd)`
+
+- Lee XLSX (.xlsx, .xls)
+- Detecta hoja "CALIFICACIONES" o la primera
+- Resuelve matrícula → alumno_id contra BD
+- Valida calificación (0-10), salta filas vacías o inválidas
+- **Reutiliza internamente** `enviarPropuestasCalificaciones` (una sola lógica → mismo flujo de modificaciones detecta)
+- Reporta total enviadas + saltadas
+
+**UI:**
+- Banner azul "📤 Opción rápida: subir plantilla XLSX llenada"
+- Input file + botón "📥 Procesar XLSX"
+- Mensaje de resultado inline
+
+## 23. Parciales flexibles hasta 6
+
+**Antes:** sistema hardcoded a 3 parciales (P1, P2, P3).
+
+**Ahora:** soporta de 1 a 6 parciales por ciclo, configurables por admin.
+
+### Migración
+- `ALTER constraint` en `calificaciones_propuestas.parcial`: 1-3 → 1-6
+- `UNIQUE(ciclo_id, numero)` en `parciales_config`
+- Creados los 3 parciales del ciclo activo si no existían
+
+### Admin `/admin/parciales`
+- Antes hardcoded a `[1,2,3]`, ahora muestra dinámicamente los parciales del ciclo
+- Botón **"+ Agregar parcial"** en cada ciclo (hasta llegar a 6)
+- Botón **"🗑 Eliminar"** (solo en el último parcial, no publicado)
+- Layout grid se adapta: 3 / 4 / 5 / 6 columnas según cantidad
+- Nuevas actions: `agregarParcial(ciclo_id)`, `eliminarParcial(id)`
+
+### Form profesor (calificaciones-proponer)
+- Dropdown de parcial ahora es **dinámico** desde `parciales_config`
+- Muestra el **nombre real** del parcial (ej. "Primer parcial")
+- Si admin definió ventana de captura, muestra fechas debajo del selector
+- Aviso rojo si está fuera de ventana (informativo, no bloquea)
+- Fallback a [1,2,3] si admin aún no configura parciales
+
+## 24. Solicitud de apertura de parcial (maestro → admin)
+
+**Caso de uso:** el maestro necesita capturar un parcial que admin aún no abrió, o uno completamente nuevo (P4 para su grupo específico).
+
+### Migración
+- Tabla `solicitudes_parcial` con: ciclo_id, asignacion_id (opcional), numero, nombre_sugerido, motivo, fechas sugeridas, estado, solicitante, resolutor
+- RLS: maestro ve sus propias, admin ve todas
+
+### Flujo
+1. Maestro click "📋 Solicitar al admin la apertura de un parcial" en `/profesor/calificaciones-proponer`
+2. Llena form: número, nombre sugerido, fechas sugeridas, motivo (mín 10 chars)
+3. Admin recibe notificación
+4. Admin va a `/admin/parciales/solicitudes`, lee motivo, aprueba o rechaza
+5. Si aprueba: parcial se crea/actualiza automáticamente en `parciales_config`
+6. Maestro recibe notificación con resultado
+
+### UI admin
+- Cards de stats (pendientes/aprobadas/rechazadas)
+- Filtros pestaña
+- Cards por solicitud con motivo, fechas sugeridas, contexto de asignación
+- Botones "✅ Aprobar y crear/abrir" / "❌ Rechazar" (con prompt para motivo)
+
+## 25. Límite de 2 modificaciones de ficha del alumno
+
+**Caso de uso:** el alumno actualiza su ficha personal libremente, pero queremos limitar cambios excesivos sin justificación.
+
+### Migración
+- `ALTER alumnos ADD modificaciones_libres_usadas smallint DEFAULT 0`
+- Tabla `solicitudes_modificacion_ficha`: alumno_id, cambios jsonb, valores_anteriores jsonb, motivo, estado, resolutor
+- RLS dual: alumno ve/crea las suyas, admin ve todas
+
+### Reglas
+- Alumno tiene **2 modificaciones libres** por ciclo
+- A partir de la 3era: requiere **motivo escrito** + acudir físicamente a Control Escolar
+- Admin aprueba (aplica cambios al instante) o rechaza (con motivo)
+- Admin tiene botón "🔄 Reiniciar contador" para casos especiales
+
+### Detalle inteligente
+El sistema **solo cuenta como modificación** si REALMENTE cambió algún campo. Si el alumno abre el form y guarda sin cambiar nada, no incrementa el contador.
+
+### UI alumno (`/alumno/ficha`)
+- **Badge visible** "X modificaciones libres restantes" con color (verde/ámbar/rosa)
+- Si 0 libres: aviso azul explicando el procedimiento
+- Si tiene solicitud pendiente: aviso ámbar + botón deshabilitado
+- Si requiere aprobación: aparece campo Motivo obligatorio
+- Botón cambia: "💾 Guardar cambios" → "📤 Solicitar al admin"
+
+### UI admin (`/admin/alumnos/solicitudes-ficha`)
+- Bandeja con filtros + stats
+- Por cada solicitud: tabla "Cambios solicitados" con diff visual (anterior tachado → nuevo bold)
+- Motivo del alumno destacado
+- Botones aprobar/rechazar + "Reiniciar contador"
+- Link en sidebar admin sección "Personas"
+
+---
+
+## 📊 Estado final BD al cierre del 17 de mayo
+
+| Tabla | Filas / Notas |
+|---|---|
+| `solicitudes_parcial` | nueva, vacía esperando casos reales |
+| `solicitudes_modificacion_ficha` | nueva, vacía esperando uso |
+| `parciales_config` | 3 parciales del ciclo activo configurados |
+| `calificaciones_propuestas` | columnas `es_modificacion` + `valor_anterior` agregadas |
+| `alumnos` | columna `modificaciones_libres_usadas` agregada |
+
+## 🗂️ Migraciones aplicadas el 17 de mayo
+
+15. `calificaciones_propuestas_modificaciones`
+16. `parciales_flexible_hasta_6`
+17. `solicitudes_parcial`
+18. `limite_modificaciones_ficha_alumno`
+
+## 📦 Componentes y páginas nuevas (17 mayo)
+
+| Ruta/Componente | Tipo | Función |
+|---|---|---|
+| `/api/plantilla-calificaciones/[asignacionId]` | route | Genera XLSX precargado por asignación+parcial |
+| `/admin/parciales/solicitudes` | page | Bandeja de solicitudes de apertura de parcial |
+| `/admin/alumnos/solicitudes-ficha` | page | Bandeja de solicitudes de modificación de ficha |
+| `SolicitarParcialBtn.tsx` | component | Botón + form para solicitar parcial al admin |
+| `FichaForm.tsx` | component | Form de ficha con contador y aviso |
+| `ResolverForm.tsx` (parcial) | component | Botones aprobar/rechazar parcial |
+| `ResolverFichaForm.tsx` | component | Botones aprobar/rechazar ficha + reiniciar contador |
+
+---
+
+# 🎯 QUÉ LE FALTA AL SISTEMA — Análisis crítico al cierre de mayo
+
+## Prioridad ALTA (impacto inmediato)
+
+### 1. Activar correos reales
+- ✅ Código listo (`src/lib/email/send.ts` con Resend)
+- ⏸ Falta: configurar `RESEND_API_KEY` en Vercel
+- **Impacto sin esto:** los crons `resumen-semanal` y notificaciones por correo no se envían (quedan como `skipped` en `correo_log`)
+- **Esfuerzo:** 5 min — crear cuenta gratis en Resend (3000 correos/mes), generar key, pegarla en Vercel env vars
+
+### 2. Backup automático verificable
+- Supabase free tier tiene backup diario por 7 días (limitado)
+- Recomendación: pasar a Supabase Pro ($25/mes) para PITR 30 días + backups exportables
+- **Alternativa gratis:** cron mensual que ejecuta `pg_dump` y sube a Drive/Dropbox
+
+### 3. Foto de credencial / Carnet digital del alumno
+- Ya hay `foto_url` en `alumnos` pero falta:
+  - Endpoint que genera PDF/JPEG con credencial oficial del alumno (foto, datos, QR de verificación)
+  - QR que apunte a URL pública verificable
+- **Uso:** identificación en exámenes, salidas, eventos
+
+### 4. Boleta oficial firmada digitalmente
+- PDF de boleta ya existe pero sin sello/firma criptográfica
+- Falta: firmar con clave del director (E-Firma SAT) o al menos hash visible
+- **Uso:** validez ante autoridades educativas
+
+### 5. Reportes SEIEM oficiales
+- SEIEM requiere formatos XLSX específicos para reportes trimestrales
+- Falta: endpoint que genera el XLSX con la estructura oficial de SEIEM/COSFAC
+- **Uso crítico:** sin esto, el plantel debe re-capturar manualmente para enviar reportes
+
+## Prioridad MEDIA (mejora UX significativa)
+
+### 6. Notificaciones push web
+- Web Push API + Service Worker mejorado
+- Notifica al alumno/profesor en tiempo real sin tener la pestaña abierta
+- Reduce dependencia de revisar la campana
+
+### 7. App móvil nativa (React Native / Capacitor)
+- La PWA actual funciona en móvil pero no se siente nativa
+- React Native compartiría el backend, agrega: notificaciones push nativas, biometría
+- **Costo:** 1-2 meses de desarrollo
+
+### 8. Buscador global tipo Cmd+K
+- En todo el admin: tecla `Cmd/Ctrl+K` abre buscador instantáneo
+- Busca cross-entidades: alumnos, profesores, materias, grupos, asignaciones
+- **Mejora velocidad de operación 10x para admin con muchos datos**
+
+### 9. Modo oscuro
+- Tema dark para los layouts privados
+- Particularmente útil para uso prolongado del profesor capturando notas
+
+### 10. Exportes universales a Excel
+- Botón "Exportar" en CADA listado (alumnos, profesores, calificaciones, asistencia, etc.)
+- Hoy solo existe en algunos lados
+
+### 11. Búsqueda en chats y mensajes
+- Hoy si tienes 100 mensajes con un alumno, no puedes buscar por palabra
+- Agregar buscador dentro del hilo de mensajes
+
+### 12. Auditoría visible
+- Tabla `audit_log` existe en BD pero no tiene UI
+- Falta: página `/admin/auditoria` con filtros (quién/cuándo/qué tabla/qué cambió)
+
+## Prioridad MEDIA-BAJA (calidad de vida)
+
+### 13. Encuesta de satisfacción periódica
+- Cada bimestre lanzar encuesta a alumnos y padres (anónima)
+- Métricas para dirección sobre clima escolar
+
+### 14. WhatsApp Business API
+- Avisos masivos vía WhatsApp en lugar de solo correo
+- Costo: ~$0.04 USD por mensaje, requiere cuenta WhatsApp Business
+
+### 15. Pase de lista con QR
+- Cada alumno tiene QR único en su credencial digital
+- Profesor escanea desde su celular → asistencia capturada al instante
+- Reduce tiempo de pase de lista de 10 min a 2 min
+
+### 16. Plan de mejora individual (PMI)
+- Para alumnos en riesgo (score alto en `riesgo_snapshots`), crear plan con:
+  - Acciones específicas
+  - Responsables (orientador, padres)
+  - Fechas de seguimiento
+  - Resultados medibles
+
+### 17. Banco de exámenes / preguntas
+- Hoy cada examen es independiente
+- Crear "banco" de preguntas reutilizables entre exámenes y profesores
+- Genera exámenes aleatorios desde el banco
+
+### 18. Aprendizajes esperados (alineación NEM)
+- Cada actividad/examen vinculada a aprendizajes esperados específicos del programa NEM
+- Genera reportes de cobertura curricular automáticos
+
+### 19. Reglamento firmado digitalmente
+- Al primer login, el alumno debe leer y aceptar el reglamento escolar
+- Queda registro con timestamp y IP
+
+### 20. Tests E2E completos
+- Existe `tests/` con Playwright pero cobertura limitada
+- Falta: tests automatizados para flujos críticos (login, captura de calificaciones, solicitudes)
+- Cada deploy debería correr la suite
+
+## Prioridad BAJA (nice-to-have)
+
+### 21. IA generativa para asistencia
+- Botón en interventions: "✨ Generar borrador de mensaje al tutor"
+- Usa Claude API para redactar comunicaciones formales
+
+### 22. Calendario integrado con Google Calendar
+- Eventos institucionales se sincronizan automáticamente
+- Padres pueden suscribirse al calendario del plantel
+
+### 23. Pago en línea integrado
+- Stripe / OpenPay / Mercado Pago
+- Padres pagan colegiatura/donaciones desde el sistema
+- Recibo automático
+
+### 24. Recibos fiscales CFDI 4.0
+- Si el plantel facturar (donativos deducibles), integrar generación de CFDI
+- Requiere PAC y E-Firma del plantel
+
+### 25. Gestión de inventario y préstamos
+- Catálogo de libros, equipo, material deportivo
+- Préstamo con código QR, devolución, multas
+
+### 26. Comunidades por grupo
+- Cada grupo tiene su "mini red social" interna moderada
+- Avisos del orientador, dudas entre compañeros, encuestas
+
+### 27. Portafolio de evidencias enriquecido
+- Existe `portafolio` pero podría agregar:
+  - Versionado (entregas múltiples)
+  - Comentarios temporales
+  - Calificación con rúbrica
+  - Vinculación a aprendizajes esperados
+
+### 28. Multi-plantel
+- Si EPO 221 quiere replicar el sistema en otros planteles
+- Multi-tenant: una sola BD, múltiples escuelas
+- Permite a SEIEM gestionar 100+ planteles desde una instancia
+
+## Lo que YA está y funciona bien
+
+✅ Auth + RLS robusto · ✅ Roles (alumno/profesor/orientador/admin/staff/finanzas/director) · ✅ Flujo maestro→orientador→alumno con modificaciones · ✅ Parciales flexibles · ✅ Solicitudes de revisión con conversación · ✅ Importación masiva con plantilla · ✅ Detección temprana de riesgo · ✅ Crons (riesgo diario, resumen semanal listo) · ✅ Sitio público completo · ✅ Galería de videos institucional · ✅ Calendario · ✅ Avisos con confirmación · ✅ Tareas y exámenes en línea · ✅ Chat grupal y mensajes · ✅ Tutorías y citas · ✅ Evaluación docente anónima · ✅ Planeación didáctica con versionado · ✅ Constancias de servicio · ✅ Kardex/boleta PDF · ✅ Edición universal de perfil · ✅ Reset de contraseñas en 2 modos · ✅ PWA · ✅ Notificaciones in-app · ✅ Adjuntos en chats/solicitudes · ✅ Auditoría a nivel de BD
+
+## Recomendación priorizada para próximas iteraciones
+
+**Sprint 1 (1 semana):**
+1. Configurar Resend → activar correos a tutores
+2. Endpoint de credencial digital del alumno con QR
+3. Auditoría visible (`/admin/auditoria` page)
+
+**Sprint 2 (1 semana):**
+4. Exportes universales a Excel
+5. Buscador global (Cmd+K)
+6. Tests E2E críticos
+
+**Sprint 3 (2 semanas):**
+7. Reportes SEIEM oficiales
+8. Pase de lista con QR
+9. PMI (Plan de Mejora Individual)
+
+**Sprint 4 (1 mes):**
+10. App móvil con notificaciones push
+11. Multi-plantel si SEIEM lo solicita
+12. Pago en línea
+
+---
+
+**Bitácora de mayo 2026 (FINAL).**
+**Próxima fase:** ejecutar prueba del sábado → recopilar feedback → priorizar Sprint 1.
