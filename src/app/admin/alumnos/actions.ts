@@ -1,7 +1,7 @@
 'use server';
 
 import { adminClient } from '@/lib/supabase/admin';
-import { curpAEmail, esCurpValida } from '@/lib/auth';
+import { esCurpValida, nombreApellidoAEmail, PASSWORD_TEMPORAL } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import * as XLSX from 'xlsx';
@@ -159,34 +159,60 @@ export async function importarAlumnosExcel(formData: FormData) {
       continue;
     }
 
-    // Crear cuenta de acceso (si aún no tiene perfil y hay matrícula)
-    if (alumnoId && !existente?.perfil_id && matricula) {
-      // CRÍTICO: el email DEBE ir en minúsculas para evitar problemas de login case-sensitive
-      const emailLogin = curpAEmail(curp).toLowerCase();
+    // Crear o ACTUALIZAR cuenta de acceso
+    if (alumnoId && matricula) {
+      // Generar email tipo nombre.apellido@epo221.local
+      let emailLogin = nombreApellidoAEmail(nombre, apellidoPaterno);
       try {
-        const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
-          email: emailLogin, password: matricula, email_confirm: true,
-          user_metadata: { curp, rol: 'alumno' },
-        });
-        if (authErr) throw authErr;
-        if (authUser?.user) {
-          await admin.from('perfiles').insert({
-            id: authUser.user.id,
-            rol: 'alumno',
-            nombre: `${nombre} ${apellidoPaterno}`,
-            email: emailLogin,
-            debe_cambiar_password: false,  // No forzar cambio en primer login para evitar confusión
+        // ¿Ya existe ese email en auth?
+        const { data: { users: existentes } } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        const existing = (existentes ?? []).find((u: any) => u.email === emailLogin);
+
+        // Si existe pero es de OTRO alumno (no este), agregar matrícula al email
+        if (existing && existing.id !== existente?.perfil_id) {
+          emailLogin = nombreApellidoAEmail(nombre, apellidoPaterno, matricula);
+        }
+
+        let perfilIdParaVincular: string | null = existente?.perfil_id ?? null;
+
+        if (perfilIdParaVincular) {
+          // Actualizar email y password del usuario existente
+          await admin.auth.admin.updateUserById(perfilIdParaVincular, {
+            email: emailLogin, password: PASSWORD_TEMPORAL,
           });
-          await admin.from('alumnos').update({ perfil_id: authUser.user.id }).eq('id', alumnoId);
+          await admin.from('perfiles').update({
+            email: emailLogin, nombre: `${nombre} ${apellidoPaterno}`,
+            debe_cambiar_password: false,
+          }).eq('id', perfilIdParaVincular);
+        } else {
+          // Crear nuevo
+          const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
+            email: emailLogin, password: PASSWORD_TEMPORAL, email_confirm: true,
+            user_metadata: { curp, rol: 'alumno' },
+          });
+          if (authErr) throw authErr;
+          perfilIdParaVincular = authUser?.user?.id ?? null;
+
+          if (perfilIdParaVincular) {
+            await admin.from('perfiles').insert({
+              id: perfilIdParaVincular,
+              rol: 'alumno',
+              nombre: `${nombre} ${apellidoPaterno}`,
+              email: emailLogin,
+              debe_cambiar_password: false,
+            });
+          }
+        }
+
+        // VINCULAR alumno con su perfil (clave para evitar el bug de "cuenta no vinculada")
+        if (perfilIdParaVincular) {
+          await admin.from('alumnos').update({ perfil_id: perfilIdParaVincular }).eq('id', alumnoId);
         }
       } catch (e: any) {
-        // Si la cuenta ya existía (alumno reimportado en otra ocasión), no es un error fatal
-        if (!String(e.message ?? '').includes('already')) {
-          resumen.detalles.push({
-            fila: filaIdx, curp,
-            razon: `Alumno OK pero cuenta de login falló: ${e.message}`,
-          });
-        }
+        resumen.detalles.push({
+          fila: filaIdx, curp,
+          razon: `Alumno OK pero cuenta de login falló: ${e.message}`,
+        });
       }
     }
   }

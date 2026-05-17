@@ -1,19 +1,39 @@
 // Helpers de autenticación.
-// Supabase Auth usa email+password. Para permitir login con CURP+matrícula,
-// creamos un "email sintético" por alumno: {curp}@epo221.local
-// El usuario NUNCA ve este email; solo escribe su CURP.
+// Patrón de email institucional: nombre.apellido@epo221.local
+// Fácil de recordar para el alumno.
 
-const DOMINIO_SINTETICO = 'epo221.local';
+export const DOMINIO_SINTETICO = 'epo221.local';
+export const PASSWORD_TEMPORAL = 'TEMPORALEPO221!';
 
-// IMPORTANTE: email SIEMPRE en minúsculas para evitar problemas de login case-sensitive
-// (Supabase auth.users.email es case-sensitive en algunas configuraciones)
+// Normaliza texto a slug ASCII lowercase (sin acentos, sin espacios, sin símbolos)
+export const aSlug = (s: string): string => {
+  return (s || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')      // quitar diacríticos
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '')           // solo a-z y 0-9
+    .trim();
+};
+
+// Genera email institucional a partir del nombre y apellido paterno.
+// Ej: ("Diego", "Ramírez") -> "diego.ramirez@epo221.local"
+// Si hay duplicado, agrega un sufijo numérico o matricula.
+export const nombreApellidoAEmail = (nombre: string, apellidoPaterno: string, sufijo?: string): string => {
+  const nom = aSlug(nombre) || 'alumno';
+  const ape = aSlug(apellidoPaterno);
+  const base = ape ? `${nom}.${ape}` : nom;
+  const conSufijo = sufijo ? `${base}.${aSlug(sufijo)}` : base;
+  return `${conSufijo}@${DOMINIO_SINTETICO}`;
+};
+
+// LEGACY: aún disponible para compatibilidad pero ya no se usa para nuevos alumnos.
+// Sigue en minúsculas para evitar mismatch case-sensitive.
 export const curpAEmail = (curp: string) =>
   `${curp.trim().toLowerCase()}@${DOMINIO_SINTETICO}`;
 
 export const esCurpValida = (curp: string) =>
   /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/i.test(curp.trim());
 
-// Password inicial = matrícula. Forzamos cambio al primer login.
-// (La matrícula en texto plano se usa SOLO una vez, al crear la cuenta.)
-export const passwordInicialDesdeMatricula = (matricula: string) =>
-  matricula.trim();
+// Password inicial universal. El usuario puede cambiarla voluntariamente.
+export const passwordInicialDesdeMatricula = (_matricula: string) =>
+  PASSWORD_TEMPORAL;
