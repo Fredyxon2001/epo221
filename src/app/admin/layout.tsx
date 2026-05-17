@@ -51,6 +51,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       title: 'Personas',
       items: [
         { href: '/admin/alumnos', label: 'Alumnos', icon: '🎓' },
+        { href: '/admin/alumnos/solicitudes-ficha', label: 'Solicitudes de ficha', icon: '📝' },
         { href: '/admin/profesores', label: 'Profesores', icon: '👨‍🏫' },
         { href: '/admin/usuarios', label: 'Usuarios y contraseñas', icon: '🔑' },
       ],

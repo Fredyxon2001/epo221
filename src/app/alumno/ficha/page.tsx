@@ -1,11 +1,22 @@
-// Ficha personal editable (datos de contacto y tutor).
+// Ficha personal editable (datos de contacto y tutor) con límite de 2 modificaciones libres.
+import { createClient } from '@/lib/supabase/server';
 import { getAlumnoActual } from '@/lib/queries';
-import { actualizarFicha } from './actions';
 import { AvatarUploader } from '@/components/AvatarUploader';
+import { FichaForm } from './FichaForm';
 
 export default async function FichaAlumno() {
-  const a = (await getAlumnoActual())!;
+  const a = await getAlumnoActual();
+  if (!a) return null;
+  const supabase = createClient();
   const iniciales = `${a.nombre?.[0] ?? ''}${a.apellido_paterno?.[0] ?? ''}`.toUpperCase();
+
+  // Solicitud pendiente
+  const { data: solPendiente } = await supabase
+    .from('solicitudes_modificacion_ficha')
+    .select('id')
+    .eq('alumno_id', a.id)
+    .eq('estado', 'pendiente')
+    .maybeSingle();
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -31,32 +42,12 @@ export default async function FichaAlumno() {
         </p>
       </section>
 
-      {/* ── Datos editables ──────────────────────────────────── */}
-      <form action={actualizarFicha} className="bg-white rounded-lg p-5 shadow-sm space-y-4">
-        <h2 className="text-sm uppercase text-gray-500">Datos de contacto</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field name="email" label="Correo electrónico" type="email" defaultValue={a.email ?? ''} />
-          <Field name="telefono" label="Teléfono" defaultValue={a.telefono ?? ''} />
-          <Field name="direccion" label="Dirección" defaultValue={a.direccion ?? ''} full />
-          <Field name="codigo_postal" label="Código postal" defaultValue={a.codigo_postal ?? ''} />
-          <Field name="municipio" label="Municipio" defaultValue={a.municipio ?? ''} />
-        </div>
-
-        <h2 className="text-sm uppercase text-gray-500 pt-4 border-t">Tutor / responsable</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field name="tutor_nombre" label="Nombre del tutor" defaultValue={a.tutor_nombre ?? ''} />
-          <Field name="tutor_parentesco" label="Parentesco" defaultValue={a.tutor_parentesco ?? ''} />
-          <Field name="tutor_telefono" label="Teléfono del tutor" defaultValue={a.tutor_telefono ?? ''} />
-          <Field name="tutor_email" label="Correo del tutor" type="email" defaultValue={a.tutor_email ?? ''} />
-        </div>
-
-        <button
-          type="submit"
-          className="bg-verde hover:bg-verde-medio text-white font-semibold px-6 py-2 rounded-md transition"
-        >
-          Guardar cambios
-        </button>
-      </form>
+      {/* ── Datos editables con límite de modificaciones ──── */}
+      <FichaForm
+        a={a}
+        modificacionesUsadas={(a as any).modificaciones_libres_usadas ?? 0}
+        solicitudPendiente={!!solPendiente}
+      />
     </div>
   );
 }
@@ -67,19 +58,5 @@ function Info({ k, v, mono = false }: { k: string; v: string; mono?: boolean }) 
       <dt className="text-gray-500">{k}</dt>
       <dd className={mono ? 'font-mono text-xs' : ''}>{v}</dd>
     </>
-  );
-}
-
-function Field({ name, label, type = 'text', defaultValue, full = false }: any) {
-  return (
-    <label className={`block ${full ? 'md:col-span-2' : ''}`}>
-      <span className="text-xs text-gray-600">{label}</span>
-      <input
-        name={name}
-        type={type}
-        defaultValue={defaultValue}
-        className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-none"
-      />
-    </label>
   );
 }
