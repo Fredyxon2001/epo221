@@ -65,6 +65,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { href: '/admin/calificaciones', label: 'Calificaciones', icon: '📝' },
         { href: '/admin/ciclos', label: 'Ciclos', icon: '📅' },
         { href: '/admin/parciales', label: 'Parciales', icon: '⏱️' },
+        { href: '/admin/parciales/solicitudes', label: 'Solicitudes de parcial', icon: '📋' },
         { href: '/admin/planeaciones', label: 'Planeaciones', icon: '📝' },
         { href: '/admin/eval-docente', label: 'Evaluación docente', icon: '🧭' },
       ],

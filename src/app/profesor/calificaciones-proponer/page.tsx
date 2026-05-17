@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { ProponerCalificacionesForm } from './ProponerCalificacionesForm';
+import { SolicitarParcialBtn } from './SolicitarParcialBtn';
 
 export default async function ProponerCalificacionesPage({ searchParams }: { searchParams?: { asignacion_id?: string; parcial?: string } }) {
   const supabase = createClient();
@@ -158,6 +159,11 @@ export default async function ProponerCalificacionesPage({ searchParams }: { sea
             ⚠️ <strong>Captura fuera de ventana.</strong> El parcial {parcial} solo se puede capturar entre {parcialActual?.abre} y {parcialActual?.cierra}. Si necesitas capturar fuera de plazo, contacta a Control Escolar.
           </div>
         )}
+
+        {/* Solicitar apertura/creación de parcial al admin */}
+        <div className="mt-4 pt-3 border-t border-gray-200">
+          <SolicitarParcialBtn asignacionId={asignacion_id} />
+        </div>
 
         {orientNombre && (
           <div className="mt-3 text-xs text-gray-600 bg-amber-50 border-l-2 border-amber-400 p-2 rounded">
