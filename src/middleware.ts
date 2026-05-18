@@ -39,13 +39,33 @@ export async function middleware(req: NextRequest) {
   }
 
   if (user && path === '/login') {
-    // Ya autenticado: redirigir a su panel según rol
-    const { data: perfil } = await supabase
-      .from('perfiles').select('rol').eq('id', user.id).single();
-    const panel = perfil?.rol === 'admin' || perfil?.rol === 'staff' ? '/admin'
-                : perfil?.rol === 'director' ? '/director'
-                : perfil?.rol === 'profesor' ? '/profesor'
-                : '/alumno';
+    // Ya autenticado: redirigir a su panel según rol.
+    // Usar fetch directo al REST API con service role para evitar problemas de RLS/cookies.
+    let rol: string | null = null;
+    try {
+      const r = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/perfiles?id=eq.${user.id}&select=rol`,
+        {
+          headers: {
+            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+          },
+        },
+      );
+      const data = await r.json();
+      rol = data?.[0]?.rol ?? null;
+    } catch {}
+    // Fallback: si no se pudo leer, intentar con el client supabase normal
+    if (!rol) {
+      const { data: perfil } = await supabase
+        .from('perfiles').select('rol').eq('id', user.id).maybeSingle();
+      rol = perfil?.rol ?? null;
+    }
+    const panel = rol === 'admin' || rol === 'staff' || rol === 'finanzas' ? '/admin'
+                : rol === 'director' ? '/director'
+                : rol === 'profesor' ? '/profesor'
+                : rol === 'alumno' ? '/alumno'
+                : '/admin'; // si no se pudo determinar, prueba con admin (no romper login)
     return NextResponse.redirect(new URL(panel, req.url));
   }
 

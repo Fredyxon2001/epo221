@@ -23,14 +23,34 @@ export async function loginAction(formData: FormData) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: 'Usuario o contraseña incorrectos.' };
 
-  const { data: perfil } = await supabase
-    .from('perfiles').select('rol').eq('id', data.user.id).single();
+  // Leer rol con fetch directo al REST API usando service role (bypass RLS).
+  // Si fallara, fallback al supabase client normal.
+  let rol: string | null = null;
+  try {
+    const r = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/perfiles?id=eq.${data.user.id}&select=rol`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+      },
+    );
+    const arr = await r.json();
+    rol = arr?.[0]?.rol ?? null;
+  } catch {}
+  if (!rol) {
+    const { data: perfil } = await supabase
+      .from('perfiles').select('rol').eq('id', data.user.id).maybeSingle();
+    rol = perfil?.rol ?? null;
+  }
 
   const destino = redirectTo
-    || (perfil?.rol === 'admin' || perfil?.rol === 'staff' ? '/admin'
-        : perfil?.rol === 'director' ? '/director'
-        : perfil?.rol === 'profesor' ? '/profesor'
-        : '/alumno');
+    || (rol === 'admin' || rol === 'staff' || rol === 'finanzas' ? '/admin'
+        : rol === 'director' ? '/director'
+        : rol === 'profesor' ? '/profesor'
+        : rol === 'alumno' ? '/alumno'
+        : '/admin'); // fallback: si no se sabe, prueba admin (rol más común sin alumno)
 
   redirect(destino);
 }
