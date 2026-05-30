@@ -3,6 +3,7 @@ import { PrivateShell } from '@/components/privado/PrivateShell';
 import { Topbar } from '@/components/privado/Topbar';
 import { PageTransition } from '@/components/privado/PageTransition';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
@@ -11,9 +12,10 @@ export default async function DirectorLayout({ children }: { children: React.Rea
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: perfil } = await supabase
-    .from('perfiles').select('nombre, email, rol').eq('id', user.id).single();
-  if (!perfil || !['director', 'admin'].includes(perfil.rol)) redirect('/');
+  const admin = adminClient();
+  const { data: perfil } = await admin
+    .from('perfiles').select('nombre, email, rol').eq('id', user.id).maybeSingle();
+  if (!perfil || !['director', 'admin'].includes((perfil as any).rol)) redirect('/');
 
   const { items: notiItems, noLeidas } = await getNotificaciones(user.id, 10);
   const { data: sitioCfg } = await supabase.from('sitio_config').select('logo_url').maybeSingle();

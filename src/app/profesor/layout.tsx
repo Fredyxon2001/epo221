@@ -3,6 +3,7 @@ import { PrivateShell } from '@/components/privado/PrivateShell';
 import { Topbar } from '@/components/privado/Topbar';
 import { PageTransition } from '@/components/privado/PageTransition';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
@@ -11,9 +12,11 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: perfil } = await supabase
-    .from('perfiles').select('*').eq('id', user.id).single();
-  if (!perfil || !['profesor', 'admin', 'staff'].includes(perfil.rol)) redirect('/');
+  // Usar adminClient para evitar fallos de RLS al leer perfil
+  const admin = adminClient();
+  const { data: perfil } = await admin
+    .from('perfiles').select('*').eq('id', user.id).maybeSingle();
+  if (!perfil || !['profesor', 'admin', 'staff'].includes((perfil as any).rol)) redirect('/');
 
   const { data: profesor } = await supabase
     .from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
