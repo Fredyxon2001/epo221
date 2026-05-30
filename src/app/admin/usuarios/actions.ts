@@ -3,13 +3,14 @@
 // Roles: alumno, profesor, director, admin, staff, finanzas (+ orientador = profesor con grupos)
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 type Rol = 'alumno' | 'profesor' | 'director' | 'admin' | 'staff' | 'finanzas';
 
 async function requireAdmin() {
-  const supabase = createClient();
+  const supabase = adminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' as const };
   const { data: p } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();

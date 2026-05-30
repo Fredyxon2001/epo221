@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -24,7 +25,7 @@ export async function guardarParcial(formData: FormData) {
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
 
-  const supabase = createClient();
+  const supabase = adminClient();
   await supabase
     .from('parciales_config')
     .upsert(parsed.data, { onConflict: 'ciclo_id,numero' });
@@ -35,7 +36,7 @@ export async function agregarParcial(formData: FormData): Promise<void> {
   const ciclo_id = String(formData.get('ciclo_id') ?? '');
   if (!ciclo_id) return;
 
-  const supabase = createClient();
+  const supabase = adminClient();
   // Determinar el siguiente número de parcial disponible
   const { data: existentes } = await supabase
     .from('parciales_config').select('numero').eq('ciclo_id', ciclo_id);
@@ -55,7 +56,7 @@ export async function agregarParcial(formData: FormData): Promise<void> {
 export async function eliminarParcial(formData: FormData): Promise<void> {
   const id = String(formData.get('id') ?? '');
   if (!id) return;
-  const supabase = createClient();
+  const supabase = adminClient();
   // Solo permitir borrar parciales sin calificaciones aplicadas
   await supabase.from('parciales_config').delete().eq('id', id);
   revalidatePath('/admin/parciales');

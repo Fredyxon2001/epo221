@@ -1,10 +1,11 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearAsignacion(formData: FormData) {
-  const supabase = createClient();
+  const supabase = adminClient();
   const grupoId = String(formData.get('grupo_id'));
 
   // Si no se seleccionó ciclo explícitamente, tomarlo del grupo
@@ -30,7 +31,7 @@ export async function crearAsignacion(formData: FormData) {
 }
 
 export async function actualizarProfesorAsignacion(formData: FormData) {
-  const supabase = createClient();
+  const supabase = adminClient();
   const id = String(formData.get('id'));
   const profesorId = String(formData.get('profesor_id') ?? '').trim() || null;
 
@@ -39,7 +40,7 @@ export async function actualizarProfesorAsignacion(formData: FormData) {
 }
 
 export async function eliminarAsignacion(formData: FormData) {
-  const supabase = createClient();
+  const supabase = adminClient();
   await supabase.from('asignaciones').delete().eq('id', String(formData.get('id')));
   revalidatePath('/admin/asignaciones');
   revalidatePath('/admin/grupos');

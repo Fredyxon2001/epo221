@@ -1,13 +1,14 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { gradoDeSemestre, siguienteSemestre } from '@/lib/grupos';
 
 // ───────────────────────── Crear 1 grupo suelto ─────────────────────────
 export async function crearGrupo(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const supabase = adminClient();
   const semestre = Number(formData.get('semestre'));
   const grupo = Number(formData.get('grupo'));
   const grado = gradoDeSemestre(semestre);
@@ -29,7 +30,7 @@ export async function crearGrupo(formData: FormData): Promise<void> {
 
 // ──────────────── Crear MÚLTIPLES grupos por semestre (bulk) ────────────────
 export async function crearGruposBulk(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const supabase = adminClient();
 
   const cicloId = String(formData.get('ciclo_id'));
   const semestre = Number(formData.get('semestre'));
@@ -88,7 +89,7 @@ export async function crearGruposBulk(formData: FormData): Promise<void> {
 
 // ──────────────── Crear asignación suelta (materia → grupo) ────────────────
 export async function crearAsignacion(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const supabase = adminClient();
   const grupoId = String(formData.get('grupo_id'));
   const { data: grupo } = await supabase
     .from('grupos').select('ciclo_id').eq('id', grupoId).single();
@@ -107,7 +108,7 @@ export async function crearAsignacion(formData: FormData): Promise<void> {
 // Toma TODAS las materias activas del semestre y las asigna al grupo
 // (idempotente — no duplica).
 export async function sembrarAsignaciones(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const supabase = adminClient();
   const grupoId = String(formData.get('grupo_id'));
 
   const { data: grupo } = await supabase
@@ -135,7 +136,7 @@ export async function sembrarAsignaciones(formData: FormData): Promise<void> {
 // ──────────────────────── Cambiar alumno de grupo ────────────────────────
 // Útil cuando se mueve dentro del mismo ciclo (mismo semestre u otro).
 export async function cambiarAlumnoDeGrupo(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const supabase = adminClient();
   const alumnoId = String(formData.get('alumno_id'));
   const nuevoGrupoId = String(formData.get('grupo_id'));
   if (!alumnoId || !nuevoGrupoId) redirect('/admin/grupos?error=Faltan+datos');
@@ -169,7 +170,7 @@ export async function cambiarAlumnoDeGrupo(formData: FormData): Promise<void> {
 // origen: grupo del ciclo anterior; destino: grupo del ciclo nuevo.
 // Si 'repetidores' contiene ids de alumnos, NO los promueve (quedan en mismo sem).
 export async function promoverGrupo(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const supabase = adminClient();
   const grupoOrigenId = String(formData.get('grupo_origen_id'));
   const grupoDestinoId = String(formData.get('grupo_destino_id'));
   const repetidoresRaw = String(formData.get('repetidores') ?? '');
@@ -241,7 +242,7 @@ export async function promoverGrupo(formData: FormData): Promise<void> {
 
 // ──────────────── Asignar orientador a un grupo ────────────────
 export async function asignarOrientador(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const supabase = adminClient();
   const grupoId = String(formData.get('grupo_id'));
   const profesorId = String(formData.get('profesor_id') ?? '') || null;
 
@@ -259,7 +260,7 @@ export async function sugerirGrupoDestino(
   grupoOrigenId: string,
   cicloDestinoId: string,
 ): Promise<string | null> {
-  const supabase = createClient();
+  const supabase = adminClient();
   const { data: origen } = await supabase
     .from('grupos').select('semestre, grupo, turno').eq('id', grupoOrigenId).single();
   if (!origen) return null;

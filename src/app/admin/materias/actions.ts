@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -34,7 +35,7 @@ export async function actualizarMateria(formData: FormData) {
   if (!parsed.success) {
     throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
   }
-  const supabase = createClient();
+  const supabase = adminClient();
   await supabase
     .from('materias')
     .update({
@@ -52,7 +53,7 @@ export async function crearMateria(formData: FormData) {
   if (!parsed.success) {
     throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
   }
-  const supabase = createClient();
+  const supabase = adminClient();
   await supabase.from('materias').insert({
     nombre: parsed.data.nombre,
     semestre: parsed.data.semestre,
@@ -66,7 +67,7 @@ export async function crearMateria(formData: FormData) {
 export async function eliminarMateria(formData: FormData) {
   const id = String(formData.get('id'));
   if (!id) throw new Error('ID requerido');
-  const supabase = createClient();
+  const supabase = adminClient();
   // Borrado lógico: marca deleted_at. Si la columna no existe aún, cae a delete físico.
   const { error } = await supabase
     .from('materias')

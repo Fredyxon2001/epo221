@@ -2,6 +2,7 @@
 
 import { adminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearProfesor(formData: FormData) {
@@ -35,7 +36,7 @@ export async function crearProfesor(formData: FormData) {
 }
 
 export async function toggleProfesor(formData: FormData) {
-  const supabase = createClient();
+  const supabase = adminClient();
   await supabase.from('profesores')
     .update({ activo: formData.get('activo') === '1' })
     .eq('id', String(formData.get('id')));
