@@ -24,6 +24,51 @@ const getCol = (row: any, ...nombres: string[]) => {
   return null;
 };
 
+/**
+ * Normaliza una fecha que viene del Excel a formato YYYY-MM-DD.
+ * Soporta:
+ *  - Serial de Excel (número 37948 → 2003-11-18)
+ *  - Strings tipo "12/03/2005", "12-03-2005", "2005-03-12"
+ *  - Date objects ya parseados por xlsx
+ */
+const parseFecha = (raw: string | null): string | null => {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+
+  // Caso 1: serial numérico de Excel (días desde 1900-01-01, ajuste por bug 1900-02-29)
+  if (/^\d{1,6}$/.test(s)) {
+    const serial = parseInt(s, 10);
+    // Excel epoch 1900-01-01 con offset de 25569 días para llegar a Unix epoch (1970-01-01)
+    const ms = (serial - 25569) * 86400 * 1000;
+    const d = new Date(ms);
+    if (!isNaN(d.getTime()) && d.getFullYear() > 1900 && d.getFullYear() < 2100) {
+      return d.toISOString().slice(0, 10);
+    }
+  }
+
+  // Caso 2: ISO YYYY-MM-DD (ya bueno)
+  if (/^\d{4}-\d{1,2}-\d{1,2}/.test(s)) {
+    return s.slice(0, 10);
+  }
+
+  // Caso 3: DD/MM/YYYY o DD-MM-YYYY
+  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m) {
+    let [, dd, mm, yy] = m;
+    if (yy.length === 2) yy = (parseInt(yy, 10) > 30 ? '19' : '20') + yy;
+    return `${yy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+  }
+
+  // Último intento: dejar que Date lo parsee
+  const d = new Date(s);
+  if (!isNaN(d.getTime()) && d.getFullYear() > 1900 && d.getFullYear() < 2100) {
+    return d.toISOString().slice(0, 10);
+  }
+
+  return null;
+};
+
 type ResumenImport = {
   creados: number;
   actualizados: number;
@@ -99,7 +144,7 @@ export async function importarAlumnosExcel(formData: FormData) {
     const matricula       = getCol(row, 'MATRICULA', 'MATRÍCULA');
     const sexoRaw         = getCol(row, 'SEXO', 'GENERO', 'GÉNERO');
     const sexo            = sexoRaw ? sexoRaw.charAt(0).toUpperCase() : null;
-    const fechaNac        = getCol(row, 'FECHA NACIMIENTO', 'FECHANACIMIENTO', 'NACIMIENTO', 'FECHA_NACIMIENTO');
+    const fechaNac        = parseFecha(getCol(row, 'FECHA NACIMIENTO', 'FECHANACIMIENTO', 'NACIMIENTO', 'FECHA_NACIMIENTO'));
     const generacion      = getCol(row, 'GENERACION', 'GENERACIÓN');
     const procedencia     = getCol(row, 'ESCUELA PROCEDENCIA', 'PROCEDENCIA', 'ESCUELA DE PROCEDENCIA');
     const email           = getCol(row, 'EMAIL', 'CORREO', 'CORREO ELECTRONICO', 'CORREO ELECTRÓNICO');
