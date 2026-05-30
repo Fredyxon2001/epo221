@@ -123,12 +123,32 @@ export async function importarAlumnosExcel(formData: FormData) {
   let filaIdx = 1; // 1-indexed (excel)
   for (const row of filas) {
     filaIdx++;
-    const curp = (getCol(row, 'CURP') ?? '').toUpperCase();
+    // Limpia: quita TODO lo que no sea letra/dígito (espacios, zero-width, BOM, tabs, guiones)
+    const curpRaw = (getCol(row, 'CURP') ?? '');
+    const curp = curpRaw.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
-    if (!esCurpValida(curp)) {
+    if (curp.length !== 18) {
       resumen.errores++;
-      resumen.detalles.push({ fila: filaIdx, razon: `CURP inválida: "${curp || '(vacía)'}"` });
+      resumen.detalles.push({
+        fila: filaIdx,
+        razon: `CURP debe tener 18 caracteres (tiene ${curp.length}): "${curp || '(vacía)'}"`,
+      });
       continue;
+    }
+
+    // Si pasa regex estricta del SEP, OK. Si no, aceptar igual con warning interno
+    // (algunos CURPs viejos o de extranjeros varían en el discriminador).
+    if (!esCurpValida(curp)) {
+      // Última validación mínima: 4 letras + 6 dígitos + H/M
+      if (!/^[A-Z]{4}\d{6}[HM]/.test(curp)) {
+        resumen.errores++;
+        resumen.detalles.push({
+          fila: filaIdx,
+          razon: `CURP con formato inválido (4 letras + 6 dígitos + H/M esperado): "${curp}"`,
+        });
+        continue;
+      }
+      // Pasa la validación mínima, continúa aunque la regex estricta falle
     }
 
     const nombre          = getCol(row, 'NOMBRE', 'NOMBRES', 'NOMBRE(S)');
