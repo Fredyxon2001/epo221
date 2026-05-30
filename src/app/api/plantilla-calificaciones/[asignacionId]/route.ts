@@ -3,14 +3,17 @@
 import { NextRequest } from 'next/server';
 import * as XLSX from 'xlsx';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest, { params }: { params: { asignacionId: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
+  // Usa adminClient para queries (bypass RLS, evita resultados vacíos por cookies edge)
+  const supabase = adminClient();
 
   const url = new URL(req.url);
   const parcial = Number(url.searchParams.get('parcial') ?? '1');

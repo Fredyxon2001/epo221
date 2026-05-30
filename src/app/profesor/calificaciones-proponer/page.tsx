@@ -1,12 +1,15 @@
 // MAESTRO: propone calificaciones por parcial; el orientador del grupo las valida
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { ProponerCalificacionesForm } from './ProponerCalificacionesForm';
 import { SolicitarParcialBtn } from './SolicitarParcialBtn';
 
 export default async function ProponerCalificacionesPage({ searchParams }: { searchParams?: { asignacion_id?: string; parcial?: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const { data: { user } } = await auth.auth.getUser();
+  // Usa adminClient para todas las queries (bypass RLS)
+  const supabase = adminClient();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!prof) return <div className="p-5">No eres docente.</div>;
 

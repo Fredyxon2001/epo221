@@ -1,10 +1,11 @@
 // Captura de calificaciones por grupo.
-import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { guardarCalificaciones, exportarCSV } from './actions';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function CapturaGrupo({ params }: { params: { asignacionId: string } }) {
-  const supabase = createClient();
+  // Usa adminClient para evitar fallos RLS sobre alumnos/inscripciones
+  const supabase = adminClient();
 
   const { data: asig } = await supabase
     .from('asignaciones')
@@ -14,7 +15,7 @@ export default async function CapturaGrupo({ params }: { params: { asignacionId:
       grupo:grupos(grado, semestre, grupo, turno),
       ciclo:ciclos_escolares(codigo, periodo)
     `)
-    .eq('id', params.asignacionId).single();
+    .eq('id', params.asignacionId).maybeSingle();
 
   // Alumnos inscritos en ese grupo + ciclo
   const { data: alumnos } = await supabase
@@ -27,7 +28,7 @@ export default async function CapturaGrupo({ params }: { params: { asignacionId:
     .eq('estatus', 'activa');
 
   // Calificaciones existentes
-  const ids = (alumnos ?? []).map((a: any) => a.alumno.id);
+  const ids = (alumnos ?? []).map((a: any) => a.alumno?.id).filter(Boolean);
   const { data: califs } = await supabase
     .from('calificaciones').select('*')
     .eq('asignacion_id', params.asignacionId)

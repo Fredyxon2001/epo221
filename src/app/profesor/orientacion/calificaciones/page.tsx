@@ -1,11 +1,13 @@
 // ORIENTADOR: bandeja de propuestas de calificaciones por validar
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import { AccionPropuestaForm } from './AccionPropuestaForm';
 
 export default async function OrientadorCalificaciones({ searchParams }: { searchParams?: { estado?: string; grupo_id?: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!prof) return <div className="p-5">No eres docente.</div>;
 

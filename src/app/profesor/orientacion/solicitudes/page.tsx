@@ -1,6 +1,7 @@
 // Bandeja de SOLICITUDES de revisión que el ORIENTADOR debe acompañar.
 // Cada solicitud creada para una asignación de un grupo orientado por mí aparece aquí.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { ConversacionSolicitud } from '@/components/solicitudes/Conversacion';
 
@@ -9,8 +10,9 @@ const ESTADO_TONO: Record<string, any> = {
 };
 
 export default async function OrientadorSolicitudes({ searchParams }: { searchParams?: { estado?: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!prof) return <div className="p-5">No eres docente.</div>;
 

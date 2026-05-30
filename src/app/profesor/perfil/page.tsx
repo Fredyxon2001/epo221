@@ -1,12 +1,14 @@
 // Perfil editable del docente / orientador.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge } from '@/components/privado/ui';
 import { PerfilEditor } from '@/components/perfil/PerfilEditor';
 
 export default async function PerfilProfesor() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return null;
+  const supabase = adminClient();
 
   const { data: perfil } = await supabase
     .from('perfiles')
@@ -25,16 +27,17 @@ export default async function PerfilProfesor() {
   // Cargar grupos orientados y asignaciones impartidas
   let gruposOrientados: any[] = [];
   let asignaciones: any[] = [];
-  if (prof?.id) {
+  if ((prof as any)?.id) {
+    const pid = (prof as any).id;
     const [orient, asigs] = await Promise.all([
       supabase.from('grupos')
         .select('id, grado, semestre, grupo, turno, ciclo:ciclos_escolares(codigo)')
-        .eq('orientador_id', prof.id)
+        .eq('orientador_id', pid)
         .is('deleted_at', null)
         .order('grado').order('grupo'),
       supabase.from('asignaciones')
         .select('id, materia:materias(nombre), grupo:grupos(grado, semestre, grupo, turno), ciclo:ciclos_escolares(codigo, activo)')
-        .eq('profesor_id', prof.id)
+        .eq('profesor_id', pid)
         .order('created_at', { ascending: false }),
     ]);
     gruposOrientados = orient.data ?? [];

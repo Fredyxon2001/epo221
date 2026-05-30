@@ -1,13 +1,15 @@
 // Grupos donde el profesor es ORIENTADOR (tutor). Puede ver panorama
 // completo: alumnos, asistencia acumulada, riesgo, observaciones.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, StatCard, Badge, EmptyState } from '@/components/privado/ui';
 import { codigoGrupo } from '@/lib/grupos';
 import Link from 'next/link';
 
 export default async function Orientacion() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
   if (!profesor?.id) {

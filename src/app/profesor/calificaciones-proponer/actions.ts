@@ -94,7 +94,7 @@ export async function enviarPropuestasCalificaciones(fd: FormData): Promise<{ ok
     return { ok: true, total: 0, error: `Sin cambios detectados (${sinCambio} alumnos ya tenían esos mismos valores validados)` };
   }
 
-  const { error } = await supabase.from('calificaciones_propuestas').insert(rows);
+  const { error } = await admin.from('calificaciones_propuestas').insert(rows);
   if (error) return { error: error.message };
 
   // Notificar al orientador del grupo (mensajes distintos según haya modificaciones)
