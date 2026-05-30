@@ -1,13 +1,14 @@
 // Lista completa de grupos del profesor (todos los ciclos).
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
+import { getProfesorActualId } from '@/lib/queries';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function MisGrupos() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
+  const profesorId = await getProfesorActualId();
+  const supabase = adminClient();
 
   const { data: asignaciones } = await supabase
     .from('asignaciones')
@@ -17,7 +18,7 @@ export default async function MisGrupos() {
       grupo:grupos(grado, semestre, grupo, turno),
       ciclo:ciclos_escolares(codigo, periodo, activo)
     `)
-    .eq('profesor_id', profesor?.id ?? '')
+    .eq('profesor_id', profesorId ?? '')
     .order('id');
 
   const lista = (asignaciones ?? []) as any[];

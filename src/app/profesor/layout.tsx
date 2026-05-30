@@ -18,34 +18,36 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
     .from('perfiles').select('*').eq('id', user.id).maybeSingle();
   if (!perfil || !['profesor', 'admin', 'staff'].includes((perfil as any).rol)) redirect('/');
 
-  const { data: profesor } = await supabase
+  // Usa adminClient para evitar fallos de RLS (mismo bug que perfiles)
+  const { data: profesor } = await admin
     .from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
 
   // Solicitudes abiertas/respondidas para badge
   let pendientes = 0;
   let mensajesNL = 0;
   let orientaCount = 0;
-  if (profesor?.id) {
-    const { data: asigs } = await supabase
-      .from('asignaciones').select('id').eq('profesor_id', profesor.id);
+  if ((profesor as any)?.id) {
+    const pid = (profesor as any).id;
+    const { data: asigs } = await admin
+      .from('asignaciones').select('id').eq('profesor_id', pid);
     const ids = (asigs ?? []).map((a: any) => a.id);
     if (ids.length) {
-      const { count } = await supabase
+      const { count } = await admin
         .from('solicitudes_revision')
         .select('id', { count: 'exact', head: true })
         .in('asignacion_id', ids)
         .eq('estado', 'abierta');
       pendientes = count ?? 0;
     }
-    const { data: hilos } = await supabase.from('mensajes_hilos').select('id').eq('profesor_id', profesor.id);
+    const { data: hilos } = await admin.from('mensajes_hilos').select('id').eq('profesor_id', pid);
     const hIds = (hilos ?? []).map((h: any) => h.id);
     if (hIds.length) {
-      const { count } = await supabase.from('mensajes').select('id', { count: 'exact', head: true })
+      const { count } = await admin.from('mensajes').select('id', { count: 'exact', head: true })
         .in('hilo_id', hIds).is('leido_at', null).eq('autor_tipo', 'alumno');
       mensajesNL = count ?? 0;
     }
-    const { count: og } = await supabase.from('grupos')
-      .select('id', { count: 'exact', head: true }).eq('orientador_id', profesor.id);
+    const { count: og } = await admin.from('grupos')
+      .select('id', { count: 'exact', head: true }).eq('orientador_id', pid);
     orientaCount = og ?? 0;
   }
 

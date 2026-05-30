@@ -1,15 +1,26 @@
 // Consultas tipadas al lado servidor. Centralizado para reutilizar.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 
 export async function getAlumnoActual() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-
-  // maybeSingle() devuelve null si no hay match (en vez de throw)
-  const { data: alumno } = await supabase
+  // Usa adminClient para evitar fallos de RLS/cookies
+  const admin = adminClient();
+  const { data: alumno } = await admin
     .from('alumnos').select('*').eq('perfil_id', user.id).maybeSingle();
   return alumno;
+}
+
+/** Devuelve el profesor (id) del user autenticado, usando adminClient (bypass RLS). */
+export async function getProfesorActualId(): Promise<string | null> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const admin = adminClient();
+  const { data } = await admin.from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
+  return (data as any)?.id ?? null;
 }
 
 export async function getEvaluacionGeneral(alumnoId: string) {

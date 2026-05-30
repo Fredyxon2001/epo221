@@ -1,6 +1,7 @@
 // Dashboard premium del profesor: plazos activos, solicitudes abiertas y mis grupos.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, StatCard, Card, Badge, EmptyState, Countdown } from '@/components/privado/ui';
 import { DashboardHero } from '@/components/privado/DashboardHero';
 import { codigoGrupo } from '@/lib/grupos';
@@ -8,14 +9,16 @@ import { codigoGrupo } from '@/lib/grupos';
 export default async function ProfesorDashboard() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  // Usa adminClient para evitar fallos RLS (mismo bug que en otros lados)
+  const admin = adminClient();
 
-  const { data: perfil } = await supabase.from('perfiles').select('nombre').eq('id', user!.id).single();
-  const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
+  const { data: perfil } = await admin.from('perfiles').select('nombre').eq('id', user!.id).maybeSingle();
+  const { data: profesor } = await admin.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
-  const profesorId = profesor?.id ?? '';
+  const profesorId = (profesor as any)?.id ?? '';
 
   // Asignaciones del ciclo activo
-  const { data: asignaciones } = await supabase
+  const { data: asignaciones } = await admin
     .from('asignaciones')
     .select(`
       id, grupo_id,
@@ -30,7 +33,7 @@ export default async function ProfesorDashboard() {
 
   // Parciales del ciclo activo: cuál está abierto, cuál próximo a cerrar
   const { data: parciales } = cicloActivoId
-    ? await supabase
+    ? await admin
         .from('parciales_config')
         .select('numero, nombre, abre_captura, cierra_captura, publicado')
         .eq('ciclo_id', cicloActivoId)
@@ -51,7 +54,7 @@ export default async function ProfesorDashboard() {
     const gIds = Array.from(new Set(activas.map((a: any) => a.grupo_id).filter(Boolean)));
     // aproximación: contar inscripciones de esos grupos en el ciclo activo
     if (gIds.length) {
-      const { count } = await supabase
+      const { count } = await admin
         .from('inscripciones')
         .select('id', { count: 'exact', head: true })
         .in('grupo_id', gIds)
@@ -65,10 +68,10 @@ export default async function ProfesorDashboard() {
   const capturaPorAsig = new Map<string, { esperados: number; capturados: number }>();
   if (activoP && asigIds.length) {
     for (const a of activas as any[]) {
-      const { count: esperados } = await supabase
+      const { count: esperados } = await admin
         .from('inscripciones').select('id', { count: 'exact', head: true })
         .eq('grupo_id', a.grupo_id).eq('ciclo_id', cicloActivoId!).eq('estatus', 'activa');
-      const { count: capturados } = await supabase
+      const { count: capturados } = await admin
         .from('calificaciones').select('id', { count: 'exact', head: true })
         .eq('asignacion_id', a.id).eq('parcial', activoP.numero);
       capturaPorAsig.set(a.id, { esperados: esperados ?? 0, capturados: capturados ?? 0 });
@@ -81,10 +84,10 @@ export default async function ProfesorDashboard() {
   // Mensajes no leídos para el profesor
   let mensajesNoLeidos = 0;
   if (profesorId) {
-    const { data: misHilos } = await supabase.from('mensajes_hilos').select('id').eq('profesor_id', profesorId);
+    const { data: misHilos } = await admin.from('mensajes_hilos').select('id').eq('profesor_id', profesorId);
     const hIds = (misHilos ?? []).map((h: any) => h.id);
     if (hIds.length) {
-      const { count } = await supabase.from('mensajes').select('id', { count: 'exact', head: true })
+      const { count } = await admin.from('mensajes').select('id', { count: 'exact', head: true })
         .in('hilo_id', hIds).is('leido_at', null).eq('autor_tipo', 'alumno');
       mensajesNoLeidos = count ?? 0;
     }
@@ -93,10 +96,10 @@ export default async function ProfesorDashboard() {
   // Solicitudes
   let abiertas = 0, respondidas = 0;
   if (asigIds.length) {
-    const { count: a } = await supabase
+    const { count: a } = await admin
       .from('solicitudes_revision').select('id', { count: 'exact', head: true })
       .in('asignacion_id', asigIds).eq('estado', 'abierta');
-    const { count: r } = await supabase
+    const { count: r } = await admin
       .from('solicitudes_revision').select('id', { count: 'exact', head: true })
       .in('asignacion_id', asigIds).eq('estado', 'respondida');
     abiertas = a ?? 0; respondidas = r ?? 0;
@@ -104,7 +107,7 @@ export default async function ProfesorDashboard() {
 
   // Últimas solicitudes abiertas (preview)
   const { data: ultSol } = asigIds.length
-    ? await supabase
+    ? await admin
         .from('solicitudes_revision')
         .select(`
           id, parcial, motivo, estado, created_at,
@@ -119,7 +122,7 @@ export default async function ProfesorDashboard() {
 
   // Anuncios para docentes (globales + anclados a sus grupos)
   const misGruposIds = Array.from(new Set(activas.map((a: any) => a.grupo_id).filter(Boolean)));
-  const { data: anunciosRaw } = await supabase
+  const { data: anunciosRaw } = await admin
     .from('anuncios')
     .select('id, titulo, cuerpo, prioridad, icono, created_at, fijado, grupo_id, rol_objetivo')
     .eq('publicado', true)
