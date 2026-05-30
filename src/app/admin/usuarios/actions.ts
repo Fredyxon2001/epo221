@@ -3,7 +3,6 @@
 // Roles: alumno, profesor, director, admin, staff, finanzas (+ orientador = profesor con grupos)
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
-import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
