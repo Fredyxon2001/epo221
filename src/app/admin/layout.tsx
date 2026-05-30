@@ -114,6 +114,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         { href: '/admin/push', label: 'Push notifications', icon: '🔔' },
         { href: '/app-movil', label: 'App móvil', icon: '📱' },
         { href: '/admin/perfil', label: 'Mi perfil', icon: '👤' },
+        { href: '/cambiar-password', label: 'Cambiar contraseña', icon: '🔒' },
       ],
     },
   ];

@@ -61,7 +61,7 @@ export function AvatarUploader({
             className="hidden"
             onChange={(e) => { const f = e.target.files?.[0]; if (f) onSelect(f); }}
           />
-          <p className="text-xs text-gray-500 mt-2">Formatos: JPG/PNG. Máx. 2 MB.</p>
+          <p className="text-xs text-gray-500 mt-2">Formatos: JPG/PNG/WebP. Máx. 5 MB.</p>
           {err && <p className="text-xs text-rose-600 mt-1">⚠️ {err}</p>}
           {ok && <p className="text-xs text-verde mt-1">✅ Foto actualizada.</p>}
         </div>

@@ -109,6 +109,7 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
         { href: '/profesor/calendario', label: 'Calendario', icon: '📅' },
         { href: '/profesor/solicitudes', label: 'Solicitudes', icon: '💬', badge: pendientes || undefined },
         { href: '/profesor/perfil', label: 'Mi perfil', icon: '👤' },
+        { href: '/cambiar-password', label: 'Cambiar contraseña', icon: '🔒' },
         { href: '/app-movil', label: '📱 App móvil', icon: '📲' },
       ],
     },

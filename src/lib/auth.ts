@@ -15,11 +15,13 @@ export const aSlug = (s: string): string => {
     .trim();
 };
 
-// Genera email institucional a partir del nombre y apellido paterno.
-// Ej: ("Diego", "Ramírez") -> "diego.ramirez@epo221.local"
-// Si hay duplicado, agrega un sufijo numérico o matricula.
+// Genera email institucional usando SOLO el PRIMER nombre y el apellido paterno.
+// Ej: ("Juan Carlos", "Pérez") -> "juan.perez@epo221.local"
+// Si hay duplicado, agrega un sufijo (matricula).
 export const nombreApellidoAEmail = (nombre: string, apellidoPaterno: string, sufijo?: string): string => {
-  const nom = aSlug(nombre) || 'alumno';
+  // Tomar SOLO el primer nombre (antes del primer espacio)
+  const primerNombre = (nombre || '').trim().split(/\s+/)[0] ?? '';
+  const nom = aSlug(primerNombre) || 'alumno';
   const ape = aSlug(apellidoPaterno);
   const base = ape ? `${nom}.${ape}` : nom;
   const conSufijo = sufijo ? `${base}.${aSlug(sufijo)}` : base;
