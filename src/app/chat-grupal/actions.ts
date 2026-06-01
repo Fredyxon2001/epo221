@@ -5,8 +5,9 @@ import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function enviarMensajeChat(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const asignacion_id = String(fd.get('asignacion_id') ?? '');
@@ -30,8 +31,7 @@ export async function enviarMensajeChat(fd: FormData): Promise<{ error?: string;
     if (archivo.size > 25 * 1024 * 1024) return { error: 'Archivo mayor a 25 MB' };
     const ext = archivo.name.split('.').pop() ?? 'bin';
     const key = `${asignacion_id}/${crypto.randomUUID()}.${ext}`;
-    const admin = adminClient();
-    const { error: upErr } = await admin.storage.from('chat-grupal').upload(key, archivo, {
+    const { error: upErr } = await supabase.storage.from('chat-grupal').upload(key, archivo, {
       contentType: archivo.type,
     });
     if (upErr) return { error: upErr.message };
@@ -53,11 +53,10 @@ export async function enviarMensajeChat(fd: FormData): Promise<{ error?: string;
 }
 
 export async function eliminarMensajeChat(id: string, asignacion_id: string) {
-  const supabase = createClient();
+  const supabase = adminClient();
   const { data: m } = await supabase.from('chat_grupal_mensajes').select('archivo_url').eq('id', id).maybeSingle();
   if (m?.archivo_url) {
-    const admin = adminClient();
-    await admin.storage.from('chat-grupal').remove([m.archivo_url]);
+    await supabase.storage.from('chat-grupal').remove([m.archivo_url]);
   }
   await supabase.from('chat_grupal_mensajes').delete().eq('id', id);
   revalidatePath(`/profesor/chat/${asignacion_id}`);
