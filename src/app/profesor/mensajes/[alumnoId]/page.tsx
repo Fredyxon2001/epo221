@@ -77,7 +77,7 @@ export default async function HiloProfesor({ params }: { params: { alumnoId: str
                       />
                     )}
                     <div className={`text-[10px] mt-1 ${esMio ? 'text-white/70' : 'text-gray-500'}`}>
-                      {new Date(m.created_at).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                      {new Date(m.created_at).toLocaleString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                       {esMio && (m.leido_at ? ' · ✓✓ leído' : ' · ✓ enviado')}
                     </div>
                   </div>

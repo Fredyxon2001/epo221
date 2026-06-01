@@ -18,7 +18,7 @@ export default async function PaginaPublica({ params }: { params: { slug: string
       <h1 className="font-serif text-4xl text-verde">{p.titulo}</h1>
       {p.updated_at && (
         <p className="text-xs text-gray-400 mt-2">
-          Actualizado {new Date(p.updated_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+          Actualizado {new Date(p.updated_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
         </p>
       )}
       <div

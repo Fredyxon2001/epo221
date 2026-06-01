@@ -137,9 +137,9 @@ export default async function AdminDashboard() {
                 </div>
                 {cicloActivo.fecha_inicio && cicloActivo.fecha_fin && (
                   <div className="text-right text-xs text-gray-500">
-                    <div>{new Date(cicloActivo.fecha_inicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                    <div>{new Date(cicloActivo.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric' })}</div>
                     <div className="text-gray-400">↓</div>
-                    <div>{new Date(cicloActivo.fecha_fin).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                    <div>{new Date(cicloActivo.fecha_fin).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric' })}</div>
                   </div>
                 )}
               </div>

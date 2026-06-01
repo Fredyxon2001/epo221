@@ -320,7 +320,7 @@ export default async function PublicoHome() {
                       <div className="font-serif text-lg">{a.titulo}</div>
                       {a.fecha_evento && (
                         <div className="text-xs opacity-80 mt-1">
-                          {new Date(a.fecha_evento).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                          {new Date(a.fecha_evento).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
                         </div>
                       )}
                     </div>
@@ -354,7 +354,7 @@ export default async function PublicoHome() {
                          style={n.imagen_url ? { backgroundImage: `url(${n.imagen_url})` } : { background: 'linear-gradient(135deg, #1a5c2e, #2d8047)' }} />
                     <div className="p-6">
                       <div className="text-xs text-verde uppercase tracking-widest">
-                        {n.fecha_pub && new Date(n.fecha_pub).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        {n.fecha_pub && new Date(n.fecha_pub).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
                       </div>
                       <h3 className="font-serif text-xl text-verde mt-2 leading-tight">{n.titulo}</h3>
                       <p className="text-sm text-gray-700 mt-3 line-clamp-3">{n.resumen}</p>

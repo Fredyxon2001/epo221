@@ -49,7 +49,7 @@ export async function GET(req: NextRequest, { params }: { params: { profesorId: 
     director: (cfg as any)?.director_nombre ?? null,
   };
 
-  const fecha = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+  const fecha = new Date().toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  year: 'numeric', month: 'long', day: 'numeric' });
   const folio = `CS-${(profesor.rfc ?? profesor.id.slice(0, 6)).toUpperCase()}-${new Date().getFullYear()}`;
 
   const { renderToBuffer } = await import('@react-pdf/renderer');

@@ -58,7 +58,7 @@ export default async function PublicoAlbumes() {
                     <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
                       <div className="text-[10px] uppercase tracking-[0.3em] text-verde-claro/90">
                         {a.fecha_evento
-                          ? new Date(a.fecha_evento).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })
+                          ? new Date(a.fecha_evento).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })
                           : 'Álbum'}
                       </div>
                       <div className="font-serif text-xl mt-1 leading-tight">{a.titulo}</div>

@@ -132,14 +132,14 @@ export default async function MisSolicitudes() {
                       )}
                       {s.respondida_en && (
                         <div className="text-[10px] text-gray-400 mt-1.5">
-                          {new Date(s.respondida_en).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          {new Date(s.respondida_en).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </div>
                       )}
                     </div>
                   )}
 
                   <div className="text-[11px] text-gray-400 pt-1">
-                    Enviada: {new Date(s.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                    Enviada: {new Date(s.created_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short' })}
                   </div>
 
                   <div className="border-t border-gray-100 pt-3 mt-2">

@@ -3,18 +3,18 @@ import { adminClient } from '@/lib/supabase/admin';
 import { ChatGrupalForm } from './ChatGrupalForm';
 
 export async function ChatGrupal({ asignacionId, title }: { asignacionId: string; title: string }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const admin = adminClient();
+  const supabase = admin;
   const { data: mensajes } = await supabase.from('chat_grupal_mensajes')
     .select('*').eq('asignacion_id', asignacionId).order('created_at', { ascending: true }).limit(200);
-
-  const admin = adminClient();
   const withUrls = await Promise.all((mensajes ?? []).map(async (m: any) => {
     if (!m.archivo_url) return m;
     const { data } = await admin.storage.from('chat-grupal').createSignedUrl(m.archivo_url, 3600);
     return { ...m, signedUrl: data?.signedUrl };
   }));
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
 
   return (
     <div className="space-y-4">
@@ -41,7 +41,7 @@ export async function ChatGrupal({ asignacionId, title }: { asignacionId: string
                     </a>
                   )}
                   <div className={`text-[9px] mt-1 ${mine && m.autor_tipo !== 'alumno' ? 'text-white/70' : 'text-gray-400'}`}>
-                    {new Date(m.created_at).toLocaleString('es-MX', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
+                    {new Date(m.created_at).toLocaleString('es-MX', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short', timeZone: 'America/Mexico_City' })}
                   </div>
                 </div>
               </div>

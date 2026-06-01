@@ -124,7 +124,7 @@ export default async function UsuariosPage({ searchParams }: { searchParams?: { 
                         </div>
                       </td>
                       <td className="px-3 py-2 text-xs text-gray-500">
-                        {u.password_reset_at ? new Date(u.password_reset_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                        {u.password_reset_at ? new Date(u.password_reset_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                       </td>
                       <td className="px-3 py-2 text-right">
                         <ResetPasswordRow perfilId={u.id} email={u.email} nombre={u.nombre ?? ''} />

@@ -70,7 +70,7 @@ export default async function HistorialAlumno({ params }: { params: { id: string
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge tone={m.tone}>{m.label}</Badge>
-                    <span className="text-sm text-gray-500">{new Date(i.fecha_inscripcion).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                    <span className="text-sm text-gray-500">{new Date(i.fecha_inscripcion).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}</span>
                   </div>
                   <div className="mt-1 text-sm text-verde-oscuro">
                     <span className="font-semibold">Grupo {codigo}</span>

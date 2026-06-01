@@ -164,7 +164,7 @@ export default async function ProfesorDashboard() {
             <div className="flex flex-col items-start md:items-end gap-2">
               <Countdown target={activoP.cierra_captura} label="Cierra en" />
               <div className="text-xs text-white/70">
-                Cierre: {new Date(activoP.cierra_captura).toLocaleDateString('es-MX', { weekday: 'long', day: '2-digit', month: 'long' })}
+                Cierre: {new Date(activoP.cierra_captura).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  weekday: 'long', day: '2-digit', month: 'long' })}
               </div>
             </div>
           </div>
@@ -284,9 +284,9 @@ export default async function ProfesorDashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-verde-oscuro text-sm">{p.nombre ?? `Parcial ${p.numero}`}</div>
                         <div className="text-xs text-gray-500">
-                          {abre ? abre.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) : '—'}
+                          {abre ? abre.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short' }) : '—'}
                           {' → '}
-                          {cierra ? cierra.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) : '—'}
+                          {cierra ? cierra.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short' }) : '—'}
                         </div>
                       </div>
                       <Badge tone={map[estado].tone}>{map[estado].label}</Badge>

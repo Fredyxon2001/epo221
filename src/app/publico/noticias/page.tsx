@@ -52,7 +52,7 @@ export default async function Noticias() {
                       </div>
                       <h2 className="font-serif text-3xl md:text-4xl text-verde-oscuro mt-3 leading-tight">{primera.titulo}</h2>
                       <div className="text-xs text-gray-500 mt-3 uppercase tracking-widest">
-                        {primera.fecha_pub && new Date(primera.fecha_pub).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        {primera.fecha_pub && new Date(primera.fecha_pub).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
                       </div>
                       <p className="text-gray-700 mt-4 leading-relaxed">{primera.resumen}</p>
                       <div className="mt-6 inline-flex items-center gap-2 text-verde font-semibold group-hover:gap-3 transition-all">
@@ -82,7 +82,7 @@ export default async function Noticias() {
                     />
                     <div className="p-5">
                       <div className="text-[10px] text-verde uppercase tracking-[0.3em]">
-                        {n.fecha_pub && new Date(n.fecha_pub).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                        {n.fecha_pub && new Date(n.fecha_pub).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
                       </div>
                       <h3 className="font-serif text-xl text-verde-oscuro mt-2 leading-tight">{n.titulo}</h3>
                       <p className="text-sm text-gray-600 mt-2 line-clamp-3 leading-relaxed">{n.resumen}</p>

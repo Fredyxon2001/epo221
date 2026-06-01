@@ -50,7 +50,7 @@ export async function AvisosList({ limit = 50 }: { limit?: number }) {
                 )}
               </div>
               <div className="text-[11px] text-gray-500 whitespace-nowrap">
-                {new Date(a.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                {new Date(a.created_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
             <div className="text-sm text-gray-700 whitespace-pre-wrap">{a.cuerpo}</div>

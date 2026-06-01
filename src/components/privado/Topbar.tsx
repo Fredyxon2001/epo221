@@ -27,8 +27,8 @@ export function Topbar({
   useEffect(() => {
     const upd = () => {
       const d = new Date();
-      setHora(d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }));
-      setFecha(d.toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short' }));
+      setHora(d.toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City',  hour: '2-digit', minute: '2-digit' }));
+      setFecha(d.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  weekday: 'short', day: '2-digit', month: 'short' }));
       setSaludoLocal(saludoPorHora(d));
     };
     upd();

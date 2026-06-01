@@ -38,8 +38,8 @@ export function DashboardHero({
   useEffect(() => {
     const upd = () => {
       const d = new Date();
-      setHora(d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }));
-      setFecha(d.toLocaleDateString('es-MX', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }));
+      setHora(d.toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City',  hour: '2-digit', minute: '2-digit' }));
+      setFecha(d.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }));
     };
     upd();
     const id = setInterval(upd, 30_000);

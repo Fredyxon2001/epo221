@@ -59,7 +59,7 @@ export default async function Bitacora({
               <li key={r.id} className="ml-6">
                 <span className="absolute -left-3.5 w-7 h-7 rounded-full bg-white border-2 border-verde flex items-center justify-center text-sm">📝</span>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge tone="verde">{new Date(r.fecha).toLocaleDateString('es-MX', { weekday: 'short', day: '2-digit', month: 'short' })}</Badge>
+                  <Badge tone="verde">{new Date(r.fecha).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  weekday: 'short', day: '2-digit', month: 'short' })}</Badge>
                   <span className="font-semibold text-verde-oscuro">{r.tema}</span>
                   <form action={eliminarRegistro} className="ml-auto">
                     <input type="hidden" name="id" value={r.id} />

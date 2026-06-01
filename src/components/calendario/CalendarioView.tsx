@@ -33,7 +33,7 @@ export async function CalendarioView({ limit = 100 }: { limit?: number }) {
   const porMes = new Map<string, any[]>();
   for (const e of eventos) {
     const d = new Date(e.fecha_inicio);
-    const key = d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+    const key = d.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  month: 'long', year: 'numeric' });
     if (!porMes.has(key)) porMes.set(key, []);
     porMes.get(key)!.push(e);
   }
@@ -51,7 +51,7 @@ export async function CalendarioView({ limit = 100 }: { limit?: number }) {
                 <div key={e.id} className={`flex gap-3 border-2 rounded-xl p-3 ${tipoColor[e.tipo] ?? tipoColor.otro}`}>
                   <div className="text-center min-w-[3.5rem]">
                     <div className="text-2xl font-serif font-bold leading-none">{d.getDate()}</div>
-                    <div className="text-[10px] uppercase tracking-wider">{d.toLocaleDateString('es-MX', { weekday: 'short' })}</div>
+                    <div className="text-[10px] uppercase tracking-wider">{d.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  weekday: 'short' })}</div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export async function CalendarioView({ limit = 100 }: { limit?: number }) {
                     <div className="text-[11px] mt-1 opacity-70">
                       {e.todo_el_dia
                         ? 'Todo el día'
-                        : `${d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}${fin ? ' – ' + fin.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : ''}`}
+                        : `${d.toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City',  hour: '2-digit', minute: '2-digit' })}${fin ? ' – ' + fin.toLocaleTimeString('es-MX', { timeZone: 'America/Mexico_City',  hour: '2-digit', minute: '2-digit' }) : ''}`}
                       {e.lugar && ` · 📍 ${e.lugar}`}
                     </div>
                   </div>

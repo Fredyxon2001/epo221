@@ -236,7 +236,7 @@ export default async function AlumnoDashboard() {
                         </div>
                         {a.cuerpo && <div className="text-xs text-gray-600 mt-1 line-clamp-2">{a.cuerpo}</div>}
                         <div className="text-[10px] uppercase tracking-wider text-gray-400 mt-1.5">
-                          {new Date(a.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                          {new Date(a.created_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short' })}
                         </div>
                       </div>
                     </div>

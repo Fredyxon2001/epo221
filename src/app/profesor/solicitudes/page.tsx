@@ -125,7 +125,7 @@ export default async function ProfSolicitudes({ searchParams }: { searchParams: 
                         {s.estado}
                       </Badge>
                       <span className="text-[11px] text-gray-500">
-                        {new Date(s.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        {new Date(s.created_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                     <div className="font-serif text-lg text-verde-oscuro mt-1.5">{s.asignacion?.materia?.nombre}</div>

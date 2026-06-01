@@ -46,7 +46,7 @@ export function ConversacionSolicitud({
             <div key={m.id} className={`flex ${esMio ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] rounded-lg p-2.5 ${esMio ? 'bg-verde text-white' : 'bg-white border border-gray-200'}`}>
                 <div className={`text-[10px] uppercase font-semibold mb-1 ${esMio ? 'text-verde-claro/80' : 'text-gray-500'}`}>
-                  {m.autor_tipo} · {new Date(m.created_at).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  {m.autor_tipo} · {new Date(m.created_at).toLocaleString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </div>
                 {m.texto && <div className="text-sm whitespace-pre-wrap">{m.texto}</div>}
                 {m.adjunto_url && m.signedUrl && (

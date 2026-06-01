@@ -63,7 +63,7 @@ export default async function AdminAlbumes() {
               </div>
               {a.fecha_evento && (
                 <div className="text-xs text-gray-400 mt-0.5">
-                  {new Date(a.fecha_evento).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  {new Date(a.fecha_evento).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
                 </div>
               )}
               <div className="text-xs text-gray-500 mt-2">{a.fotos?.[0]?.count ?? 0} fotos</div>

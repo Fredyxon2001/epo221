@@ -57,7 +57,7 @@ export default async function MensajesAlumno() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm truncate">Prof. {h.profesor?.apellido_paterno} {h.profesor?.nombre}</div>
-                    <div className="text-[11px] text-gray-500">{new Date(h.ultimo_mensaje_at).toLocaleString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                    <div className="text-[11px] text-gray-500">{new Date(h.ultimo_mensaje_at).toLocaleString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                   </div>
                   {noLeidos > 0 && <Badge tone="rosa">{noLeidos}</Badge>}
                 </Link>

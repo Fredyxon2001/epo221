@@ -96,9 +96,9 @@ export default async function DirectorHome() {
               </div>
               {ciclo.fecha_inicio && ciclo.fecha_fin && (
                 <div className="text-sm text-white/70 mt-1">
-                  {new Date(ciclo.fecha_inicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })}
+                  {new Date(ciclo.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short' })}
                   {' — '}
-                  {new Date(ciclo.fecha_fin).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  {new Date(ciclo.fecha_fin).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric' })}
                 </div>
               )}
             </div>
