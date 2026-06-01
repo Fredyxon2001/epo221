@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { crearAsignacion, actualizarProfesorAsignacion, eliminarAsignacion } from './actions';
 import { codigoGrupoDesdeSemestre } from '@/lib/grupos';
 import { ConfirmDeleteButton } from './ConfirmDelete';
@@ -19,7 +20,8 @@ export default async function AdminAsignaciones({
 }: {
   searchParams: { ciclo_id?: string; semestre?: string };
 }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   // Datos base
   const [{ data: ciclos }, { data: profesores }, { data: materias }, { data: grupos }] =

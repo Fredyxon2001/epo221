@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card } from '@/components/privado/ui';
 
 export default async function ChatAlumnoIndex() {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
 
   const { data: insc } = await supabase.from('inscripciones').select('grupo_id').eq('alumno_id', alumno.id);

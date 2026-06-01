@@ -1,12 +1,14 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function crearRubrica(formData: FormData): Promise<void> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const nombre = String(formData.get('nombre') ?? '').trim();
   const descripcion = String(formData.get('descripcion') ?? '').trim() || null;
   const materiaId = String(formData.get('materia_id') ?? '') || null;
@@ -24,7 +26,8 @@ export async function crearRubrica(formData: FormData): Promise<void> {
 }
 
 export async function agregarCriterio(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const rubricaId = String(formData.get('rubrica_id'));
   const nombre = String(formData.get('nombre') ?? '').trim();
   const peso = Number(formData.get('peso') || 1);
@@ -47,7 +50,8 @@ export async function agregarCriterio(formData: FormData): Promise<void> {
 }
 
 export async function eliminarCriterio(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(formData.get('id'));
   const rubricaId = String(formData.get('rubrica_id'));
   await supabase.from('rubrica_criterios').delete().eq('id', id);
@@ -56,7 +60,8 @@ export async function eliminarCriterio(formData: FormData): Promise<void> {
 }
 
 export async function eliminarRubrica(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(formData.get('id'));
   await supabase.from('rubricas').delete().eq('id', id);
   revalidatePath('/profesor/rubricas');
@@ -64,8 +69,9 @@ export async function eliminarRubrica(formData: FormData): Promise<void> {
 }
 
 export async function duplicarRubrica(formData: FormData): Promise<void> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const id = String(formData.get('id'));
 
   const { data: r } = await supabase.from('rubricas').select('*').eq('id', id).single();

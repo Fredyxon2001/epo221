@@ -5,8 +5,9 @@ import { calcularRiesgoCiclo } from '@/lib/riesgo/score';
 import { revalidatePath } from 'next/cache';
 
 export async function recalcularRiesgo(): Promise<{ ok?: boolean; error?: string; total?: number }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
   if (!perfil || !['admin', 'staff', 'director'].includes(perfil.rol)) return { error: 'Sin permiso' };

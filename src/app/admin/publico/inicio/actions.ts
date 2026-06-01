@@ -33,7 +33,8 @@ export async function guardarInicio(formData: FormData) {
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
 
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const update: Record<string, any> = { ...parsed.data, updated_at: new Date().toISOString() };
 
   // Hero
@@ -55,14 +56,16 @@ export async function guardarInicio(formData: FormData) {
 }
 
 export async function quitarHeroImagen() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('sitio_config').update({ hero_imagen_url: null }).eq('id', 1);
   revalidatePath('/admin/publico/inicio');
   revalidatePath('/publico');
 }
 
 export async function quitarLogo() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('sitio_config').update({ logo_url: null }).eq('id', 1);
   revalidatePath('/admin/publico/inicio');
   revalidatePath('/publico', 'layout');

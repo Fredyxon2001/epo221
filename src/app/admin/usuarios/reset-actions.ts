@@ -16,8 +16,9 @@ function generarPasswordAleatoria(len = 12): string {
 }
 
 export async function adminResetPassword(fd: FormData): Promise<{ error?: string; ok?: boolean; temporal?: string }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: p } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();

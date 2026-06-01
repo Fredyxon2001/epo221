@@ -1,12 +1,14 @@
 // Selector de alumno para iniciar un hilo (sólo alumnos de grupos del profesor).
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { codigoGrupoDesdeSemestre } from '@/lib/grupos';
 
 export default async function NuevoHiloProfesor({ searchParams }: { searchParams: { grupo?: string; q?: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!profesor) return null;
 

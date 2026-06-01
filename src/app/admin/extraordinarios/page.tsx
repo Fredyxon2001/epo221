@@ -1,11 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { ProcesarExtraordinarioForm } from './ProcesarExtraordinarioForm';
 
 const ESTADOS = ['solicitado', 'pago_pendiente', 'pagado', 'agendado', 'aplicado', 'calificado', 'rechazado'];
 
 export default async function AdminExtraordinarios({ searchParams }: { searchParams: { estado?: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const estado = searchParams.estado ?? 'solicitado';
 
   let q = supabase.from('examenes_extraordinarios')

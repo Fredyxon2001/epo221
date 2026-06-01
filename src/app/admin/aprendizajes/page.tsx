@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { crearAprendizaje, eliminarAprendizaje } from './actions';
 
 export default async function AprendizajesPage({ searchParams }: { searchParams?: { materia?: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: materias } = await supabase.from('materias').select('id, nombre').order('nombre');
   const materiaFiltro = searchParams?.materia ?? '';

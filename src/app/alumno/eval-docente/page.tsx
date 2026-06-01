@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { ResponderEvalForm } from './ResponderEvalForm';
@@ -7,7 +8,8 @@ import crypto from 'crypto';
 export default async function AlumnoEvalDocente() {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const ahora = new Date().toISOString();
 
   // Periodos activos

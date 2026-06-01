@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { ResolverFichaForm, ReiniciarContadorBtn } from './ResolverFichaForm';
 
@@ -15,7 +16,8 @@ const LABELS: Record<string, string> = {
 };
 
 export default async function SolicitudesFichaPage({ searchParams }: { searchParams?: { estado?: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const filtro = searchParams?.estado ?? 'pendiente';
 
   let q = supabase

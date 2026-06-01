@@ -5,9 +5,10 @@ import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function solicitarParcial(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const numero = Number(fd.get('numero') ?? 0);
@@ -62,9 +63,10 @@ export async function solicitarParcial(fd: FormData): Promise<{ ok?: boolean; er
 }
 
 export async function resolverSolicitudParcial(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();

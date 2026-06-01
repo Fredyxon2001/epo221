@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { guardarConfig } from './actions';
 
 export default async function AdminConfig() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: cfg } = await supabase.from('sitio_config').select('*').maybeSingle();
 
   return (

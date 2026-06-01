@@ -1,12 +1,14 @@
 // Panel de alumnos en riesgo académico para el profesor: promedio bajo + faltas altas.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge, StatCard } from '@/components/privado/ui';
 import { codigoGrupoDesdeSemestre } from '@/lib/grupos';
 import Link from 'next/link';
 
 export default async function AlumnosEnRiesgo() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
   const { data: asigs } = await supabase

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { actualizarMateria, eliminarMateria, crearMateria } from './actions';
 import { ConfirmButton } from '@/components/ConfirmButton';
 
@@ -26,7 +27,8 @@ export default async function AdminMaterias({
 }: {
   searchParams: { semestre?: string; campo?: string; q?: string };
 }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const [{ data: materias }, { data: campos }] = await Promise.all([
     supabase

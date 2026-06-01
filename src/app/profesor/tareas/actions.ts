@@ -5,8 +5,9 @@ import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearTarea(fd: FormData): Promise<{ error?: string; ok?: boolean; id?: string }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
@@ -63,8 +64,9 @@ export async function crearTarea(fd: FormData): Promise<{ error?: string; ok?: b
 }
 
 export async function calificarEntrega(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const id = String(fd.get('id') ?? '');
@@ -102,8 +104,9 @@ export async function calificarEntrega(fd: FormData): Promise<{ error?: string; 
 }
 
 export async function eliminarTarea(id: string) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const admin = adminClient();
   // Borrar archivos asociados del bucket 'tareas'

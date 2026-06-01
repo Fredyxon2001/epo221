@@ -1,12 +1,14 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function registrarClase(formData: FormData): Promise<void> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const asignacionId = String(formData.get('asignacion_id'));
   const fecha = String(formData.get('fecha') || new Date().toISOString().slice(0, 10));
   const tema = String(formData.get('tema') ?? '').trim();
@@ -27,7 +29,8 @@ export async function registrarClase(formData: FormData): Promise<void> {
 }
 
 export async function eliminarRegistro(formData: FormData): Promise<void> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(formData.get('id'));
   const asignacionId = String(formData.get('asignacion_id'));
   await supabase.from('bitacora_clase').delete().eq('id', id);

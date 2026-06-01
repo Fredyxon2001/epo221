@@ -1,14 +1,16 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
 
 export async function crearNoticia(formData: FormData) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const titulo = String(formData.get('titulo'));
   await supabase.from('noticias').insert({
     titulo,
@@ -22,7 +24,8 @@ export async function crearNoticia(formData: FormData) {
 }
 
 export async function togglePublicada(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const publicada = formData.get('publicada') === '1';
   await supabase.from('noticias')
     .update({ publicada, fecha_pub: publicada ? new Date().toISOString() : null })
@@ -32,7 +35,8 @@ export async function togglePublicada(formData: FormData) {
 }
 
 export async function eliminarNoticia(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('noticias').delete().eq('id', String(formData.get('id')));
   revalidatePath('/admin/noticias');
 }

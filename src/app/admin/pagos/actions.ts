@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 function generarFolio() {
@@ -9,8 +10,9 @@ function generarFolio() {
 }
 
 export async function validarPago(formData: FormData) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return;
 
   const pagoId = String(formData.get('pago_id'));
@@ -28,7 +30,8 @@ export async function validarPago(formData: FormData) {
 }
 
 export async function rechazarPago(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const pagoId = String(formData.get('pago_id'));
   const cargoId = String(formData.get('cargo_id'));
   const motivo = String(formData.get('motivo'));

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { AgendarCitaForm } from './AgendarCitaForm';
@@ -8,7 +9,8 @@ const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 export default async function TutoriasAlumno() {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
 
   // Docentes que imparten en el grupo del alumno

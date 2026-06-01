@@ -1,11 +1,13 @@
 // Endpoint admin/test para disparar un push manualmente.
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { sendPushToUser, sendPushToUsers } from '@/lib/push';
 
 export async function POST(req: Request) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });
 
   const body = await req.json().catch(() => null);

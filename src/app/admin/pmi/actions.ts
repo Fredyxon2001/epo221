@@ -1,10 +1,12 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearPMI(fd: FormData) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) throw new Error('no-auth');
   const alumno_id = String(fd.get('alumno_id') ?? '');
   const motivo = String(fd.get('motivo') ?? '').trim();
@@ -21,7 +23,8 @@ export async function crearPMI(fd: FormData) {
 }
 
 export async function actualizarPMI(fd: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   const estado = String(fd.get('estado') ?? '');
   const resultado = String(fd.get('resultado') ?? '').trim() || null;

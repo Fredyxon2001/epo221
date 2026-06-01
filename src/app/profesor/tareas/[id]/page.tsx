@@ -5,8 +5,9 @@ import { PageHeader, Card } from '@/components/privado/ui';
 import { CalificarEntregaForm } from './CalificarEntregaForm';
 
 export default async function TareaDetalle({ params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
   const { data: tarea } = await supabase.from('tareas')

@@ -1,10 +1,12 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearConcepto(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: ciclo } = await supabase
     .from('ciclos_escolares').select('id').eq('activo', true).single();
 
@@ -19,7 +21,8 @@ export async function crearConcepto(formData: FormData) {
 }
 
 export async function actualizarConcepto(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(formData.get('id'));
   const clave = String(formData.get('clave') ?? '').trim().toUpperCase();
   const nombre = String(formData.get('nombre') ?? '').trim();
@@ -39,7 +42,8 @@ export async function actualizarConcepto(formData: FormData) {
 }
 
 export async function eliminarConcepto(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(formData.get('id'));
   // Si ya hay cargos asociados, mejor desactivar que borrar.
   const { count } = await supabase.from('cargos')
@@ -53,7 +57,8 @@ export async function eliminarConcepto(formData: FormData) {
 }
 
 export async function toggleConcepto(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('conceptos_pago')
     .update({ activo: formData.get('activo') === '1' })
     .eq('id', String(formData.get('id')));
@@ -62,7 +67,8 @@ export async function toggleConcepto(formData: FormData) {
 
 // Genera un cargo por cada alumno activo con este concepto.
 export async function asignarMasivo(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const conceptoId = String(formData.get('concepto_id'));
 
   const { data: concepto } = await supabase

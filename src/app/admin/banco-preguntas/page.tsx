@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import { agregarPregunta, eliminarPregunta } from './actions';
 
 export default async function BancoPreguntasPage({ searchParams }: { searchParams?: { materia?: string; dificultad?: string; tema?: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: materias } = await supabase.from('materias').select('id, nombre').order('nombre');
 
   let q = supabase

@@ -1,10 +1,12 @@
 // Análisis estadístico del grupo: distribución, top/low, riesgo, evolución por parcial.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, StatCard, Badge, EmptyState } from '@/components/privado/ui';
 import Link from 'next/link';
 
 export default async function AnalisisGrupo({ params }: { params: { asignacionId: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: asig } = await supabase
     .from('asignaciones')

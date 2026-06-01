@@ -1,10 +1,12 @@
 // Admin: configurar webhook URL/secret + probar push.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { guardarConfigPush } from './actions';
 
 export default async function PushConfigPage() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: cfg } = await supabase.from('push_webhook_config').select('*').eq('id', 1).maybeSingle();
   const { count: suscritos } = await supabase
     .from('push_subscriptions').select('id', { count: 'exact', head: true });

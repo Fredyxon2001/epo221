@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -38,8 +39,9 @@ async function subirAdjunto(supabase: any, hiloId: string, file: File | null) {
 }
 
 export async function enviarMensajeProfesor(formData: FormData): Promise<void> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).single();
   const alumnoId = String(formData.get('alumno_id'));
   const cuerpo = String(formData.get('cuerpo') ?? '').trim();
@@ -76,8 +78,9 @@ export async function enviarMensajeProfesor(formData: FormData): Promise<void> {
 }
 
 export async function enviarMensajeAlumno(formData: FormData): Promise<void> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: alumno } = await supabase.from('alumnos').select('id').eq('perfil_id', user!.id).single();
   const profesorId = String(formData.get('profesor_id'));
   const cuerpo = String(formData.get('cuerpo') ?? '').trim();
@@ -114,7 +117,8 @@ export async function enviarMensajeAlumno(formData: FormData): Promise<void> {
 }
 
 export async function marcarHiloLeido(hiloId: string, comoTipo: 'profesor' | 'alumno'): Promise<void> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const autorOpuesto = comoTipo === 'profesor' ? 'alumno' : 'profesor';
   await supabase.from('mensajes')
     .update({ leido_at: new Date().toISOString() })

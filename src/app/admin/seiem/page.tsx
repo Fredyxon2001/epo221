@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 
 export default async function SEIEMPage() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: grupos } = await supabase.from('grupos').select('id, nombre, ciclo:ciclos_escolares(nombre)').eq('activo', true).order('nombre');
   const { data: ciclos } = await supabase.from('ciclos_escolares').select('id, nombre').order('inicio', { ascending: false });
 

@@ -1,6 +1,7 @@
 // Horario semanal del alumno, basado en su grupo activo.
 import { Fragment } from 'react';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 
@@ -11,7 +12,8 @@ const HORAS_VES = ['14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 export default async function AlumnoHorario() {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id, codigo').eq('activo', true).maybeSingle();
 

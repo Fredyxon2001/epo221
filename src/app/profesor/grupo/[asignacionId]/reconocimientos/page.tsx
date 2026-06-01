@@ -1,11 +1,13 @@
 // Reconocimientos y badges automáticos del grupo.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { calcularBadges, tonoClases } from '@/lib/reconocimientos';
 import Link from 'next/link';
 
 export default async function ReconocimientosGrupo({ params }: { params: { asignacionId: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: asig } = await supabase
     .from('asignaciones')

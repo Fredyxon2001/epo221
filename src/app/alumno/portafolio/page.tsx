@@ -8,7 +8,8 @@ import { EliminarEvidenciaBtn } from './EliminarEvidenciaBtn';
 export default async function PortafolioAlumno() {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
 
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();

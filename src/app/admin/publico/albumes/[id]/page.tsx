@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { actualizarAlbum, subirFotos, eliminarFoto, definirPortada } from '../actions';
 import { ConfirmButton } from '@/components/ConfirmButton';
 
 export default async function EditarAlbum({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const [{ data: a }, { data: fotos }] = await Promise.all([
     supabase.from('albumes').select('*').eq('id', params.id).maybeSingle(),
     supabase.from('album_fotos').select('*').eq('album_id', params.id).order('orden'),

@@ -1,5 +1,6 @@
 // Bandeja de solicitudes de revisión para el profesor.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { ResponderForm } from './ResponderForm';
 import { Adjunto } from '@/components/mensajes/Adjunto';
@@ -8,8 +9,9 @@ import { ConversacionSolicitud } from '@/components/solicitudes/Conversacion';
 export default async function ProfSolicitudes({ searchParams }: { searchParams: { tab?: string } }) {
   const tab = (searchParams.tab ?? 'abierta') as 'abierta' | 'respondida' | 'cerrada' | 'todas';
 
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
   const { data: asigs } = await supabase.from('asignaciones').select('id').eq('profesor_id', profesor?.id ?? '');

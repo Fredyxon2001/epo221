@@ -2,9 +2,11 @@ import { PageHeader, Card } from '@/components/privado/ui';
 import { CalendarioView } from '@/components/calendario/CalendarioView';
 import { NuevoEventoForm } from './NuevoEventoForm';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 
 export default async function AdminCalendario() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: grupos } = await supabase.from('grupos').select('id, grado, semestre, grupo, turno').order('semestre').limit(200);
 
   return (

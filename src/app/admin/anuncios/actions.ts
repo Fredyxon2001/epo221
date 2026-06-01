@@ -1,10 +1,12 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearAnuncio(fd: FormData) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sin sesión' };
 
   const titulo = String(fd.get('titulo') ?? '').trim();
@@ -35,7 +37,8 @@ export async function crearAnuncio(fd: FormData) {
 
 export async function eliminarAnuncio(fd: FormData) {
   const id = String(fd.get('id') ?? '');
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('anuncios').delete().eq('id', id);
   revalidatePath('/admin/anuncios');
   return { ok: true };
@@ -44,7 +47,8 @@ export async function eliminarAnuncio(fd: FormData) {
 export async function togglePublicado(fd: FormData) {
   const id = String(fd.get('id') ?? '');
   const v = fd.get('publicado') === 'true';
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('anuncios').update({ publicado: !v }).eq('id', id);
   revalidatePath('/admin/anuncios');
   return { ok: true };

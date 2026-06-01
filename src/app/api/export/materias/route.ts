@@ -1,13 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { toCSV, csvResponse } from '@/lib/csv';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   // Verifica rol admin
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).single();
   if (!perfil || (perfil.rol !== 'admin' && perfil.rol !== 'staff')) {

@@ -1,5 +1,6 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { revalidatePath } from 'next/cache';
 import { ensureHilo, postMensaje } from '@/lib/mensajes';
@@ -40,8 +41,9 @@ export async function crearSolicitudRevision(fd: FormData) {
   if (!motivo || motivo.length < 15) return { error: 'El motivo debe ser más descriptivo (mín. 15 caracteres).' };
   if (parcial != null && (parcial < 1 || parcial > 4)) return { error: 'Parcial inválido' };
 
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
 
   const { data: solicitud, error } = await supabase.from('solicitudes_revision').insert({
     alumno_id: alumno.id,
@@ -89,7 +91,8 @@ export async function cerrarSolicitud(fd: FormData) {
   const alumno = await getAlumnoActual();
   if (!alumno) return { error: 'Sesión expirada' };
   const id = String(fd.get('id') ?? '');
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { error } = await supabase
     .from('solicitudes_revision')
     .update({ estado: 'cerrada' })

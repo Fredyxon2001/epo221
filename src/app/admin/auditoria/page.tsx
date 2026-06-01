@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 
 const accionBadge: Record<string, string> = {
   insert: 'bg-green-100 text-green-700',
@@ -12,7 +13,8 @@ export default async function AdminAuditoria({
 }: {
   searchParams: { tabla?: string; accion?: string; page?: string };
 }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const page = Math.max(1, Number(searchParams.page ?? 1));
   const pageSize = 50;
   const from = (page - 1) * pageSize;

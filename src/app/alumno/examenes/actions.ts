@@ -1,11 +1,13 @@
 'use server';
 // Alumno inicia intento, guarda respuestas y entrega.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function iniciarIntento(examen_id: string): Promise<{ error?: string; id?: string }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: al } = await supabase.from('alumnos').select('id').eq('perfil_id', user.id).maybeSingle();
   if (!al) return { error: 'No eres alumno' };
@@ -32,7 +34,8 @@ export async function iniciarIntento(examen_id: string): Promise<{ error?: strin
 }
 
 export async function guardarRespuesta(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const intento_id = String(fd.get('intento_id') ?? '');
   const pregunta_id = String(fd.get('pregunta_id') ?? '');
   const respuesta = String(fd.get('respuesta') ?? '').trim();
@@ -55,8 +58,9 @@ export async function guardarRespuesta(fd: FormData): Promise<{ error?: string; 
 }
 
 export async function entregarIntento(intento_id: string): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   // Calcular calificación automática (auto-calificables)

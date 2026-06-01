@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { ResolverForm } from './ResolverForm';
 
 export default async function SolicitudesParcialPage({ searchParams }: { searchParams?: { estado?: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const filtro = searchParams?.estado ?? 'pendiente';
 
   let q = supabase

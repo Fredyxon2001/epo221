@@ -5,8 +5,9 @@ import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function subirEvidencia(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: al } = await supabase.from('alumnos').select('id').eq('perfil_id', user.id).maybeSingle();
@@ -51,8 +52,9 @@ export async function subirEvidencia(fd: FormData): Promise<{ error?: string; ok
 }
 
 export async function eliminarEvidencia(id: string): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: al } = await supabase.from('alumnos').select('id').eq('perfil_id', user.id).maybeSingle();
@@ -71,8 +73,9 @@ export async function eliminarEvidencia(id: string): Promise<{ error?: string; o
 }
 
 export async function comentarEvidencia(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();

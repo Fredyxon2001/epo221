@@ -1,5 +1,6 @@
 // Horario semanal del profesor con todas sus sesiones en grupos distintos.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { codigoGrupoDesdeSemestre } from '@/lib/grupos';
 import { redirect } from 'next/navigation';
@@ -8,8 +9,9 @@ const DIAS = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const HORAS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 
 export default async function ProfesorHorario() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) redirect('/login');
 
   const { data: profesor } = await supabase

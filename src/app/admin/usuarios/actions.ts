@@ -10,7 +10,7 @@ type Rol = 'alumno' | 'profesor' | 'director' | 'admin' | 'staff' | 'finanzas';
 
 async function requireAdmin() {
   const supabase = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' as const };
   const { data: p } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
   if (!p || !['admin', 'staff', 'director'].includes(p.rol)) return { error: 'No autorizado' as const };

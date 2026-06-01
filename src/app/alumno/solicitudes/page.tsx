@@ -1,6 +1,7 @@
 // Lista de solicitudes de revisión del alumno.
 import { getAlumnoActual } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { Adjunto } from '@/components/mensajes/Adjunto';
 import { ConversacionSolicitud } from '@/components/solicitudes/Conversacion';
@@ -16,7 +17,8 @@ const estadoLabel: Record<string, { label: string; tone: any; icon: string }> = 
 
 export default async function MisSolicitudes() {
   const alumno = (await getAlumnoActual())!;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data } = await supabase
     .from('solicitudes_revision')

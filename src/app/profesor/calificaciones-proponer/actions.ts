@@ -7,9 +7,10 @@ import { revalidatePath } from 'next/cache';
 import * as XLSX from 'xlsx';
 
 export async function enviarPropuestasCalificaciones(fd: FormData): Promise<{ ok?: boolean; error?: string; total?: number }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const asignacion_id = String(fd.get('asignacion_id') ?? '');
@@ -120,9 +121,10 @@ export async function enviarPropuestasCalificaciones(fd: FormData): Promise<{ ok
 }
 
 export async function validarPropuesta(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const id = String(fd.get('id') ?? '');
@@ -196,8 +198,9 @@ export async function validarPropuesta(fd: FormData): Promise<{ ok?: boolean; er
 }
 
 export async function validarLote(fd: FormData): Promise<{ ok?: boolean; error?: string; total?: number }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const ids = fd.getAll('ids[]').map((x) => String(x));
   if (!ids.length) return { error: 'Sin propuestas seleccionadas' };
@@ -220,8 +223,9 @@ export async function validarLote(fd: FormData): Promise<{ ok?: boolean; error?:
 export async function importarCalificacionesXLSX(fd: FormData): Promise<{
   ok?: boolean; error?: string; total?: number; saltados?: number;
 }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const asignacion_id = String(fd.get('asignacion_id') ?? '');

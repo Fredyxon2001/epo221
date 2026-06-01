@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { NuevoHorarioForm } from './NuevoHorarioForm';
 import { EliminarHorarioBtn } from './EliminarHorarioBtn';
@@ -7,8 +8,9 @@ import { ProcesarCitaForm } from './ProcesarCitaForm';
 const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 export default async function TutoriasProfesor() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
   const { data: horarios } = await supabase.from('tutorias_horarios')

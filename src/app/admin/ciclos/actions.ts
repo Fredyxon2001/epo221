@@ -1,10 +1,12 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearCiclo(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('ciclos_escolares').insert({
     codigo: String(formData.get('codigo')),
     periodo: String(formData.get('periodo')),
@@ -15,7 +17,8 @@ export async function crearCiclo(formData: FormData) {
 }
 
 export async function activarCiclo(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   // Solo uno activo a la vez
   await supabase.from('ciclos_escolares').update({ activo: false }).neq('id', '');
   await supabase.from('ciclos_escolares')

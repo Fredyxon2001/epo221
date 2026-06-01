@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { SolicitarExtraordinarioForm } from './SolicitarExtraordinarioForm';
@@ -16,7 +17,8 @@ const ESTADOS: Record<string, { label: string; color: string }> = {
 export default async function ExtraordinariosAlumno() {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   // Materias reprobadas — del historial académico
   const { data: historial } = await supabase.from('vista_historial_academico')

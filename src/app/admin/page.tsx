@@ -1,6 +1,7 @@
 // Panel admin premium — KPIs, ciclo activo, últimos pagos, solicitudes globales.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, StatCard, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { DataTable } from '@/components/privado/DataTable';
 import { DashboardHero } from '@/components/privado/DashboardHero';
@@ -8,7 +9,8 @@ import { AnimatedStat } from '@/components/privado/AnimatedStat';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function AdminDashboard() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: cicloActivo } = await supabase
     .from('ciclos_escolares').select('*').eq('activo', true).limit(1).maybeSingle();

@@ -1,8 +1,10 @@
 // Helper server-side para leer notificaciones del usuario autenticado.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 
 export async function getNotificaciones(userId: string, limit = 10) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data } = await supabase
     .from('notificaciones')
     .select('id, titulo, mensaje, url, leida, created_at')
@@ -15,7 +17,8 @@ export async function getNotificaciones(userId: string, limit = 10) {
 }
 
 export async function marcarNotificacionesLeidas(userId: string, ids?: string[]) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   let q = supabase.from('notificaciones').update({ leida: true }).eq('user_id', userId);
   if (ids && ids.length) q = q.in('id', ids);
   await q;

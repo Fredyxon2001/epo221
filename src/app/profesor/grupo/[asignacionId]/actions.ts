@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 const toNum = (v: FormDataEntryValue | null) => {
@@ -13,7 +14,8 @@ const toNum = (v: FormDataEntryValue | null) => {
  * Si no hay config, asume todos abiertos (compatibilidad).
  */
 async function parcialesAbiertos(cicloId: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data } = await supabase
     .from('parciales_config')
     .select('numero, abre_captura, cierra_captura')
@@ -29,8 +31,9 @@ async function parcialesAbiertos(cicloId: string) {
 }
 
 export async function guardarCalificaciones(formData: FormData) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return;
 
   const asignacionId = String(formData.get('asignacion_id'));
@@ -77,7 +80,8 @@ export async function guardarCalificaciones(formData: FormData) {
 }
 
 export async function exportarCSV(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const asignacionId = String(formData.get('asignacion_id'));
 
   const { data: asig } = await supabase

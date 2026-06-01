@@ -25,7 +25,8 @@ export async function crearAlbum(formData: FormData) {
     publicado:    formData.get('publicado') === 'on',
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data, error } = await supabase
     .from('albumes')
     .insert(parsed.data)
@@ -46,7 +47,8 @@ export async function actualizarAlbum(formData: FormData) {
     publicado:    formData.get('publicado') === 'on',
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('albumes').update(parsed.data).eq('id', id);
   revalidatePath('/admin/publico/albumes');
   revalidatePath(`/admin/publico/albumes/${id}`);
@@ -56,7 +58,8 @@ export async function actualizarAlbum(formData: FormData) {
 
 export async function eliminarAlbum(formData: FormData) {
   const id = String(formData.get('id'));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('albumes').update({ deleted_at: new Date().toISOString() }).eq('id', id);
   revalidatePath('/admin/publico/albumes');
   revalidatePath('/publico/albumes');
@@ -69,7 +72,8 @@ export async function subirFotos(formData: FormData) {
   if (!files || files.length === 0) return;
 
   const sb = adminClient();
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   // Obtener orden actual
   const { data: last } = await supabase
@@ -119,7 +123,8 @@ export async function subirFotos(formData: FormData) {
 export async function eliminarFoto(formData: FormData) {
   const id = String(formData.get('id'));
   const albumId = String(formData.get('album_id'));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('album_fotos').delete().eq('id', id);
   revalidatePath(`/admin/publico/albumes/${albumId}`);
   revalidatePath('/publico/albumes');
@@ -128,7 +133,8 @@ export async function eliminarFoto(formData: FormData) {
 export async function definirPortada(formData: FormData) {
   const albumId = String(formData.get('album_id'));
   const fotoUrl = String(formData.get('foto_url'));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('albumes').update({ portada_url: fotoUrl }).eq('id', albumId);
   revalidatePath(`/admin/publico/albumes/${albumId}`);
   revalidatePath('/publico/albumes');

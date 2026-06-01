@@ -1,10 +1,12 @@
 'use server';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function agregarPregunta(fd: FormData) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const opcCsv = String(fd.get('opciones_csv') ?? '').trim();
   const opciones = opcCsv ? opcCsv.split(',').map((s) => s.trim()).filter(Boolean) : null;
   const payload: any = {
@@ -27,7 +29,8 @@ export async function agregarPregunta(fd: FormData) {
 }
 
 export async function eliminarPregunta(fd: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   if (!id) return;
   await supabase.from('examen_preguntas').delete().eq('id', id);

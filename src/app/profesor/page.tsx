@@ -7,8 +7,9 @@ import { DashboardHero } from '@/components/privado/DashboardHero';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function ProfesorDashboard() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   // Usa adminClient para evitar fallos RLS (mismo bug que en otros lados)
   const admin = adminClient();
 

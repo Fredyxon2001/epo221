@@ -1,5 +1,6 @@
 // Carga horaria visual: grid semanal por grupo con las sesiones programadas.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import { codigoGrupoDesdeSemestre, labelGrupo } from '@/lib/grupos';
 import { crearHorario, eliminarHorario, generarHorariosAutomaticos } from './actions';
@@ -12,7 +13,8 @@ export default async function HorariosPage({
 }: {
   searchParams: { grupo_id?: string; ok?: string; error?: string };
 }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id, codigo').eq('activo', true).maybeSingle();
   const cicloId = ciclo?.id ?? '';

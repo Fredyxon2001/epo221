@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { AgregarPreguntaForm } from './AgregarPreguntaForm';
 import { EliminarPreguntaBtn } from './EliminarPreguntaBtn';
 import { CalificarAbiertaForm } from './CalificarAbiertaForm';
 
 export default async function ExamenDetalle({ params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
   const { data: examen } = await supabase.from('examenes')

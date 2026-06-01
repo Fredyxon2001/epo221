@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -24,7 +25,8 @@ export async function crearPagina(formData: FormData) {
     orden:     formData.get('orden'),
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data, error } = await supabase
     .from('paginas_publicas')
     .insert(parsed.data)
@@ -45,7 +47,8 @@ export async function actualizarPagina(formData: FormData) {
     orden:     formData.get('orden'),
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase
     .from('paginas_publicas')
     .update({ ...parsed.data, updated_at: new Date().toISOString() })
@@ -56,7 +59,8 @@ export async function actualizarPagina(formData: FormData) {
 
 export async function eliminarPagina(formData: FormData) {
   const id = String(formData.get('id'));
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('paginas_publicas').update({ deleted_at: new Date().toISOString() }).eq('id', id);
   revalidatePath('/admin/publico/paginas');
 }

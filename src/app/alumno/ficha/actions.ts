@@ -19,9 +19,10 @@ export type ResultadoFicha = {
 };
 
 export async function actualizarFicha(formData: FormData): Promise<ResultadoFicha> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   // Datos actuales del alumno
@@ -94,9 +95,10 @@ export async function actualizarFicha(formData: FormData): Promise<ResultadoFich
 
 // Action para admin: aprobar/rechazar
 export async function resolverSolicitudFicha(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
@@ -154,9 +156,10 @@ export async function resolverSolicitudFicha(fd: FormData): Promise<{ ok?: boole
 
 // Acción del admin para REINICIAR el contador de un alumno (cuando justifica en persona)
 export async function reiniciarContadorModificaciones(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const admin = adminClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
   if (!perfil || !['admin', 'staff', 'director'].includes(perfil.rol)) return { error: 'No autorizado' };

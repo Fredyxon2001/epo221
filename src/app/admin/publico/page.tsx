@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { HubCards, type HubCard as Card } from './HubCards';
 
 export default async function AdminPublicoHub() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   // Conteos para tarjetas (tolerante a tablas que aún no existen)
   const [noticias, convocatorias, albumes, paginas] = await Promise.all([

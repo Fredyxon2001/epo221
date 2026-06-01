@@ -1,10 +1,12 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearConvocatoria(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const vigenteDesde = String(formData.get('vigente_desde') ?? '').trim() || null;
   const vigenteHasta = String(formData.get('vigente_hasta') ?? '').trim() || null;
 
@@ -21,7 +23,8 @@ export async function crearConvocatoria(formData: FormData) {
 }
 
 export async function eliminarConvocatoria(formData: FormData) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('convocatorias').delete().eq('id', String(formData.get('id')));
   revalidatePath('/admin/convocatorias');
 }

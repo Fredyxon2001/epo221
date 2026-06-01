@@ -1,12 +1,14 @@
 // Banco de rúbricas del profesor. Muestra las propias + las públicas de otros.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import { crearRubrica, eliminarRubrica, duplicarRubrica } from './actions';
 
 export default async function RubricasBanco() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
 
   const { data: materias } = await supabase.from('materias').select('id, nombre').order('nombre');
 

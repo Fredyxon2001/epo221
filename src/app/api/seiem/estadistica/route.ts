@@ -1,11 +1,13 @@
 // Formato 911 SEIEM simplificado: estadística básica.
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import * as XLSX from 'xlsx';
 
 export async function GET() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });
 
   const { data: grupos } = await supabase

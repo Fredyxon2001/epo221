@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { ChatGrupal } from '@/components/chat/ChatGrupal';
 
 export default async function ChatAsignacionAlumno({ params }: { params: { asignacionId: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: asig } = await supabase.from('asignaciones')
     .select('id, materia:materias(nombre), profesor:profesores(perfil:perfiles(nombre))')
     .eq('id', params.asignacionId).maybeSingle();

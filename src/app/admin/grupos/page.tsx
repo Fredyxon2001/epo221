@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import {
   crearGrupo, crearGruposBulk, crearAsignacion,
   sembrarAsignaciones, cambiarAlumnoDeGrupo, promoverGrupo,
@@ -12,7 +13,8 @@ export default async function AdminGrupos({
 }: {
   searchParams?: { ok?: string; error?: string };
 }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const [
     { data: grupos },

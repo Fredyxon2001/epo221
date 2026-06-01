@@ -1,11 +1,13 @@
 // Hilos de mensajes del alumno con sus profesores.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 
 export default async function MensajesAlumno() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: alumno } = await supabase.from('alumnos').select('id').eq('perfil_id', user!.id).maybeSingle();
 
   const { data: hilos } = await supabase

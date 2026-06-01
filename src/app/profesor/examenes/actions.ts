@@ -1,11 +1,13 @@
 'use server';
 // Acciones docente para exámenes en línea.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearExamen(fd: FormData): Promise<{ error?: string; ok?: boolean; id?: string }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
@@ -43,7 +45,8 @@ export async function crearExamen(fd: FormData): Promise<{ error?: string; ok?: 
 }
 
 export async function agregarPregunta(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const examen_id = String(fd.get('examen_id') ?? '');
   const tipo = String(fd.get('tipo') ?? '') as 'opcion_multiple' | 'verdadero_falso' | 'abierta';
   const enunciado = String(fd.get('enunciado') ?? '').trim();
@@ -73,13 +76,15 @@ export async function agregarPregunta(fd: FormData): Promise<{ error?: string; o
 }
 
 export async function eliminarPregunta(id: string, examen_id: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   await supabase.from('examen_preguntas').delete().eq('id', id);
   revalidatePath(`/profesor/examenes/${examen_id}`);
 }
 
 export async function calificarRespuestaAbierta(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   const puntos = Number(fd.get('puntos_obtenidos') ?? 0);
   const correcta = fd.get('correcta') === 'on';
@@ -95,7 +100,8 @@ export async function calificarRespuestaAbierta(fd: FormData): Promise<{ error?:
 }
 
 async function recalcularCalificacion(intento_id: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data: resp } = await supabase.from('examen_respuestas')
     .select('puntos_obtenidos, pregunta:examen_preguntas(puntos)').eq('intento_id', intento_id);
   const obtenidos = (resp ?? []).reduce((s: number, r: any) => s + (Number(r.puntos_obtenidos) || 0), 0);

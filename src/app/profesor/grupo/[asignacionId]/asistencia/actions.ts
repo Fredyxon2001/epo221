@@ -1,14 +1,16 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 // Guarda la asistencia del día para todos los alumnos del grupo.
 // Espera campos: asignacion_id, fecha, estado_<alumnoId>=presente|falta|retardo|justificada
 export async function guardarAsistencia(formData: FormData): Promise<void> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
 
   const asignacionId = String(formData.get('asignacion_id'));
   const fecha = String(formData.get('fecha'));

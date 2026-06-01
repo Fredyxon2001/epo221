@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { guardarParcial, agregarParcial, eliminarParcial } from './actions';
 
 export default async function AdminParciales() {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const [{ data: ciclos }, { data: parciales }] = await Promise.all([
     supabase.from('ciclos_escolares').select('*').order('activo', { ascending: false }).order('codigo', { ascending: false }),
     supabase.from('parciales_config').select('*').order('numero'),

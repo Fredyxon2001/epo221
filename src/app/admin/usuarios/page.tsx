@@ -1,5 +1,6 @@
 // Gestión universal de usuarios, alta unificada, edición de rol y reset de contraseñas
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { ResetPasswordRow } from './ResetPasswordRow';
 import { EditarRolDropdown } from './EditarRolDropdown';
@@ -16,7 +17,8 @@ const ROL_ICON: Record<string, string> = {
 };
 
 export default async function UsuariosPage({ searchParams }: { searchParams?: { rol?: string; q?: string } }) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const filtroRol = searchParams?.rol ?? 'todos';
   const q = (searchParams?.q ?? '').trim();
 

@@ -1,14 +1,16 @@
 // Hilo de conversación alumno → profesor.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { enviarMensajeAlumno, marcarHiloLeido } from '@/app/profesor/mensajes/actions';
 import { MessageComposer } from '@/components/mensajes/MessageComposer';
 import { Adjunto } from '@/components/mensajes/Adjunto';
 
 export default async function HiloAlumno({ params }: { params: { profesorId: string } }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   const { data: alumno } = await supabase.from('alumnos').select('id').eq('perfil_id', user!.id).single();
 
   const { data: profesor } = await supabase

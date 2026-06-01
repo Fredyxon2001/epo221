@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { PresentarExamen } from './PresentarExamen';
@@ -7,7 +8,8 @@ import { iniciarIntento } from '../actions';
 export default async function PresentarExamenPage({ params }: { params: { id: string } }) {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: examen } = await supabase.from('examenes')
     .select('*, asignacion:asignaciones(materia:materias(nombre))')

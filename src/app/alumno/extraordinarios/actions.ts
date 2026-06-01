@@ -1,11 +1,13 @@
 'use server';
 // Solicitud de examen extraordinario/recuperación por parte del alumno.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function solicitarExtraordinario(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: al } = await supabase.from('alumnos').select('id').eq('perfil_id', user.id).maybeSingle();
   if (!al) return { error: 'No eres alumno' };
@@ -33,8 +35,9 @@ export async function solicitarExtraordinario(fd: FormData): Promise<{ error?: s
 }
 
 export async function procesarExtraordinario(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
   if (!perfil || !['admin', 'staff', 'director'].includes(perfil.rol)) return { error: 'Sin permiso' };

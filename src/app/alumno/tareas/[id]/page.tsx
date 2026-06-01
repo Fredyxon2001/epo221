@@ -8,7 +8,8 @@ import { EntregarTareaForm } from './EntregarTareaForm';
 export default async function TareaAlumnoDetalle({ params }: { params: { id: string } }) {
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
 
   const { data: tarea } = await supabase.from('tareas')
     .select('*, asignacion:asignaciones(materia:materias(nombre), grupo:grupos(grado, semestre, grupo))')

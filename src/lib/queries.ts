@@ -3,8 +3,9 @@ import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 
 export async function getAlumnoActual() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return null;
   // Usa adminClient para evitar fallos de RLS/cookies
   const admin = adminClient();
@@ -15,8 +16,9 @@ export async function getAlumnoActual() {
 
 /** Devuelve el profesor (id) del user autenticado, usando adminClient (bypass RLS). */
 export async function getProfesorActualId(): Promise<string | null> {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const auth = createClient();
+  const supabase = adminClient();
+  const { data: { user } } = await auth.auth.getUser();
   if (!user) return null;
   const admin = adminClient();
   const { data } = await admin.from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
@@ -24,14 +26,16 @@ export async function getProfesorActualId(): Promise<string | null> {
 }
 
 export async function getEvaluacionGeneral(alumnoId: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data } = await supabase
     .from('vista_evaluacion_general').select('*').eq('alumno_id', alumnoId).maybeSingle();
   return data;
 }
 
 export async function getPromediosPorSemestre(alumnoId: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data } = await supabase
     .from('vista_promedios_semestre').select('*')
     .eq('alumno_id', alumnoId)
@@ -40,7 +44,8 @@ export async function getPromediosPorSemestre(alumnoId: string) {
 }
 
 export async function getPromediosAnuales(alumnoId: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data } = await supabase
     .from('vista_promedios_anuales').select('*')
     .eq('alumno_id', alumnoId).order('anio');
@@ -48,7 +53,8 @@ export async function getPromediosAnuales(alumnoId: string) {
 }
 
 export async function getHistorialAcademico(alumnoId: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data } = await supabase
     .from('vista_historial_academico').select('*')
     .eq('alumno_id', alumnoId)
@@ -58,7 +64,8 @@ export async function getHistorialAcademico(alumnoId: string) {
 }
 
 export async function getEstadoCuenta(alumnoId: string) {
-  const supabase = createClient();
+  const auth = createClient();
+  const supabase = adminClient();
   const { data } = await supabase
     .from('vista_estado_cuenta').select('*')
     .eq('alumno_id', alumnoId)
