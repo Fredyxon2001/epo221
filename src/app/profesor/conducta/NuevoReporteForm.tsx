@@ -8,6 +8,7 @@ const CATEGORIAS_POS = ['Excelente participación', 'Liderazgo', 'Ayuda a compa�
 export function NuevoReporteForm({ alumnos }: { alumnos: any[] }) {
   const [tipo, setTipo] = useState<'positivo' | 'negativo'>('negativo');
   const [categoria, setCategoria] = useState('');
+  const [grupoId, setGrupoId] = useState('');
   const [alumnoId, setAlumnoId] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [acciones, setAcciones] = useState('');
@@ -16,6 +17,14 @@ export function NuevoReporteForm({ alumnos }: { alumnos: any[] }) {
   const [pending, start] = useTransition();
 
   const categorias = tipo === 'positivo' ? CATEGORIAS_POS : CATEGORIAS_NEG;
+
+  // Grupos únicos de los alumnos del profesor
+  const grupos = Array.from(
+    new Map(alumnos.map((a) => [a.grupo_id, a.grupo_nombre])).entries()
+  ).map(([id, nombre]) => ({ id, nombre })).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)));
+
+  // Alumnos del grupo seleccionado
+  const alumnosDelGrupo = grupoId ? alumnos.filter((a) => a.grupo_id === grupoId) : [];
 
   return (
     <form
@@ -31,7 +40,7 @@ export function NuevoReporteForm({ alumnos }: { alumnos: any[] }) {
           if (r?.error) setErr(r.error);
           else {
             setOk(true);
-            setDescripcion(''); setAcciones(''); setCategoria(''); setAlumnoId('');
+            setDescripcion(''); setAcciones(''); setCategoria(''); setAlumnoId(''); setGrupoId('');
           }
         });
       }}
@@ -52,12 +61,20 @@ export function NuevoReporteForm({ alumnos }: { alumnos: any[] }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">Alumno</span>
-          <select value={alumnoId} onChange={(e) => setAlumnoId(e.target.value)} required className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
-            <option value="">— Selecciona —</option>
-            {alumnos.map((a) => (
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">1. Grupo</span>
+          <select value={grupoId} onChange={(e) => { setGrupoId(e.target.value); setAlumnoId(''); }} required className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+            <option value="">— Selecciona grupo —</option>
+            {grupos.map((g) => <option key={g.id} value={g.id}>{g.nombre}</option>)}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">2. Alumno</span>
+          <select value={alumnoId} onChange={(e) => setAlumnoId(e.target.value)} required disabled={!grupoId} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400">
+            <option value="">{grupoId ? '— Selecciona alumno —' : 'Elige grupo primero'}</option>
+            {alumnosDelGrupo.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.apellido_paterno} {a.apellido_materno ?? ''} {a.nombre} · {a.matricula ?? '—'}
               </option>
@@ -66,7 +83,7 @@ export function NuevoReporteForm({ alumnos }: { alumnos: any[] }) {
         </label>
 
         <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">Categoría</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">3. Categoría</span>
           <select value={categoria} onChange={(e) => setCategoria(e.target.value)} required className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <option value="">— Selecciona —</option>
             {categorias.map((c) => <option key={c} value={c}>{c}</option>)}

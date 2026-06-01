@@ -22,18 +22,31 @@ export default async function ConductaProfesor() {
     ...(orient ?? []).map((g: any) => g.id),
   ]));
 
+  // Nombres de los grupos (para agrupar el selector)
+  const { data: gruposInfo } = grupoIds.length
+    ? await supabase.from('grupos').select('id, grado, grupo, turno').in('id', grupoIds)
+    : { data: [] as any[] };
+  const grupoNombre = new Map<string, string>();
+  for (const g of gruposInfo ?? []) {
+    grupoNombre.set((g as any).id, `${(g as any).grado}°${(g as any).grupo}${(g as any).turno ? ' ' + String((g as any).turno).charAt(0).toUpperCase() : ''}`);
+  }
+
   const { data: inscripciones } = grupoIds.length
     ? await supabase.from('inscripciones')
-        .select('alumno:alumnos(id, nombre, apellido_paterno, apellido_materno, matricula)')
+        .select('grupo_id, alumno:alumnos(id, nombre, apellido_paterno, apellido_materno, matricula)')
         .in('grupo_id', grupoIds).eq('ciclo_id', ciclo?.id ?? '')
     : { data: [] as any[] };
   const alumnosMap = new Map<string, any>();
   for (const i of inscripciones ?? []) {
     const a: any = (i as any).alumno;
-    if (a?.id) alumnosMap.set(a.id, a);
+    if (a?.id) alumnosMap.set(a.id, {
+      ...a,
+      grupo_id: (i as any).grupo_id,
+      grupo_nombre: grupoNombre.get((i as any).grupo_id) ?? 'Grupo',
+    });
   }
   const alumnos = Array.from(alumnosMap.values())
-    .sort((a, b) => `${a.apellido_paterno} ${a.nombre}`.localeCompare(`${b.apellido_paterno} ${b.nombre}`));
+    .sort((a, b) => `${a.grupo_nombre} ${a.apellido_paterno} ${a.nombre}`.localeCompare(`${b.grupo_nombre} ${b.apellido_paterno} ${b.nombre}`));
 
   // Mis reportes recientes
   const { data: mios } = await supabase.from('reportes_conducta')

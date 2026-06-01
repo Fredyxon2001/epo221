@@ -1,9 +1,10 @@
-// Selector de profesor para iniciar un hilo de mensajes.
+// Selector de profesor / compañero para iniciar un hilo de mensajes.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
+import { AbrirHiloCompaneroBtn } from './AbrirHiloCompaneroBtn';
 
 export default async function NuevoHiloAlumno() {
   const alumno = await getAlumnoActual();
@@ -70,15 +71,29 @@ export default async function NuevoHiloAlumno() {
 
   const lista = Array.from(mapa.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
 
+  // Compañeros del mismo grupo (excepto yo)
+  const { data: companerosIns } = await supabase
+    .from('inscripciones')
+    .select('alumno:alumnos(id, nombre, apellido_paterno, apellido_materno)')
+    .eq('grupo_id', grupo.id).eq('ciclo_id', ciclo!.id);
+  const companeros = (companerosIns ?? [])
+    .map((i: any) => i.alumno)
+    .filter((a: any) => a?.id && a.id !== alumno.id)
+    .map((a: any) => ({
+      id: a.id,
+      nombre: `${a.apellido_paterno} ${a.apellido_materno ?? ''} ${a.nombre}`.trim(),
+    }))
+    .sort((a: any, b: any) => a.nombre.localeCompare(b.nombre));
+
   return (
     <div className="max-w-3xl space-y-4">
       <PageHeader
         eyebrow="Mensajes"
         title="Nueva conversación"
-        description="Elige al docente con quien quieres comunicarte."
+        description="Escribe a un docente o a un compañero de tu grupo."
         actions={<Link href="/alumno/mensajes" className="text-xs text-verde font-semibold hover:underline px-3 py-1">← Volver</Link>}
       />
-      <Card>
+      <Card eyebrow="Docentes" title="Profesores y orientador">
         {lista.length === 0 ? (
           <EmptyState icon="👩‍🏫" title="Sin docentes disponibles" />
         ) : (
@@ -104,6 +119,30 @@ export default async function NuevoHiloAlumno() {
                 </div>
                 <div className="text-verde">→</div>
               </Link>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      <Card eyebrow="Compañeros" title={`Mi grupo (${companeros.length})`}>
+        {companeros.length === 0 ? (
+          <EmptyState icon="🧑‍🤝‍🧑" title="Sin compañeros" description="No hay otros alumnos en tu grupo." />
+        ) : (
+          <div className="space-y-2">
+            {companeros.map((c: any) => (
+              <div
+                key={c.id}
+                className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:border-verde transition"
+              >
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow">
+                  {c.nombre.split(' ').slice(0, 2).map((s: string) => s[0]).join('')}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm">{c.nombre}</div>
+                  <div className="text-[11px] text-gray-400">Compañero de grupo</div>
+                </div>
+                <AbrirHiloCompaneroBtn alumnoId={c.id} />
+              </div>
             ))}
           </div>
         )}
