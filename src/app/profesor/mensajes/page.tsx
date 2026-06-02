@@ -28,7 +28,7 @@ export default async function MensajesProfesor({ searchParams }: { searchParams?
     .from('mensajes_hilos')
     .select(`
       id, ultimo_mensaje_at,
-      alumno:alumnos(id, nombre, apellido_paterno, apellido_materno, matricula)
+      alumno:alumnos(id, nombre, apellido_paterno, apellido_materno, matricula, foto_url)
     `)
     .eq('profesor_id', profesor?.id ?? '')
     .order('ultimo_mensaje_at', { ascending: false });
@@ -84,8 +84,13 @@ export default async function MensajesProfesor({ searchParams }: { searchParams?
                   href={`/profesor/mensajes/${h.alumno?.id}`}
                   className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70 hover:border-verde hover:shadow transition"
                 >
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow">
-                    {h.alumno?.nombre?.[0]}{h.alumno?.apellido_paterno?.[0]}
+                  <div className="w-11 h-11 rounded-full overflow-hidden bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow shrink-0">
+                    {h.alumno?.foto_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={h.alumno.foto_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <>{h.alumno?.nombre?.[0]}{h.alumno?.apellido_paterno?.[0]}</>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm truncate">{h.alumno?.apellido_paterno} {h.alumno?.apellido_materno ?? ''} {h.alumno?.nombre}</div>

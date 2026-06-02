@@ -14,9 +14,17 @@ export default async function HiloAlumno({ params }: { params: { profesorId: str
   const { data: alumno } = await supabase.from('alumnos').select('id').eq('perfil_id', user!.id).single();
 
   const { data: profesor } = await supabase
-    .from('profesores').select('id, nombre, apellido_paterno, apellido_materno, email')
+    .from('profesores').select('id, nombre, apellido_paterno, apellido_materno, email, perfil_id')
     .eq('id', params.profesorId).single();
   if (!profesor) return <EmptyState icon="🔍" title="Profesor no encontrado" />;
+
+  // Foto del profesor (perfiles.avatar_url)
+  let fotoProf: string | null = null;
+  if (profesor.perfil_id) {
+    const { data: pp } = await supabase.from('perfiles').select('avatar_url').eq('id', profesor.perfil_id).maybeSingle();
+    fotoProf = (pp as any)?.avatar_url ?? null;
+  }
+  const iniProf = `${profesor.nombre?.[0] ?? ''}${profesor.apellido_paterno?.[0] ?? ''}`.toUpperCase();
 
   let { data: hilo } = await supabase.from('mensajes_hilos')
     .select('id').eq('profesor_id', params.profesorId).eq('alumno_id', alumno!.id).maybeSingle();
@@ -42,12 +50,19 @@ export default async function HiloAlumno({ params }: { params: { profesorId: str
 
   return (
     <div className="max-w-3xl space-y-4">
-      <PageHeader
-        eyebrow="Mensajes"
-        title={`Prof. ${profesor.apellido_paterno} ${profesor.nombre}`}
-        description={profesor.email ?? undefined}
-        actions={<Link href="/alumno/mensajes" className="text-xs text-verde font-semibold hover:underline px-3 py-1">← Todos los hilos</Link>}
-      />
+      <div className="flex items-center gap-3 bg-white rounded-2xl shadow-sm p-4">
+        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-dorado to-dorado-claro flex items-center justify-center text-verde-oscuro font-bold shadow">
+          {fotoProf ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={fotoProf} alt={iniProf} className="w-full h-full object-cover" />
+          ) : iniProf}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-serif text-lg text-verde-oscuro truncate">Prof. {profesor.apellido_paterno} {profesor.nombre}</div>
+          {profesor.email && <div className="text-xs text-gray-500 truncate">{profesor.email}</div>}
+        </div>
+        <Link href="/alumno/mensajes" className="text-xs text-verde font-semibold hover:underline px-3 py-1 shrink-0">← Hilos</Link>
+      </div>
 
       <Card eyebrow="Conversación" title="">
         <div className="space-y-3 max-h-[55vh] overflow-y-auto p-2">

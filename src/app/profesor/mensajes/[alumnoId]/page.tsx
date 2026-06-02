@@ -14,9 +14,10 @@ export default async function HiloProfesor({ params }: { params: { alumnoId: str
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).single();
 
   const { data: alumno } = await supabase
-    .from('alumnos').select('id, nombre, apellido_paterno, apellido_materno, matricula, tutor_nombre, tutor_email, tutor_telefono')
+    .from('alumnos').select('id, nombre, apellido_paterno, apellido_materno, matricula, tutor_nombre, tutor_email, tutor_telefono, foto_url')
     .eq('id', params.alumnoId).single();
   if (!alumno) return <EmptyState icon="🔍" title="Alumno no encontrado" />;
+  const iniAlu = `${alumno.nombre?.[0] ?? ''}${alumno.apellido_paterno?.[0] ?? ''}`.toUpperCase();
 
   let { data: hilo } = await supabase.from('mensajes_hilos')
     .select('id').eq('profesor_id', profesor!.id).eq('alumno_id', params.alumnoId).maybeSingle();
@@ -43,12 +44,19 @@ export default async function HiloProfesor({ params }: { params: { alumnoId: str
 
   return (
     <div className="max-w-3xl space-y-4">
-      <PageHeader
-        eyebrow="Mensajes"
-        title={`${alumno.apellido_paterno} ${alumno.apellido_materno ?? ''} ${alumno.nombre}`}
-        description={`Matrícula ${alumno.matricula ?? '—'}${alumno.tutor_nombre ? ` · Tutor: ${alumno.tutor_nombre}` : ''}`}
-        actions={<Link href="/profesor/mensajes" className="text-xs text-verde font-semibold hover:underline px-3 py-1">← Todos los hilos</Link>}
-      />
+      <div className="flex items-center gap-3 bg-white rounded-2xl shadow-sm p-4">
+        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-verde to-verde-medio flex items-center justify-center text-white font-bold shadow">
+          {(alumno as any).foto_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={(alumno as any).foto_url} alt={iniAlu} className="w-full h-full object-cover" />
+          ) : iniAlu}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-serif text-lg text-verde-oscuro truncate">{alumno.apellido_paterno} {alumno.apellido_materno ?? ''} {alumno.nombre}</div>
+          <div className="text-xs text-gray-500 truncate">Matrícula {alumno.matricula ?? '—'}{alumno.tutor_nombre ? ` · Tutor: ${alumno.tutor_nombre}` : ''}</div>
+        </div>
+        <Link href="/profesor/mensajes" className="text-xs text-verde font-semibold hover:underline px-3 py-1 shrink-0">← Hilos</Link>
+      </div>
 
       <Card eyebrow="Conversación" title="">
         <div className="space-y-3 max-h-[55vh] overflow-y-auto p-2">
