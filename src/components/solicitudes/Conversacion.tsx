@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition, useRef } from 'react';
 import { enviarMensajeSolicitud, cerrarSolicitudThread, reabrirSolicitudThread } from '@/app/solicitudes/thread-actions';
+import { EmojiFilePicker } from '@/components/EmojiFilePicker';
 
 type Msg = {
   id: string;
@@ -28,6 +29,19 @@ export function ConversacionSolicitud({
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const [texto, setTexto] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+
+  function insertEmoji(e: string) {
+    const ta = taRef.current;
+    if (!ta) { setTexto((t) => t + e); return; }
+    const s = ta.selectionStart ?? texto.length;
+    const en = ta.selectionEnd ?? texto.length;
+    const next = texto.slice(0, s) + e + texto.slice(en);
+    setTexto(next);
+    requestAnimationFrame(() => { ta.focus(); ta.selectionStart = ta.selectionEnd = s + e.length; });
+  }
 
   const cerrada = estado === 'cerrada';
 
@@ -88,26 +102,30 @@ export function ConversacionSolicitud({
           action={(fd) => {
             setErr(null);
             fd.set('solicitud_id', solicitudId);
+            fd.set('texto', texto);
+            if (file) fd.set('adjunto', file);
             start(async () => {
               const r = await enviarMensajeSolicitud(fd);
               if (r?.error) setErr(r.error);
-              else formRef.current?.reset();
+              else { setTexto(''); setFile(null); formRef.current?.reset(); }
             });
           }}
           className="space-y-2 bg-white border border-gray-200 rounded-lg p-3"
         >
           <textarea
-            name="texto"
+            ref={taRef}
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
             rows={2}
             placeholder="Escribe un mensaje…"
             className="w-full border rounded px-3 py-2 text-sm resize-none"
           />
           <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
-            <input
-              type="file"
-              name="adjunto"
-              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.txt"
-              className="text-xs flex-1"
+            <EmojiFilePicker
+              onInsertEmoji={insertEmoji}
+              onFileChange={setFile}
+              file={file}
+              fileInputName="adjunto"
             />
             <div className="flex gap-2">
               <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded text-xs disabled:opacity-50">
