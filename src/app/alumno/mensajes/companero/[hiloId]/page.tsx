@@ -12,7 +12,7 @@ export default async function ConversacionCompanero({ params }: { params: { hilo
   const { data: { user } } = await auth.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: yo } = await supabase.from('alumnos').select('id, nombre').eq('perfil_id', user.id).maybeSingle();
+  const { data: yo } = await supabase.from('alumnos').select('id, nombre, foto_url').eq('perfil_id', user.id).maybeSingle();
   if (!yo) redirect('/alumno');
 
   const { data: hilo } = await supabase
@@ -31,10 +31,22 @@ export default async function ConversacionCompanero({ params }: { params: { hilo
 
   const otroId = hilo.alumno_a === yo.id ? hilo.alumno_b : hilo.alumno_a;
   const { data: otro } = await supabase
-    .from('alumnos').select('nombre, apellido_paterno, apellido_materno').eq('id', otroId).maybeSingle();
+    .from('alumnos').select('nombre, apellido_paterno, apellido_materno, foto_url').eq('id', otroId).maybeSingle();
   const otroNombre = otro
     ? `${otro.nombre} ${otro.apellido_paterno ?? ''} ${otro.apellido_materno ?? ''}`.trim()
     : 'Compañero';
+  const fotoYo = (yo as any).foto_url as string | null;
+  const fotoOtro = (otro as any)?.foto_url as string | null;
+  const iniYo = (yo.nombre ?? 'Y')[0].toUpperCase();
+  const iniOtro = (otro?.nombre ?? 'C')[0].toUpperCase();
+  const Avatar = ({ foto, ini }: { foto: string | null; ini: string }) => (
+    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-verde to-verde-medio flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
+      {foto ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={foto} alt={ini} className="w-full h-full object-cover" />
+      ) : ini}
+    </div>
+  );
 
   const { data: mensajes } = await supabase
     .from('mensajes_alumno')
@@ -63,13 +75,15 @@ export default async function ConversacionCompanero({ params }: { params: { hilo
             (mensajes ?? []).map((m: any) => {
               const mine = m.autor_id === yo.id;
               return (
-                <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[75%] rounded-2xl px-3 py-2 ${mine ? 'bg-verde text-white' : 'bg-gray-100 text-gray-800'}`}>
+                <div key={m.id} className={`flex items-end gap-2 ${mine ? 'justify-end' : 'justify-start'}`}>
+                  {!mine && <Avatar foto={fotoOtro} ini={iniOtro} />}
+                  <div className={`max-w-[70%] rounded-2xl px-3 py-2 ${mine ? 'bg-verde text-white' : 'bg-gray-100 text-gray-800'}`}>
                     <div className="text-sm">{m.cuerpo}</div>
                     <div className={`text-[9px] mt-1 ${mine ? 'text-white/70' : 'text-gray-400'}`}>
                       {new Date(m.created_at).toLocaleString('es-MX', { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })}
                     </div>
                   </div>
+                  {mine && <Avatar foto={fotoYo} ini={iniYo} />}
                 </div>
               );
             })

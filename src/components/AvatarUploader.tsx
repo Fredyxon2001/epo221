@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState, useTransition } from 'react';
 import { subirAvatar } from '@/app/perfil/avatar-actions';
+import { AvatarCropper } from './AvatarCropper';
 
 export function AvatarUploader({
   fotoActual,
@@ -10,20 +11,28 @@ export function AvatarUploader({
   iniciales: string;
 }) {
   const [preview, setPreview] = useState<string | null>(fotoActual ?? null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
   const [pending, start] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function onSelect(f: File) {
+  function onPick(f: File) {
     setErr(null); setOk(false);
-    setPreview(URL.createObjectURL(f));
+    if (f.size > 8 * 1024 * 1024) { setErr('Imagen mayor a 8 MB'); return; }
+    setCropSrc(URL.createObjectURL(f)); // abrir recortador
+  }
+
+  function onConfirmCrop(blob: Blob) {
+    const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+    setPreview(URL.createObjectURL(blob));
     const fd = new FormData();
-    fd.set('avatar', f);
+    fd.set('avatar', file);
     start(async () => {
       const res = await subirAvatar(fd);
       if (res?.error) { setErr(res.error); setPreview(fotoActual ?? null); }
       else { setOk(true); if (res?.url) setPreview(res.url); }
+      setCropSrc(null);
     });
   }
 
@@ -52,20 +61,29 @@ export function AvatarUploader({
             disabled={pending}
             className="bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
           >
-            📷 {fotoActual ? 'Cambiar foto' : 'Subir foto'}
+            📷 {fotoActual || preview ? 'Cambiar foto' : 'Subir foto'}
           </button>
           <input
             ref={inputRef}
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) onSelect(f); }}
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) onPick(f); e.target.value = ''; }}
           />
-          <p className="text-xs text-gray-500 mt-2">Formatos: JPG/PNG/WebP. Máx. 5 MB.</p>
+          <p className="text-xs text-gray-500 mt-2">Podrás recortar y ajustar antes de guardar. JPG/PNG/WebP.</p>
           {err && <p className="text-xs text-rose-600 mt-1">⚠️ {err}</p>}
           {ok && <p className="text-xs text-verde mt-1">✅ Foto actualizada.</p>}
         </div>
       </div>
+
+      {cropSrc && (
+        <AvatarCropper
+          src={cropSrc}
+          saving={pending}
+          onCancel={() => setCropSrc(null)}
+          onConfirm={onConfirmCrop}
+        />
+      )}
     </div>
   );
 }
