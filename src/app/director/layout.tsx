@@ -14,7 +14,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
 
   const admin = adminClient();
   const { data: perfil } = await admin
-    .from('perfiles').select('nombre, email, rol').eq('id', user.id).maybeSingle();
+    .from('perfiles').select('nombre, email, rol, avatar_url').eq('id', user.id).maybeSingle();
   if (!perfil || !['director', 'admin'].includes((perfil as any).rol)) redirect('/');
 
   const { items: notiItems, noLeidas } = await getNotificaciones(user.id, 10);
@@ -65,6 +65,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
       userName={perfil.nombre ?? 'Dirección'}
       userSub={perfil.email ?? 'EPO 221'}
       logoUrl={sitioCfg?.logo_url ?? null}
+      avatarUrl={(perfil as any).avatar_url ?? null}
     >
       <Topbar
         greeting={saludo}

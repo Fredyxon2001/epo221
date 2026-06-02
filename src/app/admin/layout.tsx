@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Usar adminClient (bypass RLS) para leer el perfil — evita falsos negativos
   const admin = adminClient();
   const { data: perfil } = await admin
-    .from('perfiles').select('nombre, email, rol').eq('id', user.id).maybeSingle();
+    .from('perfiles').select('nombre, email, rol, avatar_url').eq('id', user.id).maybeSingle();
   // Acceso al panel admin: admin, staff, director, finanzas (vista limitada para finanzas)
   if (!perfil || !['admin', 'staff', 'director', 'finanzas'].includes(perfil.rol)) redirect('/');
 
@@ -131,6 +131,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       userName={perfil.nombre ?? 'Usuario'}
       userSub={perfil.email ?? undefined}
       logoUrl={sitioCfg?.logo_url ?? null}
+      avatarUrl={(perfil as any).avatar_url ?? null}
     >
       <Topbar
         greeting={saludo}

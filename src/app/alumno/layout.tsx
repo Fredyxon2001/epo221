@@ -146,6 +146,7 @@ export default async function AlumnoLayout({ children }: { children: React.React
       userName={alumno.nombre}
       userSub={alumno.matricula ?? alumno.curp}
       logoUrl={sitioCfg?.logo_url ?? null}
+      avatarUrl={(alumno as any).foto_url ?? null}
     >
       <Topbar
         greeting={saludo}

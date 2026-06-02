@@ -32,6 +32,7 @@ export function PrivateShell({
   userName,
   userSub,
   logoUrl,
+  avatarUrl,
   children,
 }: {
   role: Role;
@@ -39,6 +40,7 @@ export function PrivateShell({
   userName: string;
   userSub?: string;
   logoUrl?: string | null;
+  avatarUrl?: string | null;
   children: ReactNode;
 }) {
   const bg = bgByRole[role];
@@ -46,7 +48,7 @@ export function PrivateShell({
 
   return (
     <div className={`min-h-screen text-verde-oscuro flex bg-gradient-to-br ${bg}`}>
-      <PrivateSidebar role={role} groups={groups} userName={userName} userSub={userSub} logoUrl={logoUrl} />
+      <PrivateSidebar role={role} groups={groups} userName={userName} userSub={userSub} logoUrl={logoUrl} avatarUrl={avatarUrl} />
 
       <div className="flex-1 min-w-0 flex flex-col relative overflow-hidden">
         {/* ───── Capa decorativa animada (aurora + blobs + grid sutil + logo watermark) ───── */}

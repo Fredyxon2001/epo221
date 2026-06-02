@@ -49,5 +49,6 @@ export async function subirAvatar(fd: FormData): Promise<{ error?: string; ok?: 
   revalidatePath('/alumno', 'layout');
   revalidatePath('/profesor', 'layout');
   revalidatePath('/admin', 'layout');
+  revalidatePath('/director', 'layout');
   return { ok: true, url };
 }

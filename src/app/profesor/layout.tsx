@@ -130,6 +130,7 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
       userName={perfil.nombre ?? 'Docente'}
       userSub={perfil.email ?? undefined}
       logoUrl={sitioCfg?.logo_url ?? null}
+      avatarUrl={(perfil as any).avatar_url ?? null}
     >
       <Topbar
         greeting={saludo}

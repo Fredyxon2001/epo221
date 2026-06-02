@@ -25,12 +25,14 @@ export function PrivateSidebar({
   userName,
   userSub,
   logoUrl,
+  avatarUrl,
 }: {
   role: Role;
   groups: NavGroup[];
   userName: string;
   userSub?: string;
   logoUrl?: string | null;
+  avatarUrl?: string | null;
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -190,8 +192,13 @@ export function PrivateSidebar({
         {/* Footer usuario */}
         <div className="relative border-t border-white/10 p-3 space-y-2">
           <div className={`flex items-center gap-3 px-2 py-2 rounded-xl bg-white/5 ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-dorado to-verde-claro flex items-center justify-center text-verde-oscuro font-bold text-sm shadow">
-              {userName.slice(0, 1).toUpperCase()}
+            <div className="w-9 h-9 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-dorado to-verde-claro flex items-center justify-center text-verde-oscuro font-bold text-sm shadow">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                userName.slice(0, 1).toUpperCase()
+              )}
             </div>
             {!collapsed && (
               <div className="min-w-0 flex-1">
