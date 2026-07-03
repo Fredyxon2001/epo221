@@ -32,7 +32,7 @@ export async function GET() {
     const end = e.fecha_fin ? new Date(e.fecha_fin) : new Date(start.getTime() + 60 * 60 * 1000);
     lines.push(
       'BEGIN:VEVENT',
-      `UID:${e.id}@epo221.vercel.app`,
+      `UID:${e.id}@epo221.edu.mx`,
       `DTSTAMP:${now}`,
       `DTSTART:${fmt(start)}`,
       `DTEND:${fmt(end)}`,
