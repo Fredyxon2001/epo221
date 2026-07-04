@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   applicationName: 'EPO 221',
   appleWebApp: { capable: true, title: 'EPO 221', statusBarStyle: 'default' },
+  verification: {
+    google: 'fYptKllgGmJ32LgtSykXN_tzSMxuyFj2LDxAGIef51o',
+  },
 };
 
 export const viewport: Viewport = {
