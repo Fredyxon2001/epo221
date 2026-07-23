@@ -1,8 +1,8 @@
 // Helpers de autenticación.
-// Patrón de email institucional: nombre.apellido@epo221.local
+// Patrón de email institucional: nombre.apellido@epo221.mx
 // Fácil de recordar para el alumno.
 
-export const DOMINIO_SINTETICO = 'epo221.local';
+export const DOMINIO_SINTETICO = 'epo221.mx';
 export const PASSWORD_TEMPORAL = 'TEMPORALEPO221!';
 
 // Normaliza texto a slug ASCII lowercase (sin acentos, sin espacios, sin símbolos)
@@ -16,7 +16,7 @@ export const aSlug = (s: string): string => {
 };
 
 // Genera email institucional usando SOLO el PRIMER nombre y el apellido paterno.
-// Ej: ("Juan Carlos", "Pérez") -> "juan.perez@epo221.local"
+// Ej: ("Juan Carlos", "Pérez") -> "juan.perez@epo221.mx"
 // Si hay duplicado, agrega un sufijo (matricula).
 export const nombreApellidoAEmail = (nombre: string, apellidoPaterno: string, sufijo?: string): string => {
   // Tomar SOLO el primer nombre (antes del primer espacio)

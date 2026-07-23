@@ -96,7 +96,7 @@ const EJEMPLOS = [
 const INSTRUCCIONES = [
   ['CAMPO', 'OBLIGATORIO', 'FORMATO / EJEMPLO', 'NOTAS'],
   ['CURP', 'SÍ', '18 caracteres alfanuméricos', 'Único por alumno. Si ya existe, se ACTUALIZA su ficha.'],
-  ['NOMBRE', 'SÍ', 'Texto sin acentos opcional', 'Usado para generar email de login: NOMBRE.APELLIDO@epo221.local'],
+  ['NOMBRE', 'SÍ', 'Texto sin acentos opcional', 'Usado para generar email de login: NOMBRE.APELLIDO@epo221.mx'],
   ['APELLIDO PATERNO', 'SÍ', 'Texto', 'Usado para generar email de login.'],
   ['APELLIDO MATERNO', 'No', 'Texto', 'Opcional pero recomendado para identificación.'],
   ['MATRICULA', 'SÍ', 'Numérica o alfanumérica', 'OBLIGATORIA. Si dos alumnos tienen mismo nombre+apellido, se usa como diferenciador del email.'],
@@ -119,11 +119,11 @@ const INSTRUCCIONES = [
   ['Al importar, el sistema crea/actualiza la cuenta de acceso del alumno así:', '', '', ''],
   [''],
   ['EMAIL DE LOGIN:', '', '', ''],
-  [' Patrón base:  nombre.apellido@epo221.local', '', '', ''],
-  [' Ej. "Diego Ramírez" → diego.ramirez@epo221.local', '', '', ''],
+  [' Patrón base:  nombre.apellido@epo221.mx', '', '', ''],
+  [' Ej. "Diego Ramírez" → diego.ramirez@epo221.mx', '', '', ''],
   [' Acentos y mayúsculas se ignoran automáticamente.', '', '', ''],
   [' Si dos alumnos tienen el MISMO nombre+apellido, al segundo se le agrega la matrícula:', '', '', ''],
-  ['   diego.ramirez.20260005@epo221.local', '', '', ''],
+  ['   diego.ramirez.20260005@epo221.mx', '', '', ''],
   [''],
   ['CONTRASEÑA INICIAL:', '', '', ''],
   [' Todas las cuentas se crean con: TEMPORALEPO221!', '', '', ''],
@@ -149,13 +149,13 @@ const INSTRUCCIONES = [
 // Hoja 3: vista previa del email que generarían los ejemplos
 const PREVIEW_LOGIN = [
   ['NOMBRE COMPLETO', 'MATRÍCULA', 'EMAIL DE LOGIN GENERADO', 'PASSWORD INICIAL'],
-  ['Mario García Ramírez', '20260001', 'mario.garcia@epo221.local', 'TEMPORALEPO221!'],
-  ['Camila Hernández Romero', '20260002', 'camila.hernandez@epo221.local', 'TEMPORALEPO221!'],
-  ['Santiago López Luna', '20260003', 'santiago.lopez@epo221.local', 'TEMPORALEPO221!'],
+  ['Mario García Ramírez', '20260001', 'mario.garcia@epo221.mx', 'TEMPORALEPO221!'],
+  ['Camila Hernández Romero', '20260002', 'camila.hernandez@epo221.mx', 'TEMPORALEPO221!'],
+  ['Santiago López Luna', '20260003', 'santiago.lopez@epo221.mx', 'TEMPORALEPO221!'],
   [],
   ['EJEMPLO DE DUPLICADO:', '', '', ''],
-  ['Diego Ramírez', '20260010', 'diego.ramirez@epo221.local', 'TEMPORALEPO221!'],
-  ['Diego Ramírez', '20260011', 'diego.ramirez.20260011@epo221.local', 'TEMPORALEPO221!'],
+  ['Diego Ramírez', '20260010', 'diego.ramirez@epo221.mx', 'TEMPORALEPO221!'],
+  ['Diego Ramírez', '20260011', 'diego.ramirez.20260011@epo221.mx', 'TEMPORALEPO221!'],
   ['', '', '(segundo Diego Ramírez recibe sufijo)', ''],
 ];
 

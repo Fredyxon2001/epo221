@@ -42,7 +42,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     [],
     ['INSTRUCCIONES PARA EL ALUMNO:'],
     ['1) Ingresa a https://epo221.edu.mx y haz clic en "Acceder al sistema"'],
-    ['2) Captura tu EMAIL DE LOGIN (ej: diego.ramirez@epo221.local)'],
+    ['2) Captura tu EMAIL DE LOGIN (ej: diego.ramirez@epo221.mx)'],
     ['3) Captura la CONTRASEÑA INICIAL: TEMPORALEPO221!'],
     ['4) Te recomendamos cambiarla por una propia desde "Cambiar mi contraseña"'],
     ['5) Si olvidas tu contraseña, acércate a Control Escolar.'],

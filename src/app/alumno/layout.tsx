@@ -21,7 +21,7 @@ export default async function AlumnoLayout({ children }: { children: React.React
   if (!alumno && user.email) {
     const admin = adminClient();
     // Intentar match por email del usuario contra cualquier ficha sin perfil_id o con perfil_id viejo
-    // 1) Buscar alumno por email del propio user (que puede ser nombre.apellido@epo221.local)
+    // 1) Buscar alumno por email del propio user (que puede ser nombre.apellido@epo221.mx)
     //    cruzando contra el email que tengamos en perfiles.
     const { data: alumnoPorEmail } = await admin
       .from('alumnos')
@@ -34,7 +34,7 @@ export default async function AlumnoLayout({ children }: { children: React.React
       await admin.from('alumnos').update({ perfil_id: user.id }).eq('id', alumnoPorEmail.id);
       alumno = alumnoPorEmail as any;
     } else {
-      // 2) Match por nombre.apellido en el email del user (ej. raul.flores@epo221.local)
+      // 2) Match por nombre.apellido en el email del user (ej. raul.flores@epo221.mx)
       const localPart = user.email.split('@')[0].toLowerCase();
       const partes = localPart.split('.');
       if (partes.length >= 2) {
