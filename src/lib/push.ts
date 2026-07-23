@@ -8,7 +8,7 @@ function configure() {
   if (configured) return true;
   const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
-  const sub = process.env.VAPID_SUBJECT ?? 'mailto:admin@epo221.mx';
+  const sub = process.env.VAPID_SUBJECT ?? 'mailto:admin@epo221.edu.mx';
   if (!pub || !priv) {
     console.warn('[push] VAPID keys ausentes — no se enviarán notificaciones');
     return false;

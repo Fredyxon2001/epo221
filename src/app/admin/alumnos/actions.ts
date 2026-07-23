@@ -227,7 +227,7 @@ export async function importarAlumnosExcel(formData: FormData) {
 
     // Crear o ACTUALIZAR cuenta de acceso
     if (alumnoId && matricula) {
-      // Generar email tipo nombre.apellido@epo221.mx
+      // Generar email tipo nombre.apellido@epo221.edu.mx
       let emailLogin = nombreApellidoAEmail(nombre, apellidoPaterno);
       try {
         // ¿Ya existe ese email en auth?

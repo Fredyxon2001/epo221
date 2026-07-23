@@ -10,12 +10,14 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get('password') ?? '');
   const redirectTo = String(formData.get('redirect') ?? '');
 
-  if (!usuario) return { error: 'Ingresa CURP o correo.' };
+  if (!usuario) return { error: 'Ingresa tu correo institucional.' };
   if (!password) return { error: 'Ingresa tu contraseña.' };
 
+  // Se acepta el correo institucional. La CURP se sigue admitiendo como respaldo
+  // para cuentas antiguas que aún no conocen su correo.
   const parecEmail = usuario.includes('@');
   const email = parecEmail ? usuario.toLowerCase() : (esCurpValida(usuario) ? curpAEmail(usuario) : null);
-  if (!email) return { error: 'CURP inválida o correo mal formado.' };
+  if (!email) return { error: 'Correo mal formado. Usa nombre.apellido@epo221.edu.mx' };
 
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });

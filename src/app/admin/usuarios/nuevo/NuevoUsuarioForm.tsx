@@ -51,7 +51,7 @@ export function NuevoUsuarioForm({ grupos }: { grupos: Grupo[] }) {
         <label className="block">
           <span className="text-xs text-gray-600 font-semibold">Correo electrónico *</span>
           <input name="email" type="email" required className="mt-1 w-full border rounded-lg px-3 py-2"
-            placeholder="usuario@epo221.mx" />
+            placeholder="usuario@epo221.edu.mx" />
         </label>
         <label className="block">
           <span className="text-xs text-gray-600 font-semibold">Rol *</span>

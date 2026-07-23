@@ -101,7 +101,7 @@ export function ImportadorMasivo() {
 
       <div className="text-[11px] text-gray-600 leading-relaxed bg-sky-50 border border-sky-200 rounded p-2 space-y-1">
         <p>💡 <strong>Cómo funciona la cuenta de login:</strong></p>
-        <p>• <strong>Email:</strong> se genera como <code className="bg-white px-1">nombre.apellido@epo221.mx</code></p>
+        <p>• <strong>Email:</strong> se genera como <code className="bg-white px-1">nombre.apellido@epo221.edu.mx</code></p>
         <p>• <strong>Password:</strong> <code className="bg-white px-1">TEMPORALEPO221!</code> (igual para todos)</p>
         <p>• <strong>Vinculación:</strong> si re-importas el mismo CURP, se actualiza email y password sin romper la cuenta.</p>
         <p>• Al terminar verás un <strong>botón para descargar las credenciales</strong> en XLSX listo para imprimir.</p>
@@ -158,7 +158,7 @@ export function ResultadoImportacion({ creados, actualizados, errores, detalle, 
             📥 Descargar credenciales XLSX
           </a>
           <p className="text-[10px] text-gray-500 mt-2">
-            Patrón de email: <code className="bg-gray-100 px-1">nombre.apellido@epo221.mx</code> ·
+            Patrón de email: <code className="bg-gray-100 px-1">nombre.apellido@epo221.edu.mx</code> ·
             Password: <code className="bg-gray-100 px-1">TEMPORALEPO221!</code>
           </p>
         </div>

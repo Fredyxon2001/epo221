@@ -226,11 +226,11 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
           >
             <div>
               <label htmlFor="curp" className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">
-                {role === 'alumno' ? 'CURP' : 'Correo institucional'}
+                Correo institucional
               </label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-verde/70 text-base pointer-events-none">
-                  {role === 'alumno' ? '🪪' : '✉️'}
+                  ✉️
                 </span>
                 <input
                   id="curp"
@@ -238,13 +238,13 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
                   type="text"
                   required
                   autoComplete="username"
-                  placeholder={role === 'alumno' ? 'AAAA000000HDFXXX00' : 'docente@epo221.edu.mx'}
+                  placeholder={role === 'alumno' ? 'nombre.apellido@epo221.edu.mx' : 'docente@epo221.edu.mx'}
                   className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-3 py-3 tracking-wider font-mono text-sm text-verde-oscuro placeholder:text-gray-400 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none transition"
                 />
               </div>
               <p className="text-[11px] text-gray-500 mt-1.5">
                 {role === 'alumno'
-                  ? 'Tu CURP va en mayúsculas. Si no la tienes, solicítala en Control Escolar.'
+                  ? 'Es tu nombre y apellido, por ejemplo raul.flores@epo221.edu.mx. Si no lo recuerdas, pídelo en Control Escolar.'
                   : 'Usa tu correo institucional asignado. Profesores, admin y dirección entran aquí.'}
               </p>
             </div>
