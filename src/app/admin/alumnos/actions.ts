@@ -230,9 +230,13 @@ export async function importarAlumnosExcel(formData: FormData) {
       // Generar email tipo nombre.apellido@epo221.edu.mx
       let emailLogin = nombreApellidoAEmail(nombre, apellidoPaterno);
       try {
-        // ¿Ya existe ese email en auth?
-        const { data: { users: existentes } } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-        const existing = (existentes ?? []).find((u: any) => u.email === emailLogin);
+        // ¿Ya existe ese email? Se consulta perfiles (indexado) en vez de listar
+        // usuarios de auth: listUsers topaba en 1000 y rompía cargas grandes.
+        const { data: existing } = await admin
+          .from('perfiles')
+          .select('id')
+          .eq('email', emailLogin)
+          .maybeSingle();
 
         // Si existe pero es de OTRO alumno (no este), agregar matrícula al email
         if (existing && existing.id !== existente?.perfil_id) {
@@ -247,7 +251,10 @@ export async function importarAlumnosExcel(formData: FormData) {
             email: emailLogin, password: PASSWORD_TEMPORAL,
           });
           await admin.from('perfiles').update({
-            email: emailLogin, nombre: `${nombre} ${apellidoPaterno}`,
+            email: emailLogin,
+            nombre,
+            apellido_paterno: apellidoPaterno,
+            apellido_materno: apellidoMaterno || null,
             debe_cambiar_password: false,
           }).eq('id', perfilIdParaVincular);
         } else {
@@ -263,7 +270,9 @@ export async function importarAlumnosExcel(formData: FormData) {
             await admin.from('perfiles').insert({
               id: perfilIdParaVincular,
               rol: 'alumno',
-              nombre: `${nombre} ${apellidoPaterno}`,
+              nombre,
+              apellido_paterno: apellidoPaterno,
+              apellido_materno: apellidoMaterno || null,
               email: emailLogin,
               debe_cambiar_password: false,
             });

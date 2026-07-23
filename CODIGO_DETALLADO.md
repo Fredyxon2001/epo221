@@ -350,9 +350,9 @@ if (!alumno) redirect('/login');
 ### `curpAEmail(curp)`
 ```typescript
 export const curpAEmail = (curp: string) =>
-  `${curp.toLowerCase()}@epo221.local`;
+  `${curp.toLowerCase()}@epo221.edu.mx`;
 ```
-**Uso:** para alumnos sin email real, generamos uno sintético basado en CURP. El "dominio" `@epo221.local` no existe en internet, solo se usa como llave en `auth.users.email`.
+**Uso:** para alumnos sin email real, generamos uno sintético basado en CURP. El "dominio" `@epo221.edu.mx` no existe en internet, solo se usa como llave en `auth.users.email`.
 
 ### `esCurpValida(curp)`
 **Returns:** boolean. Valida formato CURP (18 caracteres, regex de SEGOB).
@@ -1519,13 +1519,13 @@ Cualquier developer puede:
 Exporta:
 
 ```typescript
-export const DOMINIO_SINTETICO = 'epo221.local';
+export const DOMINIO_SINTETICO = 'epo221.edu.mx';
 export const PASSWORD_TEMPORAL = 'TEMPORALEPO221!';
 
 // Slug: normaliza texto a ASCII lowercase sin espacios ni símbolos
 export const aSlug = (s: string): string;
 
-// Genera email institucional nombre.apellido@epo221.local
+// Genera email institucional nombre.apellido@epo221.edu.mx
 // con manejo de sufijo opcional para duplicados
 export const nombreApellidoAEmail = (
   nombre: string,

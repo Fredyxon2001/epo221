@@ -4,7 +4,7 @@
 > **Plantel:** Escuela Preparatoria Oficial No. 221 "Nicolás Bravo"
 > **Ubicación:** Tecamachalco, Puebla
 > **CCT:** 15EBH0409B
-> **URL Producción:** https://epo221.vercel.app
+> **URL Producción:** https://epo221.edu.mx
 > **Repositorio:** https://github.com/Fredyxon2001/epo221
 > **Backend:** Supabase (`hvycaqghrkvspkzouape`)
 > **Hosting:** Vercel (`nicolas-bravo-221epo`)
@@ -439,7 +439,7 @@ Configuradas en Vercel y en `.env.local` para desarrollo:
 | `NEXT_PUBLIC_SUPABASE_URL` | pública | cliente y server | URL del proyecto Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | pública | cliente y server | Anon key, queries con RLS |
 | `SUPABASE_SERVICE_ROLE_KEY` | secreta | solo server actions / API | Service role para bypass de RLS |
-| `NEXT_PUBLIC_APP_URL` | pública | meta tags, links absolutos | Ej. `https://epo221.vercel.app` |
+| `NEXT_PUBLIC_APP_URL` | pública | meta tags, links absolutos | Ej. `https://epo221.edu.mx` |
 | `NEXT_PUBLIC_APP_NAME` | pública | títulos | Nombre de la app |
 | `NEXT_PUBLIC_ESCUELA_CCT` | pública | UI fallback | CCT |
 | `CRON_SECRET` | secreta | crons Vercel | Auth header para los crons |
@@ -3163,10 +3163,10 @@ Todas con título, slug, resumen, contenido markdown extenso e imagen 1200×630 
 ## A9. Importación masiva de alumnos — overhaul completo
 
 ### Nuevo patrón de email
-**Antes:** `garm050312hdfrzr01@epo221.local` (CURP, ilegible)
-**Ahora:** `diego.ramirez@epo221.local` (nombre.apellido)
+**Antes:** `garm050312hdfrzr01@epo221.edu.mx` (CURP, ilegible)
+**Ahora:** `diego.ramirez@epo221.edu.mx` (nombre.apellido)
 
-Manejo de duplicados: si dos alumnos tienen mismo nombre+apellido, al segundo se le agrega la matrícula: `diego.ramirez.20260005@epo221.local`.
+Manejo de duplicados: si dos alumnos tienen mismo nombre+apellido, al segundo se le agrega la matrícula: `diego.ramirez.20260005@epo221.edu.mx`.
 
 ### Password universal
 **Todos los alumnos**: `TEMPORALEPO221!` — no se les fuerza cambio.

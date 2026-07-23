@@ -1,5 +1,5 @@
 # 🧪 Plan de Prueba — Sábado
-> **URL:** https://epo221.vercel.app
+> **URL:** https://epo221.edu.mx
 > **Backend:** Supabase `hvycaqghrkvspkzouape`
 > **Fecha:** sábado próximo
 > **Objetivo:** Verificar end-to-end el flujo MAESTRO → ORIENTADOR → ALUMNO con reclamación, en condiciones reales.
@@ -12,17 +12,17 @@
 
 ### 🎓 ALUMNOS DEL GRUPO 1°P (Pablo Cantoral)
 
-**Patrón de email:** `<nombre>.<apellido>@epo221.local` (todo minúsculas, sin acentos)
+**Patrón de email:** `<nombre>.<apellido>@epo221.edu.mx` (todo minúsculas, sin acentos)
 **Password universal:** `TEMPORALEPO221!`
 
 | Matrícula | Nombre | Email de login |
 |---|---|---|
-| 20260001 | Raúl Flores Chávez | `raul.flores@epo221.local` |
-| 20260002 | José Ortiz Flores | `jose.ortiz@epo221.local` |
-| 20260003 | Kevin Rojas Martínez | `kevin.rojas@epo221.local` |
-| 20260004 | Manuel Lara Jiménez | `manuel.lara@epo221.local` |
-| 20260005 | Diego García Ramírez | `diego.garcia@epo221.local` |
-| 20260006 | Alejandra García Martínez | `alejandra.gaercia@epo221.local` |
+| 20260001 | Raúl Flores Chávez | `raul.flores@epo221.edu.mx` |
+| 20260002 | José Ortiz Flores | `jose.ortiz@epo221.edu.mx` |
+| 20260003 | Kevin Rojas Martínez | `kevin.rojas@epo221.edu.mx` |
+| 20260004 | Manuel Lara Jiménez | `manuel.lara@epo221.edu.mx` |
+| 20260005 | Diego García Ramírez | `diego.garcia@epo221.edu.mx` |
+| 20260006 | Alejandra García Martínez | `alejandra.gaercia@epo221.edu.mx` |
 
 ### 👨‍🏫 PROFESORES REALES (cuentas para la prueba)
 
@@ -46,7 +46,7 @@ Las passwords de los profesores son las que tú estableciste. Si alguno olvidó,
 
 | Email | Notas |
 |---|---|
-| `admin@epo221.local` | El que tú definiste |
+| `admin@epo221.edu.mx` | El que tú definiste |
 
 ---
 
@@ -105,7 +105,7 @@ Grupo 1°P (matutino) — Bachillerato General
 
 ### ESCENA D — Alumno (Kevin) ve calificación y reclama
 
-1. Login: `kevin.rojas@epo221.local` / `TEMPORALEPO221!`
+1. Login: `kevin.rojas@epo221.edu.mx` / `TEMPORALEPO221!`
 2. Notificación: "📊 Nueva calificación disponible"
 3. Sidebar → **"Calificaciones"** → verá Mat P1: 7.0
 4. Si considera que merecía más, click **"Solicitar revisión"**
@@ -170,7 +170,7 @@ Si necesitas dar de alta más alumnos durante la prueba:
 6. El XLSX descargado tiene la lista de credenciales (email + password) lista para imprimir
 
 ### Reglas automáticas (sin intervención manual)
-- Email: `nombre.apellido@epo221.local` (auto-generado)
+- Email: `nombre.apellido@epo221.edu.mx` (auto-generado)
 - Password: `TEMPORALEPO221!` (universal)
 - Vinculación a ficha: automática
 - Si el CURP ya existe: actualiza datos sin duplicar
@@ -180,7 +180,7 @@ Si necesitas dar de alta más alumnos durante la prueba:
 ## 6. DEBUGGING — si algo falla
 
 ### Alumno no entra
-1. Verifica el email exacto: `nombre.apellido@epo221.local` (todo minúsculas)
+1. Verifica el email exacto: `nombre.apellido@epo221.edu.mx` (todo minúsculas)
 2. Si dice "Cuenta no vinculada": el layout auto-vincula al recargar la página. Pide al alumno **pull-to-refresh**.
 3. Si aún falla: en `/admin/usuarios` busca al alumno → 🔑 **Temporal** para resetear
 
@@ -213,7 +213,7 @@ Subir feedback a `/admin/auditoria` o como Issue en GitHub para tracking.
 - ✅ Bug RLS arreglado — alumnos sí ven su propia ficha
 - ✅ Bug logout 404 arreglado
 - ✅ Bug "Tu cuenta no está vinculada" arreglado
-- ✅ Emails actualizados al patrón `nombre.apellido@epo221.local`
+- ✅ Emails actualizados al patrón `nombre.apellido@epo221.edu.mx`
 - ✅ Passwords reseteadas a `TEMPORALEPO221!` para todos los alumnos
 - ✅ Auto-vinculación en layout como red de seguridad
 - ✅ Trigger `set_solicitud_orientador` activo

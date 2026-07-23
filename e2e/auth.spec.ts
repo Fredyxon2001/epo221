@@ -20,7 +20,7 @@ test.describe('Autenticación', () => {
 
   test('rechaza credenciales inválidas', async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel(/correo|email/i).fill('inexistente@epo221.local');
+    await page.getByLabel(/correo|email/i).fill('inexistente@epo221.edu.mx');
     await page.getByLabel(/contraseña|password/i).fill('contraseña-invalida-xyz');
     await page.getByRole('button', { name: /entrar|iniciar/i }).click();
     await expect(page).toHaveURL(/\/login/);
