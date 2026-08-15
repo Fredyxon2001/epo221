@@ -62,7 +62,9 @@ export function HeroCanvas({
 
       <Particles count={24} />
 
-      <motion.div style={{ opacity: op, y }} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-5 sm:px-6 pt-24 sm:pt-28 md:pt-36">
+      {/* pt- debe superar la altura del navbar fijo (117px móvil / 153px escritorio)
+          o el logo y el lema quedan recortados detrás de la barra. */}
+      <motion.div style={{ opacity: op, y }} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-5 sm:px-6 pt-32 sm:pt-36 md:pt-44">
         <motion.div
           initial={{ scale: 0.3, opacity: 0, rotate: logoUrl ? -20 : -180 }}
           animate={{ scale: 1, opacity: 1, rotate: 0 }}

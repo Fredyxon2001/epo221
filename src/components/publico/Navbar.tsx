@@ -90,7 +90,9 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
             </div>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
+          {/* El menú completo solo aparece desde xl: por debajo de ~1280px los 8 items
+              + logo + botón de acceso no caben y empujaban "Acceso" fuera de pantalla. */}
+          <div className="hidden xl:flex items-center gap-0.5 2xl:gap-1 flex-1 justify-center min-w-0">
             {items.slice(0, 8).map((it) => (
               <NavLink
                 key={it.href}
@@ -131,7 +133,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
               </Link>
             </motion.div>
             <button
-              className="lg:hidden text-white p-2"
+              className="xl:hidden text-white p-2"
               aria-label="Menú"
               onClick={() => setOpen((v) => !v)}
             >
@@ -154,7 +156,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="lg:hidden overflow-hidden bg-verde/95 backdrop-blur-xl border-t border-white/20 max-h-[80vh] overflow-y-auto"
+            className="xl:hidden overflow-hidden bg-verde/95 backdrop-blur-xl border-t border-white/20 max-h-[80vh] overflow-y-auto"
           >
             <div className="px-5 sm:px-6 py-4 flex flex-col gap-1">
               <Link
