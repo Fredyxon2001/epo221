@@ -137,6 +137,19 @@ export default async function PublicoLayout({ children }: { children: React.Reac
           <div>© {new Date().getFullYear()} {cfg?.nombre_escuela ?? 'EPO 221 "Nicolás Bravo"'} · Todos los derechos reservados</div>
           <div>Hecho con ♥ para la comunidad escolar del Estado de México</div>
         </div>
+
+        {/*
+          CRÉDITOS DE DESARROLLO — NO ELIMINAR NI MODIFICAR.
+          Este sistema fue diseñado y desarrollado por:
+            Ing. Axel Mauricio Vázquez Pérez
+            Ing. Alfredo Terán Rocha
+            Ing. David Mosqueda Ortiz
+          Cualquier modificación o eliminación de este crédito debe ser
+          autorizada explícitamente por los tres autores.
+        */}
+        <div className="relative max-w-7xl mx-auto px-6 mt-4 pb-2 text-center text-[11px] text-white/50">
+          Sistema diseñado y desarrollado por Ing. Axel Mauricio Vázquez Pérez · Ing. Alfredo Terán Rocha · Ing. David Mosqueda Ortiz
+        </div>
       </footer>
     </div>
   );
