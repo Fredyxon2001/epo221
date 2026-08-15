@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
+import { ArticuloMarkdown } from '@/components/publico/ArticuloMarkdown';
 
 export default async function NoticiaDetalle({ params }: { params: { slug: string } }) {
   const supabase = createClient();
@@ -14,7 +15,11 @@ export default async function NoticiaDetalle({ params }: { params: { slug: strin
       </div>
       <h1 className="font-serif text-4xl text-verde mt-2">{n.titulo}</h1>
       {n.resumen && <p className="text-lg text-gray-700 mt-3 italic">{n.resumen}</p>}
-      <div className="mt-6 prose whitespace-pre-wrap text-gray-800">{n.contenido}</div>
+      {/* El contenido se guarda en markdown; sin este render se veían los
+          caracteres `##` y `**` en crudo. */}
+      <div className="mt-6">
+        <ArticuloMarkdown md={n.contenido ?? ''} />
+      </div>
     </article>
   );
 }

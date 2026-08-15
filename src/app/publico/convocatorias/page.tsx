@@ -3,6 +3,7 @@ import { Reveal, Stagger, staggerItem } from '@/components/publico/Reveal';
 import { MotionItem } from '@/components/publico/MotionItem';
 import { SectionHeader } from '@/components/publico/SectionHeader';
 import { AuroraBg } from '@/components/publico/AuroraBg';
+import { ArticuloMarkdown } from '@/components/publico/ArticuloMarkdown';
 
 export const revalidate = 60;
 
@@ -52,7 +53,10 @@ export default async function Convocatorias() {
                             </span>
                           </div>
                           <h2 className="font-serif text-2xl md:text-3xl text-verde-oscuro leading-tight">{c.titulo}</h2>
-                          <p className="text-gray-700 mt-3 leading-relaxed">{c.descripcion}</p>
+                          {/* La descripción viene en markdown desde el CMS. */}
+                          <div className="mt-3">
+                            <ArticuloMarkdown md={c.descripcion ?? ''} />
+                          </div>
 
                           <div className="mt-5 flex flex-wrap gap-3 text-xs">
                             <span className="inline-flex items-center gap-1.5 bg-crema border border-verde/15 rounded-full px-3 py-1.5 text-gray-600">
