@@ -16,10 +16,17 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
   const path = usePathname();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    // Se leen ambas fuentes: algunos navegadores reportan el desplazamiento en
+    // documentElement y no en window.scrollY.
+    const onScroll = () =>
+      setScrolled((window.scrollY || document.documentElement.scrollTop || 0) > 30);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    document.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      document.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   useEffect(() => { setOpen(false); }, [path]);
@@ -64,12 +71,16 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
         </div>
       </div>
 
-      {/* ────── Barra principal ────── */}
+      {/* ────── Barra principal ──────
+          El fondo NUNCA baja de verde/75: antes terminaba en `to-transparent` y,
+          al scrollear sobre las secciones blancas, el texto blanco del menú
+          quedaba invisible y no se podía dar clic. La legibilidad ya no depende
+          del estado JS de scroll; ese estado solo refuerza sombra y compactado. */}
       <div
-        className={`transition-all duration-500 ${
+        className={`transition-all duration-500 backdrop-blur-md ${
           scrolled
             ? 'bg-verde/95 backdrop-blur-xl border-b border-white/20 shadow-xl shadow-verde/30 py-1.5'
-            : 'bg-gradient-to-b from-verde/80 via-verde/35 to-transparent py-2'
+            : 'bg-gradient-to-b from-verde/95 via-verde/95 to-verde/90 py-2'
         }`}
       >
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-6">
