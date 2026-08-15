@@ -144,11 +144,13 @@ export default async function PublicoLayout({ children }: { children: React.Reac
             Ing. Axel Mauricio Vázquez Pérez
             Ing. Alfredo Terán Rocha
             Ing. David Mosqueda Ortiz
+          Asesorados por la maestra Patricia Nájera Hurtado.
           Cualquier modificación o eliminación de este crédito debe ser
           autorizada explícitamente por los tres autores.
         */}
-        <div className="relative max-w-7xl mx-auto px-6 mt-4 pb-2 text-center text-[11px] text-white/50">
-          Sistema diseñado y desarrollado por Ing. Axel Mauricio Vázquez Pérez · Ing. Alfredo Terán Rocha · Ing. David Mosqueda Ortiz
+        <div className="relative max-w-7xl mx-auto px-6 mt-4 pb-2 text-center text-[11px] text-white/50 space-y-1">
+          <div>Sistema diseñado y desarrollado por Ing. Axel Mauricio Vázquez Pérez · Ing. Alfredo Terán Rocha · Ing. David Mosqueda Ortiz</div>
+          <div>Asesorados por la maestra Patricia Nájera Hurtado</div>
         </div>
       </footer>
     </div>
