@@ -22,7 +22,12 @@ export function HeroCanvas({
 }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y    = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
+  // El FONDO baja al scrollear (parallax de profundidad).
+  const yFondo = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
+  // El TEXTO sube: antes usaba el mismo valor positivo que el fondo, así que
+  // bajaba hacia la barra de navegación, se metía detrás de ella y tapaba los
+  // botones. Al subir, la información sale limpia por arriba.
+  const yTexto = useTransform(scrollYProgress, [0, 1], ['0%', '-18%']);
   const op   = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const scal = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
@@ -38,7 +43,7 @@ export function HeroCanvas({
       {/* Imagen de fondo con parallax + blur y oscurecido */}
       {imagen && (
         <motion.div
-          style={{ y, scale: scal }}
+          style={{ y: yFondo, scale: scal }}
           className="absolute inset-0 bg-cover bg-center opacity-35 mix-blend-luminosity"
           aria-hidden
         >
@@ -64,12 +69,15 @@ export function HeroCanvas({
 
       {/* pt- debe superar la altura del navbar fijo (117px móvil / 153px escritorio)
           o el logo y el lema quedan recortados detrás de la barra. */}
-      <motion.div style={{ opacity: op, y }} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-5 sm:px-6 pt-32 sm:pt-36 md:pt-44">
+      <motion.div style={{ opacity: op, y: yTexto }} className="relative z-10 h-full flex flex-col items-center justify-center text-center px-5 sm:px-6 pt-32 sm:pt-36 md:pt-44">
         <motion.div
           initial={{ scale: 0.3, opacity: 0, rotate: logoUrl ? -20 : -180 }}
           animate={{ scale: 1, opacity: 1, rotate: 0 }}
           transition={{ duration: 1.1, ease: [0.2, 0.85, 0.2, 1.3] }}
-          className={`mb-4 sm:mb-6 shrink-0 ${logoUrl ? 'drop-shadow-[0_0_45px_rgba(255,255,255,0.5)]' : 'animate-golden-pulse rounded-full'}`}
+          /* max-h en vh: en ventanas de poca altura el logo a tamaño fijo hacía
+             que el contenido centrado desbordara y el lema quedara recortado
+             detrás de la barra fija. Así se encoge en vez de empujar. */
+          className={`mb-4 sm:mb-6 shrink [&_span]:max-h-[22vh] [&_span]:h-auto [&_img]:max-h-[22vh] [&_img]:w-auto ${logoUrl ? 'drop-shadow-[0_0_45px_rgba(255,255,255,0.5)]' : 'animate-golden-pulse rounded-full'}`}
         >
           <span className="sm:hidden"><LogoEPO url={logoUrl} size={110} glow /></span>
           <span className="hidden sm:inline md:hidden"><LogoEPO url={logoUrl} size={140} glow /></span>
