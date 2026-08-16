@@ -43,12 +43,13 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
   ];
   const items = [...base, ...extras];
 
-  // La entrada se anima con CSS (.nav-entra), no con framer-motion: con
-  // initial={{opacity:0}} la barra quedaba invisible si la animación JS no
-  // alcanzaba a ejecutarse, y entonces no se veían ni se podían pulsar los
-  // botones. Con CSS el estado final es el natural del elemento.
+  // Sin animación de entrada a propósito. La barra de navegación es el acceso
+  // principal del sitio y debe estar visible desde el primer fotograma:
+  // cualquier animación que arranque en opacity:0 o desplazada la deja
+  // invisible mientras no se ejecute (pestaña en segundo plano, hidratación
+  // lenta, animaciones diferidas), y entonces no se ve ni se puede pulsar.
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 nav-entra">
+    <nav className="fixed top-0 left-0 right-0 z-50">
       {/* ────── Franja institucional superior ────── */}
       <div
         className={`transition-all duration-500 border-b border-gray-200 backdrop-blur-xl bg-white/95 ${

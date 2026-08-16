@@ -161,22 +161,9 @@ body { background: #ffffff; color: #0f2e2b; }
   pointer-events: none;
 }
 
-/* Entrada del navbar por CSS y no por JS.
-   Antes se hacía con framer-motion usando initial={{opacity:0, y:-80}}: si esa
-   animación no llegaba a correr (pestaña en segundo plano, hidratación lenta,
-   equipo lento), la barra se quedaba invisible y sin poder dar clic.
-   Con CSS el estado final es el natural, así que la barra siempre termina visible. */
-@keyframes navEntra {
-  from { opacity: 0; transform: translateY(-80px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-/* Sin fill-mode a propósito: `both`/`backwards` congelan el fotograma inicial
-   (invisible) mientras la animación no arranca. Al omitirlo, el estado por
-   defecto del elemento es el visible y la animación es solo un adorno. */
-.nav-entra { animation: navEntra 0.8s cubic-bezier(0.2, 0.85, 0.2, 1); }
-@media (prefers-reduced-motion: reduce) {
-  .nav-entra { animation: none; }
-}
+/* La barra de navegación no lleva animación de entrada: ver el comentario en
+   Navbar.tsx. Cualquier animación que arranque en opacity:0 o desplazada la
+   deja invisible e impulsable mientras no se ejecuta. */
 
 /* ---------- Cursor personalizado (solo desktop) ---------- */
 @media (hover: hover) and (pointer: fine) {
