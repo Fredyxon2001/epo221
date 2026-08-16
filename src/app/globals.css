@@ -170,7 +170,10 @@ body { background: #ffffff; color: #0f2e2b; }
   from { opacity: 0; transform: translateY(-80px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.nav-entra { animation: navEntra 0.8s cubic-bezier(0.2, 0.85, 0.2, 1) both; }
+/* Sin fill-mode a propósito: `both`/`backwards` congelan el fotograma inicial
+   (invisible) mientras la animación no arranca. Al omitirlo, el estado por
+   defecto del elemento es el visible y la animación es solo un adorno. */
+.nav-entra { animation: navEntra 0.8s cubic-bezier(0.2, 0.85, 0.2, 1); }
 @media (prefers-reduced-motion: reduce) {
   .nav-entra { animation: none; }
 }
