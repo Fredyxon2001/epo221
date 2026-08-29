@@ -4,6 +4,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
+import { baseUrl } from '@/lib/base-url';
 
 function generarPasswordAleatoria(len = 12): string {
   // Caracteres legibles (sin 0/O, 1/I/l)
@@ -38,7 +39,9 @@ export async function adminResetPassword(fd: FormData): Promise<{ error?: string
     const { error } = await sb.auth.admin.generateLink({
       type: 'recovery',
       email: perfil.email,
-      options: { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/cambiar-password` },
+      // Se deriva del request en vez de NEXT_PUBLIC_APP_URL: si esa variable
+      // quedaba mal configurada, el enlace del correo no llevaba a ningún lado.
+      options: { redirectTo: `${baseUrl()}/cambiar-password` },
     });
     if (error) return { error: error.message };
     revalidatePath('/admin/usuarios');
