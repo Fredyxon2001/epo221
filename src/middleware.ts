@@ -1,17 +1,34 @@
 // Middleware: refresca sesión de Supabase y protege rutas por rol.
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { authCookieOptions } from '@/lib/supabase/cookie-options';
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
+  let res = NextResponse.next({ request: req });
+
+  // Las redirecciones también deben conservar las cookies renovadas.
+  const redirectWithSession = (url: URL) => {
+    const redirect = NextResponse.redirect(url);
+    res.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    redirect.headers.set('Cache-Control', 'private, no-store');
+    return redirect;
+  };
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookieOptions: authCookieOptions,
       cookies: {
         getAll: () => req.cookies.getAll(),
-        setAll: (list) => list.forEach(({ name, value, options }) => res.cookies.set(name, value, options)),
+        setAll: (list: { name: string; value: string; options: CookieOptions }[]) => {
+          const previousCookies = res.cookies.getAll();
+          list.forEach(({ name, value }) => req.cookies.set(name, value));
+          res = NextResponse.next({ request: req });
+          previousCookies.forEach((cookie) => res.cookies.set(cookie));
+          list.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
+          res.headers.set('Cache-Control', 'private, no-store');
+        },
       },
     }
   );
@@ -21,12 +38,15 @@ export async function middleware(req: NextRequest) {
 
   const zonasProtegidas = ['/alumno', '/profesor', '/admin', '/director', '/cambiar-password'];
   const requiereAuth = zonasProtegidas.some((p) => path.startsWith(p));
+  if (requiereAuth || user || path === '/login' || path === '/logout' || res.cookies.getAll().length) {
+    res.headers.set('Cache-Control', 'private, no-store');
+  }
 
   if (requiereAuth && !user) {
     const url = req.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('redirect', path);
-    return NextResponse.redirect(url);
+    return redirectWithSession(url);
   }
 
   // Forzar cambio de contraseña si el flag está activo
@@ -34,7 +54,7 @@ export async function middleware(req: NextRequest) {
     const { data: perfilPwd } = await supabase
       .from('perfiles').select('debe_cambiar_password').eq('id', user.id).maybeSingle();
     if (perfilPwd?.debe_cambiar_password) {
-      return NextResponse.redirect(new URL('/cambiar-password', req.url));
+      return redirectWithSession(new URL('/cambiar-password', req.url));
     }
   }
 
@@ -66,7 +86,7 @@ export async function middleware(req: NextRequest) {
                 : rol === 'profesor' ? '/profesor'
                 : rol === 'alumno' ? '/alumno'
                 : '/admin'; // si no se pudo determinar, prueba con admin (no romper login)
-    return NextResponse.redirect(new URL(panel, req.url));
+    return redirectWithSession(new URL(panel, req.url));
   }
 
   return res;

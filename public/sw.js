@@ -1,6 +1,7 @@
 // Service worker EPO 221: PWA + caché ligero + push notifications.
-const VERSION = 'epo221-v2';
-const PRECACHE = ['/', '/login', '/manifest.json'];
+const VERSION = 'epo221-v3';
+// Nunca guardar HTML con sesión (incluidos / y /login).
+const PRECACHE = ['/offline.html', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(PRECACHE)).catch(() => {}));
@@ -24,14 +25,19 @@ self.addEventListener('fetch', (e) => {
   if (url.pathname.startsWith('/api/') || url.hostname.includes('supabase')) return;
 
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).catch(() => caches.match(req).then((c) => c || caches.match('/'))));
+    e.respondWith(fetch(req).catch(() => caches.match('/offline.html')));
     return;
   }
   if (url.origin === location.origin && /\.(png|jpg|jpeg|svg|webp|ico|woff2?|css|js)$/.test(url.pathname)) {
     e.respondWith(
       caches.open(VERSION).then(async (cache) => {
         const cached = await cache.match(req);
-        const fetchPromise = fetch(req).then((res) => { cache.put(req, res.clone()); return res; }).catch(() => cached);
+        const fetchPromise = fetch(req).then((res) => {
+          if (res.ok && !res.redirected && !/no-store|private/i.test(res.headers.get('Cache-Control') || '')) {
+            cache.put(req, res.clone());
+          }
+          return res;
+        }).catch(() => cached || Response.error());
         return cached || fetchPromise;
       })
     );

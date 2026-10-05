@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { PWARegister } from '@/components/PWARegister';
+import { CookieConsentProvider } from '@/components/CookieConsentProvider';
 
 export const metadata: Metadata = {
   title: 'EPO 221 "Nicolás Bravo" — Preparatoria Oficial',
@@ -31,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans">
         <PWARegister />
-        {children}
+        <CookieConsentProvider>{children}</CookieConsentProvider>
       </body>
     </html>
   );

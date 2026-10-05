@@ -3,6 +3,7 @@ import { Reveal } from '@/components/publico/Reveal';
 import { Reloj } from '@/components/publico/Reloj';
 import { SectionHeader } from '@/components/publico/SectionHeader';
 import { AuroraBg } from '@/components/publico/AuroraBg';
+import { ConsentMap } from '@/components/ConsentMap';
 
 export const revalidate = 120;
 
@@ -75,13 +76,7 @@ export default async function Contacto() {
           <Reveal delay={0.15}>
             {cfg?.mapa_embed_url ? (
               <div className="lift sticky top-32 relative bg-white rounded-3xl shadow-2xl shadow-verde/15 overflow-hidden border border-verde/10">
-                <iframe
-                  src={cfg.mapa_embed_url}
-                  className="w-full aspect-[4/3] block border-0"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Ubicación"
-                />
+                <ConsentMap src={cfg.mapa_embed_url} />
               </div>
             ) : (
               <div className="spotlight lift bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio rounded-3xl shadow-2xl shadow-verde/30 p-10 text-white flex flex-col items-center justify-center text-center aspect-[4/3] relative overflow-hidden">
