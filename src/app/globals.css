@@ -417,3 +417,5 @@ body { background: #ffffff; color: #0f2e2b; }
 }
 
 .public-site a.text-verde { color: #115e59; }
+
+.public-site .text-verde { color: #115e59; }

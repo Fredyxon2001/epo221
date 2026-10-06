@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase/server';
 
 /**
  * Fondo decorativo para páginas internas de /publico.
@@ -10,13 +9,7 @@ import { createClient } from '@/lib/supabase/server';
  * Se renderiza `fixed` detrás del contenido (z-index -10) para que siga visible
  * al hacer scroll sin bloquear clics.
  */
-export async function PageBackdrop() {
-  const supabase = (await createClient());
-  const { data: cfg } = await supabase
-    .from('sitio_config')
-    .select('logo_url')
-    .maybeSingle();
-  const logo = cfg?.logo_url || null;
+export function PageBackdrop({logo}:{logo?:string|null}) {
 
   return (
     <div aria-hidden className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -30,7 +23,7 @@ export async function PageBackdrop() {
           width={512} height={512} sizes="(max-width:768px) 100vw, 512px"
           unoptimized={!logo.startsWith('/img/') && !/^https:\/\/[^/]+\.supabase\.co\//.test(logo)}
           alt=""
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[110vmin] h-[110vmin] object-contain opacity-[0.07] select-none"
+          className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[110vmin] h-[110vmin] object-contain opacity-[0.07] select-none"
           style={{ filter: 'blur(1.5px)' }}
         />
       )}

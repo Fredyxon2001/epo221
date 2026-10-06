@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PublicCover } from '@/components/publico/PublicCover';
 import { createClient } from '@/lib/supabase/server';
 import { HeroCanvas } from '@/components/publico/HeroCanvas';
 import { Reveal, Stagger, staggerItem } from '@/components/publico/Reveal';
@@ -311,10 +312,7 @@ export default async function PublicoHome() {
                     href={`/publico/albumes/${a.slug}`}
                     className="bento-card group block relative w-full h-full rounded-2xl overflow-hidden shadow-lg"
                   >
-                    <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                      style={a.portada_url ? { backgroundImage: `url(${a.portada_url})` } : { background: 'linear-gradient(135deg, #1a5c2e, #c9a227)' }}
-                    />
+                    <PublicCover url={a.portada_url} sizes="(max-width:767px) 50vw, 25vw" className="absolute! inset-0 transition-transform duration-700 group-hover:scale-110"/>
                     <div className="absolute inset-0 bg-linear-to-t from-verde/90 via-verde/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
                       <div className="font-serif text-lg">{a.titulo}</div>
@@ -350,8 +348,7 @@ export default async function PublicoHome() {
                 <MotionItem key={n.id} variants={staggerItem}>
                   <Link href={`/publico/noticias/${n.slug}`}
                         className="bento-card block h-full bg-crema rounded-2xl overflow-hidden shadow-md hover:shadow-2xl border border-verde/15">
-                    <div className="aspect-video bg-verde/10 bg-cover bg-center"
-                         style={n.imagen_url ? { backgroundImage: `url(${n.imagen_url})` } : { background: 'linear-gradient(135deg, #1a5c2e, #2d8047)' }} />
+                    <PublicCover url={n.imagen_url} sizes="(max-width:767px) 100vw, 33vw" className="aspect-video"/>
                     <div className="p-6">
                       <div className="text-xs text-verde uppercase tracking-widest">
                         {n.fecha_pub && new Date(n.fecha_pub).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}

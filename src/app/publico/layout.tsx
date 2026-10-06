@@ -30,7 +30,7 @@ export default async function PublicoLayout({ children }: { children: React.Reac
   return (
     <PublicMotion><div className="public-site min-h-screen bg-transparent flex flex-col relative overflow-x-clip">
       <a href="#contenido-publico" className="skip-link">Saltar al contenido</a>
-      <PageBackdrop />
+      <PageBackdrop logo={cfg?.logo_url}/>
       <ScrollProgress />
       <CustomCursor />
       <Navbar extras={extras} escuela={cfg?.nombre_escuela ?? 'EPO 221'} logoUrl={cfg?.logo_url} cct={cfg?.cct} />
