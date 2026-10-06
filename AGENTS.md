@@ -112,7 +112,7 @@ Esta sección sustituye los pendientes técnicos y las versiones de las notas hi
 
 ## 2026-10-05 — Reparación de flujos después del endurecimiento
 
-El usuario pidió comprobar efectos, reparar los recorridos y construir mejoras. Esta revisión encontró regresiones reales; no asumir que agregar guardas preserva automáticamente cada pantalla. Se mantiene la autorización previa de commit/push/publicación. Git Credential Manager ya se autenticó y se verificó `origin/main` en `1507e7d`; la nota anterior de push pendiente es histórica.
+El usuario pidió comprobar efectos, reparar los recorridos y construir mejoras. Esta revisión encontró regresiones reales; no asumir que agregar guardas preserva automáticamente cada pantalla. Se mantiene la autorización previa de commit/push/publicación. `origin/main` se leyó en `1507e7d`, pero la lectura de este repositorio público no demuestra credenciales de escritura. El nuevo push solicita autenticación de Git Credential Manager; la comprobación no interactiva confirmó que todavía falta. Se pidió completar el inicio de sesión sin compartir contraseña/token.
 
 ### Cambios y motivo
 
@@ -138,6 +138,9 @@ El usuario pidió comprobar efectos, reparar los recorridos y construir mejoras.
 - Skills utilizadas: security-best-practices, Supabase, Next.js, React best practices, Playwright, verificación y despliegues Vercel. Se leyeron también las guías locales de Next para formularios/Server Actions.
 - Alcance comprobado: aplicación web. React Native y clientes externos necesitan su propia adaptación a MFA/RLS; continúan los pendientes institucionales/proveedor del aviso aprobado, recuperación nativa, custodia, alertas y protección de rama. Las mejoras no acreditan cumplimiento legal integral.
 - Verificación final local: build de producción satisfactorio; navegador confirmó además panel/perfil de Finanzas y carga de avatar 1.2 MB. Limpieza remota posterior: cero usuarios/ciclos sintéticos y cero objetos en cuarentena. No repetir la afirmación histórica de TypeScript fallido: lint, tipos, build y seguridad ahora pasan.
+- Publicación funcional: commit `c950b38ddeac63f172506c17bc29b7229c4e7cc0`, Vercel `dpl_9XyThkAEU2fc3U43C9hYaimp3UGb` READY con metadata de ese commit; aliases `epo221.edu.mx`, `www.epo221.edu.mx`, `epo221.vercel.app`. Prueba pública: login/privacidad/cookies/contacto 200, admin 307, upload sin sesión 401, CSP/HSTS y no-store. Consulta de logs del despliegue: cero entradas de error en la ventana inicial de diez minutos. Distinguir publicación Vercel satisfactoria de push todavía esperando autenticación.
+- Navegador final contra `https://epo221.edu.mx`: todos los pasos del script pasaron, incluyendo los cuatro roles, TOTP, destino original, PDF propio/ajeno, panel/perfil de Finanzas, avatar 1.2 MB, examen reanudado/entregado/corregido y contraseña obligatoria. Limpieza remota posterior confirmada: cero usuarios/ciclos sintéticos y cero objetos en cuarentena. Última lectura de `origin/main` seguía en `1507e7d`; push pendiente de inicio de sesión, no de aprobación adicional.
+- Cron autorizado sobre el despliegue final respondió `200/ok`: 63 tablas, 5,094 filas y 8 archivos, después de la limpieza de fixtures. Se verificaron respaldo/descifrado/validación y exclusión de cuarentena; no demuestra restauración nativa de Auth/esquema/infraestructura. Secreto mantenido en memoria y fuera de logs.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

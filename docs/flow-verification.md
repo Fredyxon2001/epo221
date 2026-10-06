@@ -2,6 +2,10 @@
 
 Fecha: 2026-10-05. Revisión posterior a cookies, MFA y permisos. Sí se encontraron regresiones: `SELECT *` de docentes después de retirar columnas privadas, lecturas/panel de Finanzas y mutaciones académicas revocadas. También se reprodujo el límite de carga de 1 MB y se corrigieron problemas previos de temporizador, borradores y pagos no atómicos.
 
+Entrega funcional `c950b38`, despliegue `dpl_9XyThkAEU2fc3U43C9hYaimp3UGb` READY en `https://epo221.edu.mx`. El script de navegador también pasó completo contra producción, con MFA, panel/perfil financiero y avatar 1.2 MB. Limpieza verificada: cero usuarios/ciclos de fixtures y cero objetos temporales. Login/privacidad/cookies/contacto 200; admin sin sesión 307 y preparación de upload sin sesión 401; cabeceras CSP/HSTS/no-store presentes. Cero entradas de error en los logs iniciales de diez minutos. El push GitHub requiere completar autenticación y se registra aparte de la publicación Vercel.
+
+Cron autenticado del despliegue final: 200/ok, 63 tablas, 5,094 filas y ocho archivos verificados tras limpiar fixtures; la cuarentena se excluye. Sigue siendo prueba del respaldo de aplicación, no restauración nativa integral.
+
 | Recorrido | Evidencia |
 | --- | --- |
 | Docente → constancia | Página y PDF propio; PDF ajeno 403. |
