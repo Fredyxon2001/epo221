@@ -1,6 +1,7 @@
 'use server';
 import { requireAccess } from '@/lib/security/access';
 import { validateFormData } from '@/lib/security/form-data';
+import { requireResource } from '@/lib/security/resources';
 
 // Creación de avisos y marca de lectura. El bucket usado es 'mensajes'
 // (reutilizamos el existente, path: avisos/<id>/<uuid>.<ext>).
@@ -36,6 +37,11 @@ export async function crearAviso(fd: FormData): Promise<{ error?: string; ok?: b
 
   if (titulo.length < 3) return { error: 'El título es muy corto' };
   if (cuerpo.length < 10) return { error: 'El cuerpo del aviso es muy corto' };
+  if(!['todos','grupos','profesores'].includes(alcance))return {error:'Alcance inválido.'};
+  if(alcance==='grupos'){
+    if(!grupo_ids?.length)return {error:'Selecciona al menos un grupo.'};
+    for(const id of grupo_ids)await requireResource('grupos',id);
+  }
 
   const { data: aviso, error } = await supabase.from('avisos').insert({
     autor_id: user.id,
@@ -54,12 +60,16 @@ export async function crearAviso(fd: FormData): Promise<{ error?: string; ok?: b
       contentType: file.type || 'application/octet-stream', upsert: false,
     });
     if (!upErr) {
-      await supabase.from('avisos').update({
+      const {error:metadataError}=await supabase.from('avisos').update({
         adjunto_url: path,
         adjunto_nombre: file.name,
         adjunto_tipo: file.type || 'application/octet-stream',
         adjunto_tamano: file.size,
       }).eq('id', aviso!.id);
+      if(metadataError){await supabase.storage.from('mensajes').remove([path]);await supabase.from('avisos').delete().eq('id',aviso!.id);return {error:'No se pudo guardar el adjunto. Intenta nuevamente.'};}
+    }else{
+      await supabase.from('avisos').delete().eq('id',aviso!.id);
+      return {error:'No se pudo subir el adjunto. Intenta nuevamente.'};
     }
   }
 
@@ -71,6 +81,7 @@ export async function crearAviso(fd: FormData): Promise<{ error?: string; ok?: b
 
 export async function marcarAvisoLeido(avisoId: string): Promise<void> {
   await requireAccess(null, "avisos/actions.ts:marcarAvisoLeido");
+  await requireResource('avisos',avisoId);
 
   const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();

@@ -37,3 +37,7 @@ La revisión posterior de flujos encontró y reparó efectos en consultas de doc
 Procedimientos y límites: docs/security-operations.md. Inventario y borrador institucional: docs/privacy-institutional-draft.md. Las tablas temporales no verifican todas las FK ni continuidad operacional. Los controles de archivos no son un antivirus.
 
 La política de cookies y los controles técnicos no reemplazan revisión jurídica institucional conforme a la [ley general vigente](https://www.diputados.gob.mx/LeyesBiblio/pdf/LGPDPPSO.pdf) y disposiciones aplicables a la escuela.
+
+## Actualización de compatibilidad móvil — 2026-10-06
+
+Se obtuvo el repo real SDK 55 y se corrigió acceso/MFA/contraseña inicial, almacenamiento cifrado y flujos en ese repo. Se detectó y reparó lectura REST ajena de avisos individuales y adjuntos mediante RLS; calendario/horarios también usan audiencia/asignación. API bearer de contraseña y entrega transaccional usa identidad verificada y nunca user_id del cuerpo. Fixtures del backend y limpieza satisfactorios; pruebas nativas en teléfono pendientes. Supabase advisors conserva avisos de helpers SECURITY DEFINER autenticados necesarios para RLS, límite sin políticas intencional y protección de claves filtradas pendiente del proveedor. Se retiraron grants anónimos de helpers internos. Auditoría nativa mantiene tres raíces upstream sin versión corregida; no afirmar cumplimiento total. Detalles/pruebas/pendientes en AGENTS.md de ambos repositorios.

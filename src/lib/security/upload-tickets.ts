@@ -17,7 +17,7 @@ export async function receiveUploadTicket(value: string): Promise<File> {
   const parts = value.split('.');
   if (value.length > 3000 || parts.length !== 3 || parts[0] !== 'epo-upload-v1') throw new Error('Referencia de archivo inválida.');
   const expected = mac(parts[1]), signature = Buffer.from(parts[2], 'base64url');
-  if (signature.length !== expected.length || !timingSafeEqual(signature, expected)) throw new Error('Referencia de archivo inválida.');
+  if (signature.toString('base64url') !== parts[2] || signature.length !== expected.length || !timingSafeEqual(signature, expected)) throw new Error('Referencia de archivo inválida.');
   const ticket = JSON.parse(Buffer.from(parts[1], 'base64url').toString()) as Ticket;
   const identity = await sessionIdentity();
   if (!identity || ticket.actor !== identity.user.id || ticket.expires < Date.now() ||

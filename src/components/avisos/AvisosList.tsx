@@ -7,12 +7,13 @@ export async function AvisosList({ limit = 50 }: { limit?: number }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data: avisos } = await supabase
+  const { data: avisos,error:avisosError } = await supabase
     .from('avisos')
     .select('id, titulo, cuerpo, prioridad, alcance, grupo_ids, created_at, vence_at, adjunto_url, adjunto_nombre, autor_tipo')
     .or(`vence_at.is.null,vence_at.gte.${new Date().toISOString()}`)
     .order('created_at', { ascending: false })
     .limit(limit);
+  if(avisosError)throw new Error('No se pudieron cargar los avisos. Intenta nuevamente.');
 
   const ids = (avisos ?? []).map((a: any) => a.id);
   const { data: lecturas } = ids.length

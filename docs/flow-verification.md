@@ -35,3 +35,7 @@ node scripts/verify-browser-flows.cjs --live
 Los scripts `--live` crean y eliminan únicamente cuentas/registros sintéticos. Usar un Supabase independiente de pruebas cuando esté disponible. No usar expedientes reales ni activar trazas/capturas con autenticación. Las credenciales se generan en memoria; la limpieza se ejecuta incluso ante fallos. La prueba HTTP de uploads usa IDs del build local; en producción comprobar cargas con el script de navegador. Los E2E heredados requieren variables `E2E_*` y cuentas de pruebas adecuadas al MFA.
 
 Los recorridos comprobados no equivalen a probar todas las pantallas, navegadores o clientes móviles. Las comprobaciones de firma de archivos no realizan análisis antivirus. El aviso institucional aprobado y los pendientes de operación se mantienen en `security-operations.md` y el reporte de seguridad.
+
+## Compatibilidad móvil — 2026-10-06
+
+El repo móvil vigente es epo221-mobile-github, SDK 55; el scaffold antiguo no corresponde al APK. Backend: `node scripts/verify-mobile-flows.cjs --live` desde sistema (FLOW_BASE_URL configurable). Comprueba audiencias/adjuntos, directorio mínimo/recibos, identidad de tareas y fechas/calificación, contraseña/revocación/MFA/inactividad; datos desechables y limpieza garantizada. RN Web: `node scripts/serve-verification.cjs --local` y `node scripts/verify-browser.cjs --live` desde el repo móvil, con web local 3002. Registrar resultado antes de afirmar éxito. Estos checks no sustituyen teléfono/emulador ni prueba nativa de almacenamiento/instalación.

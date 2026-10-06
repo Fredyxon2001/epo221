@@ -53,7 +53,7 @@ export function NuevoAvisoForm({ grupos }: { grupos: any[] }) {
         <select value={alcance} onChange={(e) => setAlcance(e.target.value)} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
           <option value="todos">Todos mis alumnos y docentes</option>
           <option value="grupos">Grupos específicos</option>
-          <option value="tutores">Solo tutores</option>
+          <option value="profesores">Solo docentes</option>
         </select>
       </label>
 
