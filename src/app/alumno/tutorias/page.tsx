@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
@@ -7,10 +9,12 @@ import { AgendarCitaForm } from './AgendarCitaForm';
 const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 export default async function TutoriasAlumno() {
+  await requireIdentity(["alumno"]);
+
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
 
   // Docentes que imparten en el grupo del alumno
@@ -64,7 +68,7 @@ export default async function TutoriasAlumno() {
                   <div className="text-sm font-semibold">Prof. {c.profesor?.perfil?.nombre ?? '—'}</div>
                   <div className="text-xs text-gray-600">{new Date(c.fecha).toLocaleString('es-MX')} · {c.duracion_min} min · {c.modalidad}</div>
                   <p className="text-xs text-gray-700 italic">"{c.motivo}"</p>
-                  {c.notas_profesor && <p className="text-xs text-gray-700 mt-1 bg-gray-50 rounded p-2">💬 {c.notas_profesor}</p>}
+                  {c.notas_profesor && <p className="text-xs text-gray-700 mt-1 bg-gray-50 rounded-sm p-2">💬 {c.notas_profesor}</p>}
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
                   c.estado === 'solicitada' ? 'bg-amber-100 text-amber-800' :

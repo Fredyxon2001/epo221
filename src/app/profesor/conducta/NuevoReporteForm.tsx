@@ -100,7 +100,7 @@ export function NuevoReporteForm({ alumnos }: { alumnos: any[] }) {
           required
           minLength={15}
           placeholder="Describe con claridad qué pasó, cuándo y dónde."
-          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-none"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-hidden"
         />
       </label>
 

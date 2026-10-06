@@ -1,11 +1,17 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Edición universal de perfil: cualquier usuario puede actualizar SU info personal.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function actualizarMiPerfil(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "perfil/actions.ts:actualizarMiPerfil");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
@@ -21,7 +27,7 @@ export async function actualizarMiPerfil(fd: FormData): Promise<{ ok?: boolean; 
 
   // 1) Actualizar perfiles (datos universales)
   const nombreCompleto = `${nombre}${apellidoP ? ' ' + apellidoP : ''}${apellidoM ? ' ' + apellidoM : ''}`;
-  const { error: perfErr } = await supabase
+  const { error: perfErr } = await adminClient()
     .from('perfiles')
     .update({
       nombre: nombreCompleto,
@@ -36,7 +42,7 @@ export async function actualizarMiPerfil(fd: FormData): Promise<{ ok?: boolean; 
   // 2) Si es profesor, actualizar tabla profesores también
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
   if (prof?.id) {
-    await supabase.from('profesores').update({
+    await adminClient().from('profesores').update({
       nombre, apellido_paterno: apellidoP, apellido_materno: apellidoM,
       telefono, rfc: rfc ?? undefined,
     }).eq('id', prof.id);
@@ -55,7 +61,10 @@ export async function actualizarMiPerfil(fd: FormData): Promise<{ ok?: boolean; 
 const MAX_AVATAR = 3 * 1024 * 1024; // 3 MB
 
 export async function subirMiAvatar(fd: FormData): Promise<{ ok?: boolean; error?: string; url?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "perfil/actions.ts:subirMiAvatar");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const admin = adminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -102,7 +111,9 @@ export async function subirMiAvatar(fd: FormData): Promise<{ ok?: boolean; error
 }
 
 export async function eliminarMiAvatar(): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "perfil/actions.ts:eliminarMiAvatar");
+
+  const supabase = (await createClient());
   const admin = adminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };

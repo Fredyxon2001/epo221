@@ -1,4 +1,8 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
@@ -27,6 +31,11 @@ async function subirSolicitudAdjunto(supabase: any, solicitudId: string, file: F
 }
 
 export async function crearSolicitudRevision(fd: FormData) {
+  await requireAccess(["alumno","admin","staff","director"], "alumno/solicitudes/actions.ts:crearSolicitudRevision");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
   const alumno = await getAlumnoActual();
   if (!alumno) return { error: 'Sesión expirada' };
 
@@ -41,7 +50,7 @@ export async function crearSolicitudRevision(fd: FormData) {
   if (!motivo || motivo.length < 15) return { error: 'El motivo debe ser más descriptivo (mín. 15 caracteres).' };
   if (parcial != null && (parcial < 1 || parcial > 4)) return { error: 'Parcial inválido' };
 
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
 
@@ -88,10 +97,15 @@ export async function crearSolicitudRevision(fd: FormData) {
 }
 
 export async function cerrarSolicitud(fd: FormData) {
+  await requireAccess(["alumno","admin","staff","director"], "alumno/solicitudes/actions.ts:cerrarSolicitud");
+  await validateFormData(fd);
+  await requireResource("solicitudes_revision", fd.get("id"), false);
+
+
   const alumno = await getAlumnoActual();
   if (!alumno) return { error: 'Sesión expirada' };
   const id = String(fd.get('id') ?? '');
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { error } = await supabase
     .from('solicitudes_revision')

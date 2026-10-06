@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Profesor: crear reporte de conducta de un alumno de sus grupos.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -6,8 +8,10 @@ import { PageHeader, Card } from '@/components/privado/ui';
 import { NuevoReporteForm } from './NuevoReporteForm';
 
 export default async function ConductaProfesor() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();

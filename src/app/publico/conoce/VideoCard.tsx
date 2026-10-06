@@ -41,16 +41,16 @@ export function VideoCard({ video, variant }: { video: Video; variant: 'destacad
           <button
             type="button"
             onClick={togglePlay}
-            className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/80 via-black/30 to-black/10 hover:from-black/90 hover:via-black/40 transition cursor-pointer group"
+            className="absolute inset-0 flex items-center justify-center bg-linear-to-t from-black/80 via-black/30 to-black/10 hover:from-black/90 hover:via-black/40 transition cursor-pointer group"
             aria-label={`Reproducir ${video.titulo}`}
           >
             <div className="w-20 h-20 rounded-full bg-dorado/95 group-hover:bg-dorado-claro flex items-center justify-center shadow-2xl shadow-black/50 group-hover:scale-110 transition">
               <span className="text-4xl text-verde-oscuro ml-2">▶</span>
             </div>
-            <span className="absolute top-3 right-3 bg-black/70 text-white text-[11px] font-mono px-2 py-1 rounded">
+            <span className="absolute top-3 right-3 bg-black/70 text-white text-[11px] font-mono px-2 py-1 rounded-sm">
               {video.duracion}
             </span>
-            <span className="absolute bottom-3 left-3 bg-dorado/90 text-verde-oscuro text-[10px] font-bold uppercase px-2 py-1 rounded">
+            <span className="absolute bottom-3 left-3 bg-dorado/90 text-verde-oscuro text-[10px] font-bold uppercase px-2 py-1 rounded-sm">
               ✈️ Dron DJI
             </span>
           </button>

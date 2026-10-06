@@ -1,8 +1,11 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { crearCiclo, activarCiclo } from './actions';
 
 export default async function AdminCiclos() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: ciclos } = await supabase
     .from('ciclos_escolares').select('*').order('codigo', { ascending: false });
 
@@ -10,18 +13,18 @@ export default async function AdminCiclos() {
     <div className="max-w-4xl space-y-6">
       <h1 className="font-serif text-3xl text-verde">Ciclos escolares</h1>
 
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="font-semibold text-verde mb-3">Nuevo ciclo</h2>
         <form action={crearCiclo} className="grid grid-cols-1 md:grid-cols-5 gap-3 text-sm">
-          <input name="codigo" placeholder="Código (2026-2027)" required className="border rounded px-2 py-1" />
-          <input name="periodo" placeholder="Periodo (2026A / 2026B)" required className="border rounded px-2 py-1" />
-          <input name="fecha_inicio" type="date" className="border rounded px-2 py-1" />
-          <input name="fecha_fin" type="date" className="border rounded px-2 py-1" />
-          <button className="bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio">Crear</button>
+          <input name="codigo" placeholder="Código (2026-2027)" required className="border rounded-sm px-2 py-1" />
+          <input name="periodo" placeholder="Periodo (2026A / 2026B)" required className="border rounded-sm px-2 py-1" />
+          <input name="fecha_inicio" type="date" className="border rounded-sm px-2 py-1" />
+          <input name="fecha_fin" type="date" className="border rounded-sm px-2 py-1" />
+          <button className="bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio">Crear</button>
         </form>
       </section>
 
-      <section className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <section className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>

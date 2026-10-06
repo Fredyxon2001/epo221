@@ -1,4 +1,8 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Acciones compartidas para la conversación de una solicitud.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -28,7 +32,12 @@ async function getRolYAcceso(supabase: any, solicitudId: string, userId: string)
 }
 
 export async function enviarMensajeSolicitud(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "solicitudes/thread-actions.ts:enviarMensajeSolicitud");
+  await validateFormData(fd);
+  await requireResource("solicitudes_revision", fd.get("solicitud_id"), false);
+
+
+  const supabase = (await createClient());
   const admin = adminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -104,7 +113,12 @@ export async function enviarMensajeSolicitud(fd: FormData): Promise<{ ok?: boole
 }
 
 export async function cerrarSolicitudThread(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "solicitudes/thread-actions.ts:cerrarSolicitudThread");
+  await validateFormData(fd);
+  await requireResource("solicitudes_revision", fd.get("solicitud_id"), false);
+
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
@@ -121,7 +135,12 @@ export async function cerrarSolicitudThread(fd: FormData): Promise<{ ok?: boolea
 }
 
 export async function reabrirSolicitudThread(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "solicitudes/thread-actions.ts:reabrirSolicitudThread");
+  await validateFormData(fd);
+  await requireResource("solicitudes_revision", fd.get("solicitud_id"), false);
+
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 

@@ -1,3 +1,4 @@
+import { apiAccess } from '@/lib/security/api-access';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { toCSV, csvResponse } from '@/lib/csv';
@@ -5,7 +6,10 @@ import { toCSV, csvResponse } from '@/lib/csv';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
-  const auth = createClient();
+  const denied = await apiAccess(req, ["admin","staff","director"]);
+  if (denied) return denied;
+
+  const auth = (await createClient());
   const supabase = adminClient();
 
   // Verifica rol admin

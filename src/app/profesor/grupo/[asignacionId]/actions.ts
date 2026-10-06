@@ -1,4 +1,9 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+import { requireRoster } from '@/lib/security/resources';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -14,7 +19,7 @@ const toNum = (v: FormDataEntryValue | null) => {
  * Si no hay config, asume todos abiertos (compatibilidad).
  */
 async function parcialesAbiertos(cicloId: string) {
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data } = await supabase
     .from('parciales_config')
@@ -31,13 +36,19 @@ async function parcialesAbiertos(cicloId: string) {
 }
 
 export async function guardarCalificaciones(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/grupo/[asignacionId]/actions.ts:guardarCalificaciones");
+  await validateFormData(formData);
+  await requireResource("asignaciones", formData.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return;
 
   const asignacionId = String(formData.get('asignacion_id'));
   const n = Number(formData.get('n') ?? 0);
+  if (!Number.isInteger(n) || n < 1 || n > 500) throw new Error('Cantidad de alumnos inválida.');
 
   // Obtener ciclo_id de la asignación para chequear bloqueo
   const { data: asig } = await supabase
@@ -71,6 +82,11 @@ export async function guardarCalificaciones(formData: FormData) {
     base.folio_e1 = String(formData.get(`folio_${i}`) ?? '') || null;
     return base;
   }).filter((r) => r.alumno_id);
+  await requireRoster(asignacionId, rows.map(row => row.alumno_id));
+  for (const row of rows) {
+    for (const key of ['p1','p2','p3','e1']) if (row[key] != null && (!Number.isFinite(row[key]) || row[key] < 0 || row[key] > 10)) throw new Error('Calificación fuera del rango 0–10.');
+    for (const key of ['faltas_p1','faltas_p2','faltas_p3']) if (row[key] != null && (!Number.isInteger(row[key]) || row[key] < 0 || row[key] > 300)) throw new Error('Cantidad de faltas inválida.');
+  }
 
   await supabase.from('calificaciones').upsert(rows, {
     onConflict: 'alumno_id,asignacion_id',
@@ -80,7 +96,12 @@ export async function guardarCalificaciones(formData: FormData) {
 }
 
 export async function exportarCSV(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/grupo/[asignacionId]/actions.ts:exportarCSV");
+  await validateFormData(formData);
+  await requireResource("asignaciones", formData.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const asignacionId = String(formData.get('asignacion_id'));
 

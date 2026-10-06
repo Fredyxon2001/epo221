@@ -82,7 +82,7 @@ export function NuevoEventoForm({ grupos }: { grupos: any[] }) {
       {alcance === 'grupos' && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {grupos.map((g) => (
-            <label key={g.id} className="flex items-center gap-2 text-xs border rounded p-2 cursor-pointer">
+            <label key={g.id} className="flex items-center gap-2 text-xs border rounded-sm p-2 cursor-pointer">
               <input type="checkbox" checked={gruposSel.includes(g.id)} onChange={(e) => setGruposSel((s) => e.target.checked ? [...s, g.id] : s.filter((x) => x !== g.id))} />
               <span>{g.semestre}° {g.grupo} {g.turno}</span>
             </label>
@@ -90,8 +90,8 @@ export function NuevoEventoForm({ grupos }: { grupos: any[] }) {
         </div>
       )}
 
-      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded p-2">⚠️ {err}</div>}
-      {ok && <div className="bg-verde-claro/30 border border-verde text-verde-oscuro rounded p-2">✅ Evento publicado.</div>}
+      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-sm p-2">⚠️ {err}</div>}
+      {ok && <div className="bg-verde-claro/30 border border-verde text-verde-oscuro rounded-sm p-2">✅ Evento publicado.</div>}
 
       <div className="flex justify-end">
         <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-5 py-2 rounded-lg disabled:opacity-50">

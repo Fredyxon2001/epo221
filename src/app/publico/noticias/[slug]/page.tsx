@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { ArticuloMarkdown } from '@/components/publico/ArticuloMarkdown';
 
-export default async function NoticiaDetalle({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
+export default async function NoticiaDetalle(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+  const supabase = (await createClient());
   const { data: n } = await supabase
     .from('noticias').select('*').eq('slug', params.slug).eq('publicada', true).single();
   if (!n) notFound();

@@ -1,10 +1,14 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { crearAprendizaje, eliminarAprendizaje } from './actions';
 
-export default async function AprendizajesPage({ searchParams }: { searchParams?: { materia?: string } }) {
-  const auth = createClient();
+export default async function AprendizajesPage(props: { searchParams?: Promise<{ materia?: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
 
   const { data: materias } = await supabase.from('materias').select('id, nombre').order('nombre');
@@ -31,18 +35,18 @@ export default async function AprendizajesPage({ searchParams }: { searchParams?
         <details>
           <summary className="cursor-pointer font-semibold text-sm">➕ Nuevo aprendizaje</summary>
           <form action={crearAprendizaje} className="mt-3 grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
-            <input name="codigo" placeholder="Código (ej. CD-M1.2)" className="border rounded px-2 py-1.5 md:col-span-1" />
-            <select name="materia_id" required className="border rounded px-2 py-1.5 md:col-span-2">
+            <input name="codigo" placeholder="Código (ej. CD-M1.2)" className="border rounded-sm px-2 py-1.5 md:col-span-1" />
+            <select name="materia_id" required className="border rounded-sm px-2 py-1.5 md:col-span-2">
               <option value="">— Materia —</option>
               {(materias ?? []).map((m: any) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
             </select>
-            <select name="campo_disciplinar_id" className="border rounded px-2 py-1.5 md:col-span-2">
+            <select name="campo_disciplinar_id" className="border rounded-sm px-2 py-1.5 md:col-span-2">
               <option value="">— Campo disciplinar —</option>
               {(campos ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
-            <input name="semestre" type="number" min={1} max={6} placeholder="Sem" className="border rounded px-2 py-1.5" />
-            <textarea name="descripcion" required rows={2} placeholder="Descripción del aprendizaje esperado…" className="md:col-span-5 border rounded px-2 py-1.5" />
-            <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded">Agregar</button>
+            <input name="semestre" type="number" min={1} max={6} placeholder="Sem" className="border rounded-sm px-2 py-1.5" />
+            <textarea name="descripcion" required rows={2} placeholder="Descripción del aprendizaje esperado…" className="md:col-span-5 border rounded-sm px-2 py-1.5" />
+            <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded-sm">Agregar</button>
           </form>
         </details>
       </Card>

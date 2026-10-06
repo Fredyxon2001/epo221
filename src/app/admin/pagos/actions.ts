@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -10,7 +13,10 @@ function generarFolio() {
 }
 
 export async function validarPago(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director","finanzas"], "admin/pagos/actions.ts:validarPago");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return;
@@ -30,7 +36,10 @@ export async function validarPago(formData: FormData) {
 }
 
 export async function rechazarPago(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director","finanzas"], "admin/pagos/actions.ts:rechazarPago");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const pagoId = String(formData.get('pago_id'));
   const cargoId = String(formData.get('cargo_id'));

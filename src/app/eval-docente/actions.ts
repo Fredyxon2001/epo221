@@ -1,11 +1,19 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Evaluación docente por alumnos (anónima).
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
+import { adminClient } from '@/lib/supabase/admin';
 
 export async function crearPeriodoEval(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(["admin","staff","director"], "eval-docente/actions.ts:crearPeriodoEval");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
@@ -43,13 +51,20 @@ export async function crearPeriodoEval(fd: FormData): Promise<{ error?: string; 
 }
 
 export async function cerrarPeriodoEval(id: string) {
-  const supabase = createClient();
+  await requireAccess(["admin","staff","director"], "eval-docente/actions.ts:cerrarPeriodoEval");
+
+  const supabase = (await createClient());
   await supabase.from('eval_docente_periodos').update({ activa: false }).eq('id', id);
   revalidatePath('/admin/eval-docente');
 }
 
 export async function responderEval(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(['alumno'], "eval-docente/actions.ts:responderEval");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: al } = await supabase.from('alumnos').select('id').eq('perfil_id', user.id).maybeSingle();
@@ -77,7 +92,7 @@ export async function responderEval(fd: FormData): Promise<{ error?: string; ok?
   // Hash anónimo
   const alumno_hash = crypto.createHash('md5').update(`${al.id}::${periodo_id}::${asignacion_id}`).digest('hex');
 
-  const { error } = await supabase.from('eval_docente_respuestas').insert({
+  const { error } = await adminClient().from('eval_docente_respuestas').insert({
     periodo_id, asignacion_id, alumno_hash, respuestas, comentario,
   });
   if (error) {

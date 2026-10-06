@@ -62,7 +62,7 @@ export function ReglamentoView({ md }: { md: string }) {
       capIndex++;
       blocks.push(
         <div key={key} className="flex items-center gap-3 mt-8 mb-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow-md shrink-0 text-sm">
+          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow-md shrink-0 text-sm">
             {capIndex}
           </div>
           <h2 className="font-serif text-xl md:text-2xl text-verde-oscuro font-semibold leading-snug">
@@ -106,7 +106,7 @@ export function ReglamentoView({ md }: { md: string }) {
     if (art) {
       blocks.push(
         <p key={key} className="my-2 leading-relaxed text-gray-700">
-          <span className="inline-block bg-dorado/15 text-[#6b4d05] font-bold text-xs px-2 py-0.5 rounded mr-2 align-middle">
+          <span className="inline-block bg-dorado/15 text-[#6b4d05] font-bold text-xs px-2 py-0.5 rounded-sm mr-2 align-middle">
             {art[1]}
           </span>
           {inline(art[2], key)}

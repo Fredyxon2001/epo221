@@ -1,11 +1,15 @@
+import { apiAccess } from '@/lib/security/api-access';
 // Formato 911 SEIEM simplificado: estadística básica.
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import * as XLSX from 'xlsx';
 
-export async function GET() {
-  const auth = createClient();
+export async function GET(req: Request) {
+  const denied = await apiAccess(req, ["admin","staff","director"]);
+  if (denied) return denied;
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });

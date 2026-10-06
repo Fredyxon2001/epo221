@@ -41,7 +41,7 @@ export function Topbar({
     profesor: { text: 'Docente',  cls: 'bg-dorado/20 text-[#6b4d05] border-dorado/40' },
     admin:    { text: 'Admin',    cls: 'bg-verde text-white border-verde-oscuro' },
     staff:    { text: 'Staff',    cls: 'bg-slate-700 text-white border-slate-900' },
-    director: { text: 'Director', cls: 'bg-gradient-to-r from-dorado to-dorado-claro text-verde-oscuro border-dorado' },
+    director: { text: 'Director', cls: 'bg-linear-to-r from-dorado to-dorado-claro text-verde-oscuro border-dorado' },
   };
 
   return (
@@ -76,7 +76,7 @@ export function Topbar({
           title="Buscar (Cmd/Ctrl + K)"
           className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-white/70 hover:bg-white border border-gray-200 text-gray-500"
         >
-          🔎 Buscar… <kbd className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded">⌘K</kbd>
+          🔎 Buscar… <kbd className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded-sm">⌘K</kbd>
         </button>
         <DarkModeToggle />
         <NotificationBell count={notiCount} items={notiItems} />

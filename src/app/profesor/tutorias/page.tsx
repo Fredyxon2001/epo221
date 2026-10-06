@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
@@ -8,8 +10,10 @@ import { ProcesarCitaForm } from './ProcesarCitaForm';
 const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 export default async function TutoriasProfesor() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
@@ -62,7 +66,7 @@ export default async function TutoriasProfesor() {
                       📅 {new Date(c.fecha).toLocaleString('es-MX')} · {c.duracion_min} min · {c.modalidad} · {c.solicitante_tipo}
                     </div>
                     <p className="text-xs text-gray-700 mt-1 italic">"{c.motivo}"</p>
-                    {c.notas_profesor && <p className="text-xs text-gray-600 mt-1 bg-gray-50 rounded p-2">💬 {c.notas_profesor}</p>}
+                    {c.notas_profesor && <p className="text-xs text-gray-600 mt-1 bg-gray-50 rounded-sm p-2">💬 {c.notas_profesor}</p>}
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full font-semibold shrink-0 ${
                     c.estado === 'solicitada' ? 'bg-amber-100 text-amber-800' :

@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import {
@@ -8,12 +9,15 @@ import {
 import { codigoGrupo, labelGrupo, gradoDeSemestre, siguienteSemestre } from '@/lib/grupos';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 
-export default async function AdminGrupos({
-  searchParams,
-}: {
-  searchParams?: { ok?: string; error?: string };
-}) {
-  const auth = createClient();
+export default async function AdminGrupos(
+  props: {
+    searchParams?: Promise<{ ok?: string; error?: string }>;
+  }
+) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
 
   const [
@@ -146,7 +150,7 @@ export default async function AdminGrupos({
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {porSemestre.get(sem)!.map((g: any) => (
-                    <div key={g.id} className="bg-white/80 backdrop-blur border border-gray-200 rounded-xl p-4 hover:border-verde transition">
+                    <div key={g.id} className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-xl p-4 hover:border-verde transition">
                       <div className="flex items-baseline justify-between">
                         <div className="font-serif text-2xl text-verde-oscuro tabular-nums">
                           {codigoGrupo(g.grado, g.grupo)}
@@ -168,13 +172,13 @@ export default async function AdminGrupos({
                         </div>
                         <form action={asignarOrientador} className="mt-1 flex gap-1">
                           <input type="hidden" name="grupo_id" value={g.id} />
-                          <select name="profesor_id" defaultValue={g.orientador_id ?? ''} className="text-[10px] border rounded px-1 py-0.5 flex-1 min-w-0">
+                          <select name="profesor_id" defaultValue={g.orientador_id ?? ''} className="text-[10px] border rounded-sm px-1 py-0.5 flex-1 min-w-0">
                             <option value="">— sin orientador —</option>
                             {(profes ?? []).map((p: any) => (
                               <option key={p.id} value={p.id}>{p.apellido_paterno} {p.nombre}</option>
                             ))}
                           </select>
-                          <button className="text-[10px] bg-verde text-white px-1.5 rounded hover:bg-verde-medio">✓</button>
+                          <button className="text-[10px] bg-verde text-white px-1.5 rounded-sm hover:bg-verde-medio">✓</button>
                         </form>
                       </div>
                       {g.nAsigs === 0 && (

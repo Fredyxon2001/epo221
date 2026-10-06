@@ -1,3 +1,6 @@
+import { scopedClient } from '@/lib/security/resources';
+import { logoutAction } from '@/app/login/actions';
+import { requireAccess } from '@/lib/security/access';
 import { redirect } from 'next/navigation';
 import { PrivateShell } from '@/components/privado/PrivateShell';
 import { Topbar } from '@/components/privado/Topbar';
@@ -9,52 +12,13 @@ import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 
 export default async function AlumnoLayout({ children }: { children: React.ReactNode }) {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireAccess(['alumno'], 'alumno:page');
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   if (!user) redirect('/login');
 
   let alumno = await getAlumnoActual();
-
-  // AUTO-VINCULACIÓN: si no hay match por perfil_id, intentar por email (case-insensitive)
-  // y vincular automáticamente. Esto cubre el caso de cookies/sessions viejos.
-  if (!alumno && user.email) {
-    const admin = adminClient();
-    // Intentar match por email del usuario contra cualquier ficha sin perfil_id o con perfil_id viejo
-    // 1) Buscar alumno por email del propio user (que puede ser nombre.apellido@epo221.edu.mx)
-    //    cruzando contra el email que tengamos en perfiles.
-    const { data: alumnoPorEmail } = await admin
-      .from('alumnos')
-      .select('*, perfiles!inner(email)')
-      .ilike('perfiles.email', user.email)
-      .is('deleted_at', null)
-      .maybeSingle();
-    if (alumnoPorEmail) {
-      // Re-vincular
-      await admin.from('alumnos').update({ perfil_id: user.id }).eq('id', alumnoPorEmail.id);
-      alumno = alumnoPorEmail as any;
-    } else {
-      // 2) Match por nombre.apellido en el email del user (ej. raul.flores@epo221.edu.mx)
-      const localPart = user.email.split('@')[0].toLowerCase();
-      const partes = localPart.split('.');
-      if (partes.length >= 2) {
-        const nombre = partes[0];
-        const apellido = partes[1];
-        const { data: byName } = await admin
-          .from('alumnos')
-          .select('*')
-          .ilike('nombre', `%${nombre}%`)
-          .ilike('apellido_paterno', `%${apellido}%`)
-          .is('deleted_at', null)
-          .limit(1)
-          .maybeSingle();
-        if (byName) {
-          await admin.from('alumnos').update({ perfil_id: user.id }).eq('id', byName.id);
-          alumno = byName as any;
-        }
-      }
-    }
-  }
 
   // Si AÚN no hay alumno, mostrar mensaje (con info diagnóstica)
   if (!alumno) {
@@ -67,17 +31,16 @@ export default async function AlumnoLayout({ children }: { children: React.React
             Tu sesión está activa pero no encontramos tu ficha de alumno en el sistema.
             Acércate a <strong>Control Escolar</strong> y muéstrales esta información:
           </p>
-          <div className="bg-amber-50 border border-amber-200 rounded p-3 text-xs text-left mb-4 font-mono">
+          <div className="bg-amber-50 border border-amber-200 rounded-sm p-3 text-xs text-left mb-4 font-mono">
             <div><strong>Email:</strong> {user.email}</div>
             <div className="break-all"><strong>ID:</strong> {user.id}</div>
           </div>
           <a href="/cambiar-password" className="block text-xs text-verde hover:underline mb-3">Cambiar mi contraseña</a>
-          <a
-            href="/api/logout"
-            className="inline-block text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded"
+          <form action={logoutAction}><button
+            className="inline-block text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded-sm"
           >
             Cerrar sesión
-          </a>
+          </button></form>
         </div>
       </div>
     );

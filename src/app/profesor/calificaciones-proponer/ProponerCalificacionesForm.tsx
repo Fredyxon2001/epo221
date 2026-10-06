@@ -78,7 +78,7 @@ export function ProponerCalificacionesForm({
                   if (fileRef.current) fileRef.current.value = '';
                 });
               }}
-              className="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3 py-1.5 rounded text-xs disabled:opacity-50"
+              className="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-3 py-1.5 rounded-sm text-xs disabled:opacity-50"
             >
               📥 Procesar XLSX
             </button>
@@ -117,7 +117,7 @@ export function ProponerCalificacionesForm({
                       defaultValue={prev?.calificacion ?? ''}
                       disabled={disabled}
                       title={disabled ? 'Esperando validación del orientador' : (prev?.estado === 'validada' ? 'Si modificas, se enviará como solicitud de modificación' : '')}
-                      className="w-20 border rounded px-2 py-1 text-center disabled:bg-gray-100"
+                      className="w-20 border rounded-sm px-2 py-1 text-center disabled:bg-gray-100"
                     />
                   </td>
                   <td className="px-2 py-1">
@@ -126,7 +126,7 @@ export function ProponerCalificacionesForm({
                       name={`faltas_${a.id}`}
                       defaultValue={prev?.faltas ?? 0}
                       disabled={disabled}
-                      className="w-16 border rounded px-2 py-1 text-center disabled:bg-gray-100"
+                      className="w-16 border rounded-sm px-2 py-1 text-center disabled:bg-gray-100"
                     />
                   </td>
                   <td className="px-2 py-1 text-center">
@@ -150,8 +150,8 @@ export function ProponerCalificacionesForm({
         <textarea name="observaciones" rows={2} className="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="Ej. Alumno X faltó al examen, calificación condicionada a entrega de trabajo." />
       </label>
 
-      {err && <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded p-2">⚠️ {err}</div>}
-      {ok && <div className="text-xs text-verde-oscuro bg-verde-claro/30 border border-verde rounded p-2">{ok}</div>}
+      {err && <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-sm p-2">⚠️ {err}</div>}
+      {ok && <div className="text-xs text-verde-oscuro bg-verde-claro/30 border border-verde rounded-sm p-2">{ok}</div>}
 
       <div className="flex justify-end">
         <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-5 py-2 rounded-lg disabled:opacity-50">

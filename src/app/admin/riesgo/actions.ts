@@ -1,11 +1,15 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { calcularRiesgoCiclo } from '@/lib/riesgo/score';
 import { revalidatePath } from 'next/cache';
 
 export async function recalcularRiesgo(): Promise<{ ok?: boolean; error?: string; total?: number }> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/riesgo/actions.ts:recalcularRiesgo");
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };

@@ -1,9 +1,12 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { crearPMI, actualizarPMI } from './actions';
 
 export default async function PMIPage() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: pmis } = await supabase
     .from('pmi')
     .select('*, alumno:alumnos(id, matricula, nombre, apellido_paterno, apellido_materno), responsable:perfiles!pmi_responsable_id_fkey(nombre)')
@@ -37,7 +40,7 @@ export default async function PMIPage() {
           <form action={crearPMI} className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             <label className="block">
               <span className="text-xs text-gray-600">Alumno *</span>
-              <select name="alumno_id" required className="w-full border rounded px-2 py-1.5">
+              <select name="alumno_id" required className="w-full border rounded-sm px-2 py-1.5">
                 <option value="">— Seleccionar —</option>
                 {(alumnos ?? []).map((a: any) => (
                   <option key={a.id} value={a.id}>{a.matricula} · {a.nombre} {a.apellido_paterno} {a.apellido_materno}</option>
@@ -46,22 +49,22 @@ export default async function PMIPage() {
             </label>
             <label className="block">
               <span className="text-xs text-gray-600">Fecha de revisión</span>
-              <input name="fecha_revision" type="date" className="w-full border rounded px-2 py-1.5" />
+              <input name="fecha_revision" type="date" className="w-full border rounded-sm px-2 py-1.5" />
             </label>
             <label className="block md:col-span-2">
               <span className="text-xs text-gray-600">Motivo / situación detectada *</span>
-              <textarea name="motivo" required rows={2} className="w-full border rounded px-2 py-1.5" />
+              <textarea name="motivo" required rows={2} className="w-full border rounded-sm px-2 py-1.5" />
             </label>
             <label className="block md:col-span-2">
               <span className="text-xs text-gray-600">Objetivos *</span>
-              <textarea name="objetivos" required rows={2} className="w-full border rounded px-2 py-1.5" />
+              <textarea name="objetivos" required rows={2} className="w-full border rounded-sm px-2 py-1.5" />
             </label>
             <label className="block md:col-span-2">
               <span className="text-xs text-gray-600">Acciones a implementar *</span>
-              <textarea name="acciones" required rows={3} className="w-full border rounded px-2 py-1.5" />
+              <textarea name="acciones" required rows={3} className="w-full border rounded-sm px-2 py-1.5" />
             </label>
             <div className="md:col-span-2">
-              <button className="bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded">Crear PMI</button>
+              <button className="bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-sm">Crear PMI</button>
             </div>
           </form>
         </details>
@@ -95,13 +98,13 @@ export default async function PMIPage() {
                       <input type="hidden" name="id" value={p.id} />
                       <label className="flex-1 min-w-[200px]">
                         <span className="text-[10px] text-gray-500 uppercase">Resultado / cierre</span>
-                        <input name="resultado" className="w-full border rounded px-2 py-1 text-xs" placeholder="¿Cómo terminó?" />
+                        <input name="resultado" className="w-full border rounded-sm px-2 py-1 text-xs" placeholder="¿Cómo terminó?" />
                       </label>
-                      <select name="estado" className="border rounded px-2 py-1 text-xs">
+                      <select name="estado" className="border rounded-sm px-2 py-1 text-xs">
                         <option value="cumplido">Marcar cumplido</option>
                         <option value="cancelado">Cancelar</option>
                       </select>
-                      <button className="bg-verde-oscuro text-white text-xs font-semibold px-3 py-1.5 rounded">Guardar</button>
+                      <button className="bg-verde-oscuro text-white text-xs font-semibold px-3 py-1.5 rounded-sm">Guardar</button>
                     </form>
                   )}
                 </div>

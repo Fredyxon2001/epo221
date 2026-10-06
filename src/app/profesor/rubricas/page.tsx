@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Banco de rúbricas del profesor. Muestra las propias + las públicas de otros.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -6,8 +8,10 @@ import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import { crearRubrica, eliminarRubrica, duplicarRubrica } from './actions';
 
 export default async function RubricasBanco() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
 
   const { data: materias } = await supabase.from('materias').select('id, nombre').order('nombre');
@@ -48,7 +52,7 @@ export default async function RubricasBanco() {
           <label className="text-sm flex items-center gap-2">
             <input type="checkbox" name="publica" value="1" /> Compartir como pública
           </label>
-          <button className="md:col-span-2 bg-gradient-to-r from-verde to-verde-medio text-white rounded-xl px-4 py-2 font-semibold shadow hover:shadow-lg">
+          <button className="md:col-span-2 bg-linear-to-r from-verde to-verde-medio text-white rounded-xl px-4 py-2 font-semibold shadow-sm hover:shadow-lg">
             Crear rúbrica →
           </button>
         </form>
@@ -97,7 +101,7 @@ export default async function RubricasBanco() {
                 {r.descripcion && <div className="text-xs text-gray-600 mt-2 line-clamp-2">{r.descripcion}</div>}
                 <form action={duplicarRubrica} className="mt-3">
                   <input type="hidden" name="id" value={r.id} />
-                  <button className="text-xs bg-gradient-to-r from-verde to-verde-medio text-white px-3 py-1 rounded-lg font-semibold">
+                  <button className="text-xs bg-linear-to-r from-verde to-verde-medio text-white px-3 py-1 rounded-lg font-semibold">
                     Duplicar a mi banco →
                   </button>
                 </form>

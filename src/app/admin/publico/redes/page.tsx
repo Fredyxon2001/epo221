@@ -1,9 +1,12 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { guardarRedes } from './actions';
 
 export default async function AdminRedes() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: cfg } = await supabase
     .from('sitio_config')
     .select('facebook_url, instagram_url, tiktok_url, spotify_url, youtube_url, whatsapp_url')
@@ -22,7 +25,7 @@ export default async function AdminRedes() {
         </p>
       </div>
 
-      <form action={guardarRedes} className="bg-white rounded-lg shadow-sm p-5 space-y-4">
+      <form action={guardarRedes} className="bg-white rounded-lg shadow-xs p-5 space-y-4">
         <Field
           name="facebook_url"
           label="Facebook"
@@ -69,7 +72,7 @@ export default async function AdminRedes() {
         <div className="flex justify-end pt-2 border-t">
           <button
             type="submit"
-            className="bg-verde text-white px-6 py-2 rounded hover:bg-verde-medio text-sm font-medium"
+            className="bg-verde text-white px-6 py-2 rounded-sm hover:bg-verde-medio text-sm font-medium"
           >
             Guardar cambios
           </button>
@@ -92,7 +95,7 @@ function Field({
         name={name}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="mt-1 w-full border rounded px-3 py-2 text-sm"
+        className="mt-1 w-full border rounded-sm px-3 py-2 text-sm"
       />
     </div>
   );

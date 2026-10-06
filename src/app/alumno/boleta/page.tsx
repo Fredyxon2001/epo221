@@ -1,8 +1,11 @@
+import { requireIdentity } from "@/lib/security/access";
 // Boleta imprimible. El alumno usa "Imprimir → Guardar como PDF".
 import { getAlumnoActual, getHistorialAcademico, getEvaluacionGeneral } from '@/lib/queries';
 import { PrintButton } from '@/components/PrintButton';
 
 export default async function Boleta() {
+  await requireIdentity(["alumno"]);
+
   const alumno = (await getAlumnoActual())!;
   const [historial, eval_] = await Promise.all([
     getHistorialAcademico(alumno.id),
@@ -24,7 +27,7 @@ export default async function Boleta() {
             href={`/api/boleta/${alumno.id}`}
             target="_blank"
             rel="noopener"
-            className="bg-verde text-white px-4 py-2 rounded hover:bg-verde-medio text-sm inline-flex items-center gap-2"
+            className="bg-verde text-white px-4 py-2 rounded-sm hover:bg-verde-medio text-sm inline-flex items-center gap-2"
           >
             ⬇ Descargar PDF
           </a>
@@ -32,7 +35,7 @@ export default async function Boleta() {
         </div>
       </div>
 
-      <article className="bg-white shadow-sm mx-auto max-w-4xl p-10 print:shadow-none print:p-0">
+      <article className="bg-white shadow-xs mx-auto max-w-4xl p-10 print:shadow-none print:p-0">
         {/* Encabezado oficial */}
         <header className="flex items-center justify-between border-b-2 border-verde pb-4 mb-6">
           <div className="flex items-center gap-3">

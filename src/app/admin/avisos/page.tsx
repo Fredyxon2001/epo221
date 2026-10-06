@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { createClient } from '@/lib/supabase/server';
@@ -6,7 +7,9 @@ import { AvisosList } from '@/components/avisos/AvisosList';
 import { NuevoAvisoForm } from '@/app/profesor/avisos/nuevo/NuevoAvisoForm';
 
 export default async function AdminAvisos() {
-  const auth = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: grupos } = await supabase.from('grupos').select('id, grado, semestre, grupo, turno').order('semestre').limit(200);
 
@@ -19,7 +22,6 @@ export default async function AdminAvisos() {
       </Card>
 
       <Card eyebrow="Historial" title="Avisos vigentes">
-        {/* @ts-expect-error async server component */}
         <AvisosList />
       </Card>
     </div>

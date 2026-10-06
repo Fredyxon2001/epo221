@@ -1,11 +1,20 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Solicitud de examen extraordinario/recuperación por parte del alumno.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function solicitarExtraordinario(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/extraordinarios/actions.ts:solicitarExtraordinario");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -35,7 +44,10 @@ export async function solicitarExtraordinario(fd: FormData): Promise<{ error?: s
 }
 
 export async function procesarExtraordinario(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "alumno/extraordinarios/actions.ts:procesarExtraordinario");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };

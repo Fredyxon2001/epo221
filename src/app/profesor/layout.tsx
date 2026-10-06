@@ -1,3 +1,5 @@
+import { scopedClient } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
 import { redirect } from 'next/navigation';
 import { PrivateShell } from '@/components/privado/PrivateShell';
 import { Topbar } from '@/components/privado/Topbar';
@@ -8,16 +10,17 @@ import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
 export default async function ProfesorLayout({ children }: { children: React.ReactNode }) {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireAccess(['profesor', 'admin', 'staff', 'director'], 'profesor:page');
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   if (!user) redirect('/login');
 
   // Usar adminClient para evitar fallos de RLS al leer perfil
-  const admin = adminClient();
+  const admin = (await scopedClient());
   const { data: perfil } = await admin
     .from('perfiles').select('*').eq('id', user.id).maybeSingle();
-  if (!perfil || !['profesor', 'admin', 'staff'].includes((perfil as any).rol)) redirect('/');
+  if (!perfil || !['profesor', 'admin', 'staff', 'director'].includes((perfil as any).rol)) redirect('/');
 
   // Usa adminClient para evitar fallos de RLS (mismo bug que perfiles)
   const { data: profesor } = await admin

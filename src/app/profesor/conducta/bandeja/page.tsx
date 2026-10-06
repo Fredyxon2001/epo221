@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Bandeja del orientador: reportes de conducta de los alumnos de sus grupos orientados.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -5,10 +7,13 @@ import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { AtenderForm } from './AtenderForm';
 
-export default async function BandejaConducta({ searchParams }: { searchParams: { tab?: string } }) {
+export default async function BandejaConducta(props: { searchParams: Promise<{ tab?: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
   const tab = (searchParams.tab ?? 'enviado') as string;
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
@@ -91,7 +96,7 @@ export default async function BandejaConducta({ searchParams }: { searchParams: 
                 </div>
               </div>
               <div className="p-4 bg-crema/30 space-y-2">
-                <div className="text-sm bg-white border rounded p-3 whitespace-pre-wrap">{r.descripcion}</div>
+                <div className="text-sm bg-white border rounded-sm p-3 whitespace-pre-wrap">{r.descripcion}</div>
                 {r.acciones_tomadas && (
                   <div className="text-xs text-gray-600">
                     <strong>Acciones del docente:</strong> {r.acciones_tomadas}

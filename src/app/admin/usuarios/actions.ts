@@ -1,14 +1,19 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Alta y edición unificada de usuarios para cualquier rol.
 // Roles: alumno, profesor, director, admin, staff, finanzas (+ orientador = profesor con grupos)
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { temporaryPassword, passwordError } from '@/lib/security/password';
 
 type Rol = 'alumno' | 'profesor' | 'director' | 'admin' | 'staff' | 'finanzas';
 
 async function requireAdmin() {
+  const auth = await createClient();
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' as const };
@@ -17,18 +22,13 @@ async function requireAdmin() {
   return { user, rol: p.rol };
 }
 
-function generarPasswordAleatoria(len = 12): string {
-  const ch = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-  let p = '';
-  const bytes = new Uint8Array(len);
-  (globalThis as any).crypto.getRandomValues(bytes);
-  for (let i = 0; i < len; i++) p += ch[bytes[i] % ch.length];
-  return p.replace(/.$/, String(Math.floor(Math.random() * 10)));
-}
 
 export async function crearUsuarioGenerico(fd: FormData): Promise<{
   ok?: boolean; error?: string; temporal?: string; perfil_id?: string;
 }> {
+  await requireAccess(["admin","staff","director"], "admin/usuarios/actions.ts:crearUsuarioGenerico");
+  await validateFormData(fd);
+
   const auth = await requireAdmin();
   if ('error' in auth) return { error: auth.error };
 
@@ -58,7 +58,9 @@ export async function crearUsuarioGenerico(fd: FormData): Promise<{
     return { error: 'Un orientador puede tener máximo 4 grupos a su cargo' };
   }
 
-  const password = pwdManual || generarPasswordAleatoria(12);
+  const password = pwdManual || temporaryPassword();
+  const invalidPassword = passwordError(password);
+  if (invalidPassword) return { error: invalidPassword };
   const admin = adminClient();
   const nombreCompleto = `${nombre} ${apellidoP}${apellidoM ? ' ' + apellidoM : ''}`;
 
@@ -78,7 +80,7 @@ export async function crearUsuarioGenerico(fd: FormData): Promise<{
   // 2) Crear perfil
   const { error: perfilErr } = await admin.from('perfiles').insert({
     id: created.user.id, nombre: nombreCompleto, email, rol: rol as any,
-    debe_cambiar_password: !pwdManual,
+    debe_cambiar_password: true,
   });
   if (perfilErr) return { error: 'Usuario creado pero falló perfil: ' + perfilErr.message };
 
@@ -112,6 +114,9 @@ export async function crearUsuarioGenerico(fd: FormData): Promise<{
 }
 
 export async function editarRolUsuario(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
+  await requireAccess(["admin","staff","director"], "admin/usuarios/actions.ts:editarRolUsuario");
+  await validateFormData(fd);
+
   const auth = await requireAdmin();
   if ('error' in auth) return { error: auth.error };
 
@@ -131,6 +136,9 @@ export async function editarRolUsuario(fd: FormData): Promise<{ ok?: boolean; er
 }
 
 export async function asignarGruposOrientador(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
+  await requireAccess(["admin","staff","director"], "admin/usuarios/actions.ts:asignarGruposOrientador");
+  await validateFormData(fd);
+
   const auth = await requireAdmin();
   if ('error' in auth) return { error: auth.error };
 

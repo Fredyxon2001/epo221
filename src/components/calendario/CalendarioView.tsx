@@ -17,7 +17,7 @@ const tipoColor: Record<string, string> = {
 };
 
 export async function CalendarioView({ limit = 100 }: { limit?: number }) {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const { data: eventos } = await supabase
     .from('eventos_calendario')
     .select('id, titulo, descripcion, tipo, fecha_inicio, fecha_fin, todo_el_dia, lugar')
@@ -49,7 +49,7 @@ export async function CalendarioView({ limit = 100 }: { limit?: number }) {
               const fin = e.fecha_fin ? new Date(e.fecha_fin) : null;
               return (
                 <div key={e.id} className={`flex gap-3 border-2 rounded-xl p-3 ${tipoColor[e.tipo] ?? tipoColor.otro}`}>
-                  <div className="text-center min-w-[3.5rem]">
+                  <div className="text-center min-w-14">
                     <div className="text-2xl font-serif font-bold leading-none">{d.getDate()}</div>
                     <div className="text-[10px] uppercase tracking-wider">{d.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  weekday: 'short' })}</div>
                   </div>

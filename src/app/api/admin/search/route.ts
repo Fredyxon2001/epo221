@@ -1,3 +1,4 @@
+import { apiAccess } from '@/lib/security/api-access';
 // Búsqueda global cross-entidad para Cmd+K del admin.
 // Solo accesible para admin/staff/director. Devuelve alumnos, profesores, grupos, materias.
 import { NextResponse } from 'next/server';
@@ -5,7 +6,10 @@ import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 
 export async function GET(req: Request) {
-  const auth = createClient();
+  const denied = await apiAccess(req, ["admin","staff","director","finanzas"]);
+  if (denied) return denied;
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });

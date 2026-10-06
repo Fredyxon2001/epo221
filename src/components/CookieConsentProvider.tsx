@@ -53,22 +53,23 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
   };
 
   const visible = ready && (!consent || settings);
-  const buttonClass = 'rounded-lg border border-teal-700 bg-white px-4 py-2 text-sm font-semibold text-teal-900 hover:bg-teal-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700';
+  const buttonClass = 'rounded-lg border border-teal-700 bg-white px-4 py-2 text-sm font-semibold text-teal-900 hover:bg-teal-50 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700';
 
   return (
     <ConsentContext.Provider value={{ external: consent?.external ?? false, openSettings }}>
       {children}
       <button ref={trigger} type="button" onClick={openSettings}
-        className="fixed bottom-3 left-3 z-[80] rounded-full bg-white px-4 py-2 text-xs font-semibold text-teal-900 shadow-lg border border-teal-200">
+        className="fixed bottom-3 left-3 z-80 rounded-full bg-white px-4 py-2 text-xs font-semibold text-teal-900 shadow-lg border border-teal-200">
         Preferencias de cookies
       </button>
       {visible && (
         <section aria-labelledby="cookie-heading" aria-label="Preferencias de cookies"
-          className="fixed bottom-0 inset-x-0 z-[90] max-h-[85dvh] overflow-y-auto border-t border-teal-200 bg-white p-5 text-slate-800 shadow-2xl sm:p-6">
+          className="fixed bottom-0 inset-x-0 z-90 max-h-[85dvh] overflow-y-auto border-t border-teal-200 bg-white p-5 text-slate-800 shadow-2xl sm:p-6">
           <div className="mx-auto max-w-5xl space-y-3">
             <h2 ref={heading} tabIndex={-1} id="cookie-heading" className="text-lg font-bold text-teal-900">Tú decides sobre las cookies</h2>
             <p className="text-sm">Usamos cookies necesarias para iniciar sesión y recordar tu elección. El mapa de Google es opcional y solo se carga si lo autorizas. Rechazarlo no impide navegar ni acceder al sistema escolar.</p>
             <Link href="/cookies" className="inline-block text-sm text-teal-800 underline">Leer política de cookies</Link>
+            <Link href="/privacidad" className="ml-4 inline-block text-sm text-teal-800 underline">Privacidad y datos escolares</Link>
             {settings && (
               <div className="space-y-2 text-sm">
                 <p>Cookies necesarias: siempre activas (sesión y elección de cookies).</p>

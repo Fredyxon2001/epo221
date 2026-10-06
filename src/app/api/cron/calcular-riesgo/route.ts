@@ -1,3 +1,4 @@
+import { cronAuthorized } from '@/lib/security/secrets';
 import { NextRequest } from 'next/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { calcularRiesgoCiclo } from '@/lib/riesgo/score';
@@ -8,8 +9,7 @@ export const maxDuration = 60;
 
 // Vercel cron — autoriza con CRON_SECRET (header Authorization: Bearer …)
 export async function GET(req: NextRequest) {
-  const auth = req.headers.get('authorization');
-  if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!cronAuthorized(req)) {
     return new Response('Unauthorized', { status: 401 });
   }
 

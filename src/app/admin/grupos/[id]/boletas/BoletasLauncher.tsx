@@ -24,7 +24,7 @@ export function BoletasLauncher({ alumnos }: { alumnos: { id: string; nombre: st
         type="button"
         onClick={lanzar}
         disabled={estado === 'abriendo' || alumnos.length === 0}
-        className="bg-gradient-to-r from-verde to-verde-medio text-white rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-verde/30 hover:shadow-xl hover:shadow-verde/40 disabled:opacity-50 transition"
+        className="bg-linear-to-r from-verde to-verde-medio text-white rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-verde/30 hover:shadow-xl hover:shadow-verde/40 disabled:opacity-50 transition"
       >
         {estado === 'abriendo'
           ? `Generando ${actual}/${alumnos.length}…`

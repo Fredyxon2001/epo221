@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
@@ -15,10 +17,12 @@ const ESTADOS: Record<string, { label: string; color: string }> = {
 };
 
 export default async function ExtraordinariosAlumno() {
+  await requireIdentity(["alumno"]);
+
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   // Materias reprobadas — del historial académico
   const { data: historial } = await supabase.from('vista_historial_academico')
@@ -83,7 +87,7 @@ export default async function ExtraordinariosAlumno() {
                   {s.calificacion != null && (
                     <div className="text-xs mt-1"><strong>Calificación:</strong> <span className="text-verde-oscuro font-bold">{s.calificacion}</span></div>
                   )}
-                  {s.observaciones && <div className="text-xs text-gray-700 mt-1 bg-gray-50 p-2 rounded">{s.observaciones}</div>}
+                  {s.observaciones && <div className="text-xs text-gray-700 mt-1 bg-gray-50 p-2 rounded-sm">{s.observaciones}</div>}
                 </div>
               );
             })}

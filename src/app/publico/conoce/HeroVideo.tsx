@@ -45,12 +45,11 @@ export function HeroVideo() {
         />
       )}
       {reduced && (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={HERO_POSTER} alt="" className="absolute inset-0 w-full h-full object-cover" />
       )}
 
       {/* Overlay degradado */}
-      <div className="absolute inset-0 bg-gradient-to-b from-verde-oscuro/40 via-verde-oscuro/60 to-verde-oscuro/95" />
+      <div className="absolute inset-0 bg-linear-to-b from-verde-oscuro/40 via-verde-oscuro/60 to-verde-oscuro/95" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.5)_100%)]" />
 
       {/* Botón mute/unmute en esquina */}
@@ -59,7 +58,7 @@ export function HeroVideo() {
           type="button"
           onClick={toggleMute}
           aria-label={muted ? 'Activar sonido' : 'Silenciar'}
-          className="absolute top-6 right-6 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur border border-white/30 text-white text-xl hover:bg-black/60 hover:scale-110 transition shadow-xl"
+          className="absolute top-6 right-6 z-10 w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xl hover:bg-black/60 hover:scale-110 transition shadow-xl"
         >
           {muted ? '🔇' : '🔊'}
         </button>
@@ -81,7 +80,7 @@ export function HeroVideo() {
           <a href="#galeria" className="bg-dorado hover:bg-dorado-claro text-verde-oscuro font-bold px-7 py-3.5 rounded-xl transition shadow-2xl">
             ▶ Ver galería
           </a>
-          <a href="/publico/oferta" className="bg-white/10 backdrop-blur border border-white/30 hover:bg-white/20 text-white font-bold px-7 py-3.5 rounded-xl transition">
+          <a href="/publico/oferta" className="bg-white/10 backdrop-blur-sm border border-white/30 hover:bg-white/20 text-white font-bold px-7 py-3.5 rounded-xl transition">
             🎓 Inscríbete
           </a>
         </div>

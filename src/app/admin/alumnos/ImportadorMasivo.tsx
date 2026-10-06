@@ -28,7 +28,7 @@ export function ImportadorMasivo() {
         </div>
         <a
           href="/api/plantilla-alumnos"
-          className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow"
+          className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm"
           download
         >
           📥 Descargar plantilla XLSX
@@ -99,7 +99,7 @@ export function ImportadorMasivo() {
         </div>
       </form>
 
-      <div className="text-[11px] text-gray-600 leading-relaxed bg-sky-50 border border-sky-200 rounded p-2 space-y-1">
+      <div className="text-[11px] text-gray-600 leading-relaxed bg-sky-50 border border-sky-200 rounded-sm p-2 space-y-1">
         <p>💡 <strong>Cómo funciona la cuenta de login:</strong></p>
         <p>• <strong>Email:</strong> se genera como <code className="bg-white px-1">nombre.apellido@epo221.edu.mx</code></p>
         <p>• <strong>Password:</strong> <code className="bg-white px-1">TEMPORALEPO221!</code> (igual para todos)</p>
@@ -130,29 +130,29 @@ export function ResultadoImportacion({ creados, actualizados, errores, detalle, 
         {tieneErrores ? '⚠️ Importación completada con errores' : '✅ Importación exitosa'}
       </div>
       <div className="grid grid-cols-3 gap-3 mb-3">
-        <div className="bg-white rounded p-2 text-center">
+        <div className="bg-white rounded-sm p-2 text-center">
           <div className="text-2xl font-bold text-verde-oscuro">{creados ?? 0}</div>
           <div className="text-[10px] uppercase text-gray-500">Creados</div>
         </div>
-        <div className="bg-white rounded p-2 text-center">
+        <div className="bg-white rounded-sm p-2 text-center">
           <div className="text-2xl font-bold text-sky-700">{actualizados ?? 0}</div>
           <div className="text-[10px] uppercase text-gray-500">Actualizados</div>
         </div>
-        <div className="bg-white rounded p-2 text-center">
+        <div className="bg-white rounded-sm p-2 text-center">
           <div className={`text-2xl font-bold ${tieneErrores ? 'text-rose-700' : 'text-gray-400'}`}>{errores ?? 0}</div>
           <div className="text-[10px] uppercase text-gray-500">Errores</div>
         </div>
       </div>
 
       {importId && (
-        <div className="bg-white rounded p-3 mb-3 border border-verde/30">
+        <div className="bg-white rounded-sm p-3 mb-3 border border-verde/30">
           <div className="text-sm font-semibold text-verde-oscuro mb-1">📋 Credenciales generadas</div>
           <p className="text-xs text-gray-600 mb-2">
             Descarga el XLSX con email y contraseña inicial de cada alumno para imprimirlo y entregarlo.
           </p>
           <a
             href={`/api/credenciales-import/${importId}`}
-            className="inline-flex items-center gap-2 bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-lg shadow"
+            className="inline-flex items-center gap-2 bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm"
             download
           >
             📥 Descargar credenciales XLSX
@@ -165,7 +165,7 @@ export function ResultadoImportacion({ creados, actualizados, errores, detalle, 
       )}
 
       {detalleParsed.length > 0 && (
-        <div className="bg-white rounded p-2 text-xs">
+        <div className="bg-white rounded-sm p-2 text-xs">
           <div className="font-semibold mb-1 text-rose-700">Filas con problemas (primeras 10):</div>
           <ul className="space-y-1">
             {detalleParsed.map((d, i) => (

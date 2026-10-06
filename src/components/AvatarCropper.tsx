@@ -100,7 +100,7 @@ export function AvatarCropper({
   const h = natural.current.h * zoom;
 
   return (
-    <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={onCancel}>
+    <div className="fixed inset-0 z-120 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4" onClick={onCancel}>
       <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
         <h3 className="font-serif text-xl text-verde-oscuro mb-1">Ajusta tu foto</h3>
         <p className="text-xs text-gray-500 mb-4">Arrastra para mover · usa el control para acercar.</p>
@@ -116,7 +116,6 @@ export function AvatarCropper({
             onPointerLeave={onPointerUp}
           >
             {loaded && (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={src}
                 alt="recorte"

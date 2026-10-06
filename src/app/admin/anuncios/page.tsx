@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Gestión de anuncios internos (visibles en dashboards privados).
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
@@ -8,7 +9,9 @@ const prioridadTone: Record<string, any> = {
 };
 
 export default async function AdminAnuncios() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data } = await supabase
     .from('anuncios')
     .select('id, titulo, cuerpo, prioridad, audiencia, icono, fijado, publicado, grupo_id, rol_objetivo, created_at, grupo:grupos(grado, semestre, grupo)')
@@ -30,18 +33,18 @@ export default async function AdminAnuncios() {
       />
 
       <Card eyebrow="Nuevo" title="Publicar anuncio interno">
-        <form action={crearAnuncio} className="grid md:grid-cols-2 gap-4">
+        <form action={async (data) => { 'use server'; const result = await crearAnuncio(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }} className="grid md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Título</label>
-            <input name="titulo" required minLength={4} placeholder="Ej. Junta general con docentes el viernes" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none" />
+            <input name="titulo" required minLength={4} placeholder="Ej. Junta general con docentes el viernes" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden" />
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Mensaje</label>
-            <textarea name="cuerpo" rows={3} placeholder="Detalles del anuncio" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none" />
+            <textarea name="cuerpo" rows={3} placeholder="Detalles del anuncio" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden" />
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Audiencia</label>
-            <select name="audiencia" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none">
+            <select name="audiencia" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden">
               <option value="todos">Todos</option>
               <option value="alumnos">Alumnos</option>
               <option value="profesores">Profesores</option>
@@ -51,7 +54,7 @@ export default async function AdminAnuncios() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Prioridad</label>
-            <select name="prioridad" defaultValue="normal" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none">
+            <select name="prioridad" defaultValue="normal" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden">
               <option value="baja">Baja</option>
               <option value="normal">Normal</option>
               <option value="alta">Alta</option>
@@ -60,11 +63,11 @@ export default async function AdminAnuncios() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Icono (emoji)</label>
-            <input name="icono" placeholder="📣" maxLength={2} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none" />
+            <input name="icono" placeholder="📣" maxLength={2} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden" />
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Anclar a grupo (opcional)</label>
-            <select name="grupo_id" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none">
+            <select name="grupo_id" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden">
               <option value="">— Toda la escuela —</option>
               {(gruposList ?? []).map((g: any) => {
                 const codigo = `${g.grado ?? Math.ceil(g.semestre / 2)}0${g.grupo}`;
@@ -75,7 +78,7 @@ export default async function AdminAnuncios() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Rol destino (opcional)</label>
-            <select name="rol_objetivo" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none">
+            <select name="rol_objetivo" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden">
               <option value="">— Según audiencia —</option>
               <option value="profesor">Solo profesores</option>
               <option value="alumno">Solo alumnos</option>
@@ -128,16 +131,16 @@ export default async function AdminAnuncios() {
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <form action={togglePublicado}>
+                  <form action={async (data) => { 'use server'; const result = await togglePublicado(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }}>
                     <input type="hidden" name="id" value={a.id} />
                     <input type="hidden" name="publicado" value={String(a.publicado)} />
-                    <button className="text-xs font-semibold px-2 py-1 rounded border border-gray-200 hover:bg-white">
+                    <button className="text-xs font-semibold px-2 py-1 rounded-sm border border-gray-200 hover:bg-white">
                       {a.publicado ? '👁 Ocultar' : '🚀 Publicar'}
                     </button>
                   </form>
-                  <form action={eliminarAnuncio}>
+                  <form action={async (data) => { 'use server'; const result = await eliminarAnuncio(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }}>
                     <input type="hidden" name="id" value={a.id} />
-                    <button className="text-xs font-semibold px-2 py-1 rounded border border-rose-200 text-rose-700 hover:bg-rose-50">
+                    <button className="text-xs font-semibold px-2 py-1 rounded-sm border border-rose-200 text-rose-700 hover:bg-rose-50">
                       Eliminar
                     </button>
                   </form>

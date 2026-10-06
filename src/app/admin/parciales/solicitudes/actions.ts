@@ -1,11 +1,17 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Solicitudes de apertura/creación de parcial (maestro → admin)
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function solicitarParcial(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "admin/parciales/solicitudes/actions.ts:solicitarParcial");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const admin = adminClient();
   const { data: { user } } = await auth.auth.getUser();
@@ -63,7 +69,10 @@ export async function solicitarParcial(fd: FormData): Promise<{ ok?: boolean; er
 }
 
 export async function resolverSolicitudParcial(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/parciales/solicitudes/actions.ts:resolverSolicitudParcial");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const admin = adminClient();
   const { data: { user } } = await auth.auth.getUser();

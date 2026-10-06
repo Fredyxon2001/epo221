@@ -68,7 +68,7 @@ export function ConversacionSolicitud({
                     href={m.signedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`mt-1.5 inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded ${esMio ? 'bg-white/20 hover:bg-white/30' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                    className={`mt-1.5 inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-sm ${esMio ? 'bg-white/20 hover:bg-white/30' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                   >
                     📎 {m.adjunto_nombre ?? 'archivo'}
                     {m.adjunto_tamano != null && (
@@ -91,7 +91,7 @@ export function ConversacionSolicitud({
               start(async () => { await reabrirSolicitudThread(fd); });
             }}
           >
-            <button type="submit" disabled={pending} className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-semibold px-2 py-1 rounded disabled:opacity-50">
+            <button type="submit" disabled={pending} className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-semibold px-2 py-1 rounded-sm disabled:opacity-50">
               {pending ? '…' : '🔓 Reabrir'}
             </button>
           </form>
@@ -118,7 +118,7 @@ export function ConversacionSolicitud({
             onChange={(e) => setTexto(e.target.value)}
             rows={2}
             placeholder="Escribe un mensaje…"
-            className="w-full border rounded px-3 py-2 text-sm resize-none"
+            className="w-full border rounded-sm px-3 py-2 text-sm resize-none"
           />
           <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center justify-between">
             <EmojiFilePicker
@@ -128,7 +128,7 @@ export function ConversacionSolicitud({
               fileInputName="adjunto"
             />
             <div className="flex gap-2">
-              <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded text-xs disabled:opacity-50">
+              <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded-sm text-xs disabled:opacity-50">
                 {pending ? 'Enviando…' : '✉️ Enviar'}
               </button>
               <button
@@ -140,7 +140,7 @@ export function ConversacionSolicitud({
                   fd.set('id', solicitudId);
                   start(async () => { await cerrarSolicitudThread(fd); });
                 }}
-                className="bg-rose-100 text-rose-700 hover:bg-rose-200 font-semibold px-3 py-1.5 rounded text-xs disabled:opacity-50"
+                className="bg-rose-100 text-rose-700 hover:bg-rose-200 font-semibold px-3 py-1.5 rounded-sm text-xs disabled:opacity-50"
               >
                 🔒 Cerrar
               </button>

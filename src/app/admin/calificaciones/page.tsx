@@ -1,12 +1,15 @@
+import { requireIdentity } from "@/lib/security/access";
 // Importar CSV oficial de calificaciones (formato SEIEM).
 import { importarCalificacionesCSV } from './actions';
 
-export default function AdminCalificaciones() {
+export default async function AdminCalificaciones() {
+  await requireIdentity(["admin","staff","director"]);
+
   return (
     <div className="max-w-3xl space-y-6">
       <h1 className="font-serif text-3xl text-verde">Calificaciones — importar</h1>
 
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="font-semibold text-verde mb-2">Importar CSV oficial</h2>
         <p className="text-sm text-gray-600 mb-3">
           Sube un archivo como{' '}
@@ -18,9 +21,9 @@ export default function AdminCalificaciones() {
           <li>Si la asignación no existe, se crea automáticamente.</li>
           <li>Las calificaciones previas se sobreescriben.</li>
         </ul>
-        <form action={importarCalificacionesCSV} className="flex gap-3 items-center">
+        <form action={async (data) => { 'use server'; const result = await importarCalificacionesCSV(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }} className="flex gap-3 items-center">
           <input name="archivo" type="file" accept=".csv" required className="text-sm" />
-          <button className="bg-verde text-white px-4 py-2 rounded text-sm hover:bg-verde-medio">
+          <button className="bg-verde text-white px-4 py-2 rounded-sm text-sm hover:bg-verde-medio">
             Importar
           </button>
         </form>

@@ -1,4 +1,9 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+import { requireRoster } from '@/lib/security/resources';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -8,7 +13,12 @@ import { redirect } from 'next/navigation';
 // Guarda la asistencia del día para todos los alumnos del grupo.
 // Espera campos: asignacion_id, fecha, estado_<alumnoId>=presente|falta|retardo|justificada
 export async function guardarAsistencia(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/grupo/[asignacionId]/asistencia/actions.ts:guardarAsistencia");
+  await validateFormData(formData);
+  await requireResource("asignaciones", formData.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
 
@@ -31,6 +41,8 @@ export async function guardarAsistencia(formData: FormData): Promise<void> {
   }
 
   if (filas.length) {
+    await requireRoster(asignacionId, filas.map(row => row.alumno_id));
+    if (filas.some(row => !['presente','falta','retardo','justificada'].includes(row.estado))) throw new Error('Estado de asistencia inválido.');
     // Borra asistencias de ese día y re-inserta (idempotente por día)
     const ids = filas.map((f) => f.alumno_id);
     await supabase.from('asistencias')

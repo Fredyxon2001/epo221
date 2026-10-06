@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -27,13 +30,16 @@ async function uploadImage(file: File, prefix: string) {
 }
 
 export async function guardarInicio(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/inicio/actions.ts:guardarInicio");
+  await validateFormData(formData);
+
   const parsed = schema.safeParse({
     hero_titulo:    formData.get('hero_titulo')    || null,
     hero_subtitulo: formData.get('hero_subtitulo') || null,
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
 
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const update: Record<string, any> = { ...parsed.data, updated_at: new Date().toISOString() };
 
@@ -56,7 +62,9 @@ export async function guardarInicio(formData: FormData) {
 }
 
 export async function quitarHeroImagen() {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/publico/inicio/actions.ts:quitarHeroImagen");
+
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('sitio_config').update({ hero_imagen_url: null }).eq('id', 1);
   revalidatePath('/admin/publico/inicio');
@@ -64,7 +72,9 @@ export async function quitarHeroImagen() {
 }
 
 export async function quitarLogo() {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/publico/inicio/actions.ts:quitarLogo");
+
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('sitio_config').update({ logo_url: null }).eq('id', 1);
   revalidatePath('/admin/publico/inicio');

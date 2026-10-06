@@ -1,7 +1,10 @@
+import { requireIdentity } from "@/lib/security/access";
 import { PageHeader, Card } from '@/components/privado/ui';
 import { CalendarioView } from '@/components/calendario/CalendarioView';
 
-export default function ProfCalendario() {
+export default async function ProfCalendario() {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
   return (
     <div className="max-w-4xl space-y-6">
       <PageHeader
@@ -15,7 +18,6 @@ export default function ProfCalendario() {
         }
       />
       <Card>
-        {/* @ts-expect-error async server component */}
         <CalendarioView />
       </Card>
     </div>

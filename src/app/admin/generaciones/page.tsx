@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Dashboard por generación: tasa de aprobación, deserción, promedios históricos,
 // alumnos en riesgo y faltas acumuladas — agrupado por "2025-2028", "2024-2027", etc.
 import { createClient } from '@/lib/supabase/server';
@@ -6,7 +7,9 @@ import { DataTable } from '@/components/privado/DataTable';
 import Link from 'next/link';
 
 export default async function GeneracionesDashboard() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
 
   const { data: alumnos } = await supabase
     .from('alumnos')

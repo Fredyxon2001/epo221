@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Lista de solicitudes de revisión del alumno.
 import { getAlumnoActual } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
@@ -16,9 +18,11 @@ const estadoLabel: Record<string, { label: string; tone: any; icon: string }> = 
 };
 
 export default async function MisSolicitudes() {
+  await requireIdentity(["alumno"]);
+
   const alumno = (await getAlumnoActual())!;
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   const { data } = await supabase
     .from('solicitudes_revision')

@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Timeline de movimientos del alumno: inscripciones, cambios de grupo, promociones, bajas.
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
@@ -13,8 +14,11 @@ const estatusMeta: Record<string, { label: string; icon: string; tone: any }> = 
   egresado:      { label: 'Egresado',              icon: '🎓', tone: 'dorado' },
 };
 
-export default async function HistorialAlumno({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function HistorialAlumno(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const params = await props.params;
+  const supabase = (await createClient());
 
   const { data: alumno } = await supabase
     .from('alumnos')
@@ -65,7 +69,7 @@ export default async function HistorialAlumno({ params }: { params: { id: string
               const codigo = i.grupo ? codigoGrupoDesdeSemestre(i.grupo.semestre, i.grupo.grupo) : '—';
               return (
                 <li key={i.id} className="ml-6">
-                  <span className="absolute -left-4 flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-verde text-lg shadow">
+                  <span className="absolute -left-4 flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-verde text-lg shadow-sm">
                     {m.icon}
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">

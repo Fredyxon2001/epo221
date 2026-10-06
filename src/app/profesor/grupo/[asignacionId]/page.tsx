@@ -1,11 +1,16 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Captura de calificaciones por grupo.
 import { adminClient } from '@/lib/supabase/admin';
 import { guardarCalificaciones, exportarCSV } from './actions';
 import { codigoGrupo } from '@/lib/grupos';
 
-export default async function CapturaGrupo({ params }: { params: { asignacionId: string } }) {
+export default async function CapturaGrupo(props: { params: Promise<{ asignacionId: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
   // Usa adminClient para evitar fallos RLS sobre alumnos/inscripciones
-  const supabase = adminClient();
+  const supabase = (await scopedClient());
 
   const { data: asig } = await supabase
     .from('asignaciones')
@@ -47,19 +52,19 @@ export default async function CapturaGrupo({ params }: { params: { asignacionId:
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <a href={`/profesor/grupo/${params.asignacionId}/analisis`} className="text-sm bg-white border border-verde text-verde px-3 py-2 rounded hover:bg-verde-claro/20">📊 Análisis</a>
-          <a href={`/profesor/grupo/${params.asignacionId}/asistencia`} className="text-sm bg-white border border-verde text-verde px-3 py-2 rounded hover:bg-verde-claro/20">✅ Asistencia</a>
-          <a href={`/profesor/grupo/${params.asignacionId}/bitacora`} className="text-sm bg-white border border-verde text-verde px-3 py-2 rounded hover:bg-verde-claro/20">📖 Bitácora</a>
+          <a href={`/profesor/grupo/${params.asignacionId}/analisis`} className="text-sm bg-white border border-verde text-verde px-3 py-2 rounded-sm hover:bg-verde-claro/20">📊 Análisis</a>
+          <a href={`/profesor/grupo/${params.asignacionId}/asistencia`} className="text-sm bg-white border border-verde text-verde px-3 py-2 rounded-sm hover:bg-verde-claro/20">✅ Asistencia</a>
+          <a href={`/profesor/grupo/${params.asignacionId}/bitacora`} className="text-sm bg-white border border-verde text-verde px-3 py-2 rounded-sm hover:bg-verde-claro/20">📖 Bitácora</a>
           <form action={exportarCSV}>
             <input type="hidden" name="asignacion_id" value={params.asignacionId} />
-            <button className="text-sm bg-verde text-white px-4 py-2 rounded hover:bg-verde-medio">
+            <button className="text-sm bg-verde text-white px-4 py-2 rounded-sm hover:bg-verde-medio">
               ⬇ Exportar CSV
             </button>
           </form>
         </div>
       </div>
 
-      <form action={guardarCalificaciones} className="bg-white rounded-lg shadow-sm overflow-x-auto">
+      <form action={guardarCalificaciones} className="bg-white rounded-lg shadow-xs overflow-x-auto">
         <input type="hidden" name="asignacion_id" value={params.asignacionId} />
         <table className="w-full text-sm">
           <thead className="bg-verde text-white text-xs">
@@ -96,7 +101,7 @@ export default async function CapturaGrupo({ params }: { params: { asignacionId:
                   <Num name={`f3_${i}`} v={c.faltas_p3} int />
                   <Num name={`e1_${i}`} v={c.e1} />
                   <td className="p-1">
-                    <input name={`folio_${i}`} defaultValue={c.folio_e1 ?? ''} className="w-24 border rounded px-2 py-1 text-xs" />
+                    <input name={`folio_${i}`} defaultValue={c.folio_e1 ?? ''} className="w-24 border rounded-sm px-2 py-1 text-xs" />
                   </td>
                 </tr>
               );
@@ -105,7 +110,7 @@ export default async function CapturaGrupo({ params }: { params: { asignacionId:
         </table>
         <input type="hidden" name="n" value={alumnos?.length ?? 0} />
         <div className="p-3 border-t flex justify-end">
-          <button className="bg-verde text-white px-5 py-2 rounded hover:bg-verde-medio text-sm font-semibold">
+          <button className="bg-verde text-white px-5 py-2 rounded-sm hover:bg-verde-medio text-sm font-semibold">
             Guardar calificaciones
           </button>
         </div>
@@ -124,7 +129,7 @@ function Num({ name, v, int = false }: { name: string; v?: number; int?: boolean
         min={0}
         max={int ? undefined : 10}
         defaultValue={v ?? ''}
-        className="w-16 border rounded px-2 py-1 text-center"
+        className="w-16 border rounded-sm px-2 py-1 text-center"
       />
     </td>
   );

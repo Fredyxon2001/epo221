@@ -1,3 +1,4 @@
+import { apiAccess } from '@/lib/security/api-access';
 // Genera plantilla XLSX precargada con los alumnos del grupo de una asignación,
 // lista para que el maestro capture calificaciones y la suba.
 import { NextRequest } from 'next/server';
@@ -8,8 +9,12 @@ import { adminClient } from '@/lib/supabase/admin';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest, { params }: { params: { asignacionId: string } }) {
-  const auth = createClient();
+export async function GET(req: NextRequest, props: { params: Promise<{ asignacionId: string }> }) {
+  const denied = await apiAccess(req, null);
+  if (denied) return denied;
+
+  const params = await props.params;
+  const auth = (await createClient());
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
   // Usa adminClient para queries (bypass RLS, evita resultados vacíos por cookies edge)

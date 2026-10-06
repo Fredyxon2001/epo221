@@ -1,4 +1,8 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -6,7 +10,10 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function crearRubrica(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/rubricas/actions.ts:crearRubrica");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const nombre = String(formData.get('nombre') ?? '').trim();
@@ -26,7 +33,12 @@ export async function crearRubrica(formData: FormData): Promise<void> {
 }
 
 export async function agregarCriterio(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/rubricas/actions.ts:agregarCriterio");
+  await validateFormData(formData);
+  await requireResource("rubricas", formData.get("rubrica_id"), true);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const rubricaId = String(formData.get('rubrica_id'));
   const nombre = String(formData.get('nombre') ?? '').trim();
@@ -50,7 +62,12 @@ export async function agregarCriterio(formData: FormData): Promise<void> {
 }
 
 export async function eliminarCriterio(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/rubricas/actions.ts:eliminarCriterio");
+  await validateFormData(formData);
+  await requireResource("rubrica_criterios", formData.get("id"), true);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(formData.get('id'));
   const rubricaId = String(formData.get('rubrica_id'));
@@ -60,7 +77,12 @@ export async function eliminarCriterio(formData: FormData): Promise<void> {
 }
 
 export async function eliminarRubrica(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/rubricas/actions.ts:eliminarRubrica");
+  await validateFormData(formData);
+  await requireResource("rubricas", formData.get("id"), true);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(formData.get('id'));
   await supabase.from('rubricas').delete().eq('id', id);
@@ -69,7 +91,12 @@ export async function eliminarRubrica(formData: FormData): Promise<void> {
 }
 
 export async function duplicarRubrica(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/rubricas/actions.ts:duplicarRubrica");
+  await validateFormData(formData);
+  await requireResource("rubricas", formData.get("id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const id = String(formData.get('id'));

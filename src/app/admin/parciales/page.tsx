@@ -1,9 +1,12 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { guardarParcial, agregarParcial, eliminarParcial } from './actions';
 
 export default async function AdminParciales() {
-  const auth = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const [{ data: ciclos }, { data: parciales }] = await Promise.all([
     supabase.from('ciclos_escolares').select('*').order('activo', { ascending: false }).order('codigo', { ascending: false }),
@@ -37,7 +40,7 @@ export default async function AdminParciales() {
           : parc.length === 5 ? 'md:grid-cols-5'
           : 'md:grid-cols-6';
         return (
-          <section key={c.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <section key={c.id} className="bg-white rounded-lg shadow-xs overflow-hidden">
             <header className="bg-verde px-4 py-2 text-white font-semibold text-sm flex items-center justify-between">
               <span>{c.codigo} · {c.periodo} ({parc.length} parcial{parc.length === 1 ? '' : 'es'})</span>
               <div className="flex gap-2 items-center">
@@ -45,7 +48,7 @@ export default async function AdminParciales() {
                 {puedeAgregar && (
                   <form action={agregarParcial}>
                     <input type="hidden" name="ciclo_id" value={c.id} />
-                    <button type="submit" className="bg-white/20 hover:bg-white/30 text-white text-[10px] font-bold px-2 py-1 rounded">
+                    <button type="submit" className="bg-white/20 hover:bg-white/30 text-white text-[10px] font-bold px-2 py-1 rounded-sm">
                       + Agregar parcial
                     </button>
                   </form>
@@ -70,21 +73,21 @@ export default async function AdminParciales() {
                       </div>
                       <div>
                         <label className="text-xs text-gray-600">Nombre interno</label>
-                        <input name="nombre" defaultValue={p.nombre ?? ''} placeholder={`Parcial ${p.numero}`} className="w-full border rounded px-2 py-1 text-sm" />
+                        <input name="nombre" defaultValue={p.nombre ?? ''} placeholder={`Parcial ${p.numero}`} className="w-full border rounded-sm px-2 py-1 text-sm" />
                       </div>
                       <div>
                         <label className="text-xs text-gray-600">Abre captura</label>
-                        <input name="abre_captura" type="date" defaultValue={p.abre_captura ?? ''} className="w-full border rounded px-2 py-1 text-sm" />
+                        <input name="abre_captura" type="date" defaultValue={p.abre_captura ?? ''} className="w-full border rounded-sm px-2 py-1 text-sm" />
                       </div>
                       <div>
                         <label className="text-xs text-gray-600">Cierra captura</label>
-                        <input name="cierra_captura" type="date" defaultValue={p.cierra_captura ?? ''} className="w-full border rounded px-2 py-1 text-sm" />
+                        <input name="cierra_captura" type="date" defaultValue={p.cierra_captura ?? ''} className="w-full border rounded-sm px-2 py-1 text-sm" />
                       </div>
                       <label className="flex items-center gap-2 text-xs text-gray-700">
                         <input type="checkbox" name="publicado" defaultChecked={p.publicado ?? false} />
                         Publicar a los alumnos
                       </label>
-                      <button type="submit" className="w-full bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio text-xs">
+                      <button type="submit" className="w-full bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio text-xs">
                         Guardar
                       </button>
                     </form>
@@ -92,7 +95,7 @@ export default async function AdminParciales() {
                     {p.numero === parc.length && !p.publicado && parc.length > 1 && (
                       <form action={eliminarParcial}>
                         <input type="hidden" name="id" value={p.id} />
-                        <button type="submit" className="w-full text-rose-600 hover:bg-rose-50 text-[10px] font-semibold rounded px-2 py-1">
+                        <button type="submit" className="w-full text-rose-600 hover:bg-rose-50 text-[10px] font-semibold rounded-sm px-2 py-1">
                           🗑 Eliminar
                         </button>
                       </form>

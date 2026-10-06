@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -6,8 +7,11 @@ import { AgregarPreguntaForm } from './AgregarPreguntaForm';
 import { EliminarPreguntaBtn } from './EliminarPreguntaBtn';
 import { CalificarAbiertaForm } from './CalificarAbiertaForm';
 
-export default async function ExamenDetalle({ params }: { params: { id: string } }) {
-  const auth = createClient();
+export default async function ExamenDetalle(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
@@ -104,7 +108,7 @@ export default async function ExamenDetalle({ params }: { params: { id: string }
                     <div className="mt-2 space-y-2">
                       <div className="text-xs text-rose-700 font-semibold">⚠️ {abiertas.length} respuestas abiertas por calificar</div>
                       {abiertas.map((r: any) => (
-                        <div key={r.id} className="bg-amber-50 border border-amber-200 rounded p-2 text-xs">
+                        <div key={r.id} className="bg-amber-50 border border-amber-200 rounded-sm p-2 text-xs">
                           <div className="font-semibold">{r.pregunta.enunciado}</div>
                           <div className="italic text-gray-700 my-1">"{r.respuesta ?? '(sin respuesta)'}"</div>
                           <CalificarAbiertaForm id={r.id} puntosMax={Number(r.pregunta.puntos)} />

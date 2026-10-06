@@ -59,7 +59,7 @@ export function SolicitudRevisionButton({
         {open && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
             onClick={() => !pending && setOpen(false)}
           >
             <motion.div
@@ -67,7 +67,7 @@ export function SolicitudRevisionButton({
               onClick={(e) => e.stopPropagation()}
               className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
             >
-              <div className="bg-gradient-to-r from-verde-oscuro via-verde to-verde-medio text-white p-5">
+              <div className="bg-linear-to-r from-verde-oscuro via-verde to-verde-medio text-white p-5">
                 <div className="text-[10px] uppercase tracking-[0.3em] text-verde-claro">Solicitud de revisión</div>
                 <div className="font-serif text-xl mt-1">{materiaNombre}</div>
                 <div className="text-xs text-white/70 mt-0.5">Docente: {docente}</div>
@@ -149,7 +149,7 @@ export function SolicitudRevisionButton({
                       value={motivo}
                       onChange={(e) => setMotivo(e.target.value)}
                       placeholder="Explica con detalle el motivo: ej. 'Entregué el proyecto final el 14 de mayo y no aparece registrado, adjunto evidencia…'"
-                      className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none transition"
+                      className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden transition"
                     />
                     <div className="flex justify-between text-[11px] text-gray-500 mt-1">
                       <span>Sé específico y respetuoso.</span>

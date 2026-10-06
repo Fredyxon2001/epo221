@@ -1,4 +1,8 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -6,7 +10,12 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function registrarClase(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/grupo/[asignacionId]/bitacora/actions.ts:registrarClase");
+  await validateFormData(formData);
+  await requireResource("asignaciones", formData.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const asignacionId = String(formData.get('asignacion_id'));
@@ -29,7 +38,12 @@ export async function registrarClase(formData: FormData): Promise<void> {
 }
 
 export async function eliminarRegistro(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/grupo/[asignacionId]/bitacora/actions.ts:eliminarRegistro");
+  await validateFormData(formData);
+  await requireResource("bitacora_clase", formData.get("id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(formData.get('id'));
   const asignacionId = String(formData.get('asignacion_id'));

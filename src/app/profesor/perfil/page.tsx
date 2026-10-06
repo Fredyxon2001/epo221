@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Perfil editable del docente / orientador.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -5,10 +7,12 @@ import { PageHeader, Card, Badge } from '@/components/privado/ui';
 import { PerfilEditor } from '@/components/perfil/PerfilEditor';
 
 export default async function PerfilProfesor() {
-  const auth = createClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return null;
-  const supabase = adminClient();
+  const supabase = (await scopedClient());
 
   const { data: perfil } = await supabase
     .from('perfiles')
@@ -16,7 +20,8 @@ export default async function PerfilProfesor() {
     .eq('id', user.id)
     .maybeSingle();
 
-  const { data: prof } = await supabase
+  // Own sensitive staff fields are read server-side after the layout's identity check.
+  const { data: prof } = await adminClient()
     .from('profesores')
     .select('id, nombre, apellido_paterno, apellido_materno, rfc, email, telefono, foto_url')
     .eq('perfil_id', user.id)
@@ -85,7 +90,7 @@ export default async function PerfilProfesor() {
               </div>
               <div className="space-y-1">
                 {gruposOrientados.map((g: any) => (
-                  <div key={g.id} className="flex items-center justify-between bg-white rounded px-3 py-1.5 text-sm">
+                  <div key={g.id} className="flex items-center justify-between bg-white rounded-sm px-3 py-1.5 text-sm">
                     <span className="font-semibold">
                       {g.grado}°{String.fromCharCode(64 + (g.grupo ?? 1))}
                     </span>
@@ -107,7 +112,7 @@ export default async function PerfilProfesor() {
               </div>
               <div className="space-y-1">
                 {asignaciones.slice(0, 6).map((a: any) => (
-                  <div key={a.id} className="flex items-center justify-between bg-white rounded px-3 py-1.5 text-sm">
+                  <div key={a.id} className="flex items-center justify-between bg-white rounded-sm px-3 py-1.5 text-sm">
                     <span className="truncate flex-1 mr-2" title={a.materia?.nombre}>
                       {a.materia?.nombre?.split(' - ')[0] ?? '—'}
                     </span>

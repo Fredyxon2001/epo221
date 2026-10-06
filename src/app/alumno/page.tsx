@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Dashboard premium del alumno
 import Link from 'next/link';
 import { getAlumnoActual, getEvaluacionGeneral, getPromediosPorSemestre, getPromediosAnuales, getHistorialAcademico } from '@/lib/queries';
@@ -7,8 +8,10 @@ import { DataTable } from '@/components/privado/DataTable';
 import { DashboardHero } from '@/components/privado/DashboardHero';
 
 export default async function AlumnoDashboard() {
+  await requireIdentity(["alumno"]);
+
   const alumno = await getAlumnoActual();
-  const supabase = createClient();
+  const supabase = (await createClient());
 
   // Si el usuario tiene perfil pero NO está registrado como alumno (caso raro post-import),
   // mostramos un fallback amigable en vez de crashear.
@@ -72,7 +75,7 @@ export default async function AlumnoDashboard() {
       >
         <Link
           href="/alumno/boleta"
-          className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur border border-white/25 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
+          className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/25 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition"
         >
           📄 Ver boleta
         </Link>
@@ -125,11 +128,11 @@ export default async function AlumnoDashboard() {
             </div>
             <div className="relative w-full bg-gray-100 rounded-full h-3 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-verde-oscuro via-verde to-verde-claro transition-all duration-700"
+                className="h-full bg-linear-to-r from-verde-oscuro via-verde to-verde-claro transition-all duration-700"
                 style={{ width: `${Math.max(2, avance)}%` }}
               />
               <div
-                className="absolute top-0 h-full w-8 bg-white/40 blur-sm"
+                className="absolute top-0 h-full w-8 bg-white/40 blur-xs"
                 style={{ left: `${Math.max(0, avance - 4)}%` }}
               />
             </div>
@@ -145,7 +148,7 @@ export default async function AlumnoDashboard() {
                 const prom = a?.promedio_anual ? Number(a.promedio_anual) : null;
                 const tone = prom == null ? 'gray' : prom >= 8 ? 'verde' : prom >= 6 ? 'dorado' : 'rosa';
                 return (
-                  <div key={anio} className="relative p-4 rounded-xl bg-gradient-to-br from-white to-crema border border-gray-200 hover:border-verde/40 transition">
+                  <div key={anio} className="relative p-4 rounded-xl bg-linear-to-br from-white to-crema border border-gray-200 hover:border-verde/40 transition">
                     <div className="text-[10px] uppercase tracking-[0.3em] text-verde font-semibold">
                       {anio === 1 ? 'Primer año' : anio === 2 ? 'Segundo año' : 'Tercer año'}
                     </div>
@@ -224,7 +227,7 @@ export default async function AlumnoDashboard() {
             {anuncios && anuncios.length > 0 ? (
               <ul className="space-y-3">
                 {anuncios.map((a) => (
-                  <li key={a.id} className="group relative p-3 rounded-xl bg-gradient-to-br from-crema to-white border border-gray-200 hover:border-verde/50 transition">
+                  <li key={a.id} className="group relative p-3 rounded-xl bg-linear-to-br from-crema to-white border border-gray-200 hover:border-verde/50 transition">
                     <div className="flex items-start gap-2">
                       <div className="text-xl">{a.icono ?? '📣'}</div>
                       <div className="flex-1 min-w-0">

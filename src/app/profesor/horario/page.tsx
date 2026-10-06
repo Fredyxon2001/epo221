@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Horario semanal del profesor con todas sus sesiones en grupos distintos.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -9,8 +11,10 @@ const DIAS = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const HORAS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 
 export default async function ProfesorHorario() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   if (!user) redirect('/login');
 
@@ -80,7 +84,7 @@ export default async function ProfesorHorario() {
                       return (
                         <td key={d} className="p-1 border-b border-r border-gray-100 align-top min-w-[130px]">
                           {sesion && (
-                            <div className="bg-gradient-to-br from-verde-claro/40 to-dorado/20 border border-verde/30 rounded-lg p-2 text-[11px] leading-tight">
+                            <div className="bg-linear-to-br from-verde-claro/40 to-dorado/20 border border-verde/30 rounded-lg p-2 text-[11px] leading-tight">
                               <div className="font-semibold text-verde-oscuro truncate">{sesion.asig?.materia?.nombre ?? '—'}</div>
                               {sesion.asig?.grupo && (
                                 <div className="text-[10px] text-gray-600 truncate">

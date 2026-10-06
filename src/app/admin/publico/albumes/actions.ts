@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -17,6 +20,9 @@ const albumSchema = z.object({
 });
 
 export async function crearAlbum(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/albumes/actions.ts:crearAlbum");
+  await validateFormData(formData);
+
   const parsed = albumSchema.safeParse({
     slug:         formData.get('slug'),
     titulo:       formData.get('titulo'),
@@ -25,7 +31,7 @@ export async function crearAlbum(formData: FormData) {
     publicado:    formData.get('publicado') === 'on',
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data, error } = await supabase
     .from('albumes')
@@ -38,6 +44,9 @@ export async function crearAlbum(formData: FormData) {
 }
 
 export async function actualizarAlbum(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/albumes/actions.ts:actualizarAlbum");
+  await validateFormData(formData);
+
   const id = String(formData.get('id'));
   const parsed = albumSchema.safeParse({
     slug:         formData.get('slug'),
@@ -47,7 +56,7 @@ export async function actualizarAlbum(formData: FormData) {
     publicado:    formData.get('publicado') === 'on',
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('albumes').update(parsed.data).eq('id', id);
   revalidatePath('/admin/publico/albumes');
@@ -57,8 +66,11 @@ export async function actualizarAlbum(formData: FormData) {
 }
 
 export async function eliminarAlbum(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/albumes/actions.ts:eliminarAlbum");
+  await validateFormData(formData);
+
   const id = String(formData.get('id'));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('albumes').update({ deleted_at: new Date().toISOString() }).eq('id', id);
   revalidatePath('/admin/publico/albumes');
@@ -66,13 +78,16 @@ export async function eliminarAlbum(formData: FormData) {
 }
 
 export async function subirFotos(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/albumes/actions.ts:subirFotos");
+  await validateFormData(formData);
+
   const albumId = String(formData.get('album_id'));
   if (!albumId) throw new Error('album_id requerido');
   const files = formData.getAll('fotos') as File[];
   if (!files || files.length === 0) return;
 
   const sb = adminClient();
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
 
   // Obtener orden actual
@@ -121,9 +136,12 @@ export async function subirFotos(formData: FormData) {
 }
 
 export async function eliminarFoto(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/albumes/actions.ts:eliminarFoto");
+  await validateFormData(formData);
+
   const id = String(formData.get('id'));
   const albumId = String(formData.get('album_id'));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('album_fotos').delete().eq('id', id);
   revalidatePath(`/admin/publico/albumes/${albumId}`);
@@ -131,9 +149,12 @@ export async function eliminarFoto(formData: FormData) {
 }
 
 export async function definirPortada(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/albumes/actions.ts:definirPortada");
+  await validateFormData(formData);
+
   const albumId = String(formData.get('album_id'));
   const fotoUrl = String(formData.get('foto_url'));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('albumes').update({ portada_url: fotoUrl }).eq('id', albumId);
   revalidatePath(`/admin/publico/albumes/${albumId}`);

@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -5,11 +7,14 @@ import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { EntregarTareaForm } from './EntregarTareaForm';
 
-export default async function TareaAlumnoDetalle({ params }: { params: { id: string } }) {
+export default async function TareaAlumnoDetalle(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["alumno"]);
+
+  const params = await props.params;
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   const { data: tarea } = await supabase.from('tareas')
     .select('*, asignacion:asignaciones(materia:materias(nombre), grupo:grupos(grado, semestre, grupo))')
@@ -21,7 +26,7 @@ export default async function TareaAlumnoDetalle({ params }: { params: { id: str
 
   let signedUrl: string | null = null;
   if (entrega?.archivo_url) {
-    const admin = adminClient();
+    const admin = (await scopedClient());
     const { data } = await admin.storage.from('tareas').createSignedUrl(entrega.archivo_url, 3600);
     signedUrl = data?.signedUrl ?? null;
   }
@@ -47,7 +52,7 @@ export default async function TareaAlumnoDetalle({ params }: { params: { id: str
         <Card eyebrow="Mi entrega" title="">
           <div className="text-sm space-y-2">
             <div className="text-xs text-gray-500">Enviada: {new Date(entrega.entregado_at).toLocaleString('es-MX')}</div>
-            {entrega.comentario && <p className="bg-gray-50 border rounded p-2 text-gray-700">{entrega.comentario}</p>}
+            {entrega.comentario && <p className="bg-gray-50 border rounded-sm p-2 text-gray-700">{entrega.comentario}</p>}
             {signedUrl && (
               <a href={signedUrl} target="_blank" className="inline-block text-verde-oscuro font-semibold underline">
                 📎 {entrega.archivo_nombre}

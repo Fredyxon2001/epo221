@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Comparativa del grupo actual contra ciclos anteriores de la misma materia
 // y mismo profesor (o misma materia, según tenga histórico).
 import { createClient } from '@/lib/supabase/server';
@@ -5,9 +7,12 @@ import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, StatCard, Badge } from '@/components/privado/ui';
 import Link from 'next/link';
 
-export default async function Comparativa({ params }: { params: { asignacionId: string } }) {
-  const auth = createClient();
-  const supabase = adminClient();
+export default async function Comparativa(props: { params: Promise<{ asignacionId: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   const { data: asigActual } = await supabase
     .from('asignaciones')

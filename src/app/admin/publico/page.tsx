@@ -1,10 +1,13 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { HubCards, type HubCard as Card } from './HubCards';
 
 export default async function AdminPublicoHub() {
-  const auth = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
 
   // Conteos para tarjetas (tolerante a tablas que aún no existen)
@@ -95,7 +98,7 @@ export default async function AdminPublicoHub() {
         <Link
           href="/publico"
           target="_blank"
-          className="bg-white border text-sm px-4 py-2 rounded hover:bg-gray-50"
+          className="bg-white border text-sm px-4 py-2 rounded-sm hover:bg-gray-50"
         >
           👁️ Ver sitio público
         </Link>
@@ -106,7 +109,7 @@ export default async function AdminPublicoHub() {
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-900 flex items-start gap-3">
         <span className="text-lg">✅</span>
         <div>
-          <strong>Todo listo.</strong> Las tablas del CMS están creadas, el bucket <code className="text-xs bg-green-100 px-1 rounded">publico</code> está activo y las auditorías se registran automáticamente.
+          <strong>Todo listo.</strong> Las tablas del CMS están creadas, el bucket <code className="text-xs bg-green-100 px-1 rounded-sm">publico</code> está activo y las auditorías se registran automáticamente.
           Puedes gestionar cada apartado desde las tarjetas de arriba.
         </div>
       </div>

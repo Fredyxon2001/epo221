@@ -43,11 +43,11 @@ export function AtenderForm({ id, estadoActual }: { id: string; estadoActual: st
         onChange={(e) => setNotas(e.target.value)}
         rows={3}
         placeholder="Nota de seguimiento: qué se platicó con el alumno, con el tutor, acuerdos…"
-        className="w-full border border-gray-200 rounded p-2 text-xs"
+        className="w-full border border-gray-200 rounded-sm p-2 text-xs"
       />
       <div className="flex gap-2 justify-end">
         <button type="button" onClick={() => setOpen(false)} className="text-xs text-gray-600">Cancelar</button>
-        <button type="submit" disabled={pending} className="text-xs bg-verde text-white font-semibold px-3 py-1 rounded disabled:opacity-50">
+        <button type="submit" disabled={pending} className="text-xs bg-verde text-white font-semibold px-3 py-1 rounded-sm disabled:opacity-50">
           {pending ? 'Guardando…' : 'Guardar seguimiento'}
         </button>
       </div>

@@ -1,11 +1,20 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Acciones docente para exámenes en línea.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearExamen(fd: FormData): Promise<{ error?: string; ok?: boolean; id?: string }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/examenes/actions.ts:crearExamen");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -45,7 +54,12 @@ export async function crearExamen(fd: FormData): Promise<{ error?: string; ok?: 
 }
 
 export async function agregarPregunta(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/examenes/actions.ts:agregarPregunta");
+  await validateFormData(fd);
+  await requireResource("examenes", fd.get("examen_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const examen_id = String(fd.get('examen_id') ?? '');
   const tipo = String(fd.get('tipo') ?? '') as 'opcion_multiple' | 'verdadero_falso' | 'abierta';
@@ -76,18 +90,30 @@ export async function agregarPregunta(fd: FormData): Promise<{ error?: string; o
 }
 
 export async function eliminarPregunta(id: string, examen_id: string) {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/examenes/actions.ts:eliminarPregunta");
+  await requireResource("examen_preguntas", id, false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('examen_preguntas').delete().eq('id', id);
   revalidatePath(`/profesor/examenes/${examen_id}`);
 }
 
 export async function calificarRespuestaAbierta(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/examenes/actions.ts:calificarRespuestaAbierta");
+  await validateFormData(fd);
+  await requireResource("examen_respuestas", fd.get("id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   const puntos = Number(fd.get('puntos_obtenidos') ?? 0);
   const correcta = fd.get('correcta') === 'on';
+  const { data: answer } = await supabase.from('examen_respuestas').select('pregunta:examen_preguntas(puntos,tipo)').eq('id', id).maybeSingle();
+  const question = (answer as any)?.pregunta;
+  if (!question || question.tipo !== 'abierta' || !Number.isFinite(puntos) || puntos < 0 || puntos > Number(question.puntos)) return { error: 'Puntuación inválida.' };
   const { error } = await supabase.from('examen_respuestas').update({
     puntos_obtenidos: puntos, correcta,
   }).eq('id', id);
@@ -100,12 +126,14 @@ export async function calificarRespuestaAbierta(fd: FormData): Promise<{ error?:
 }
 
 async function recalcularCalificacion(intento_id: string) {
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: resp } = await supabase.from('examen_respuestas')
     .select('puntos_obtenidos, pregunta:examen_preguntas(puntos)').eq('intento_id', intento_id);
   const obtenidos = (resp ?? []).reduce((s: number, r: any) => s + (Number(r.puntos_obtenidos) || 0), 0);
-  const total = (resp ?? []).reduce((s: number, r: any) => s + (Number(r.pregunta?.puntos) || 0), 0);
+  const { data: attempt } = await supabase.from('examen_intentos').select('examen_id').eq('id', intento_id).single();
+  const { data: questions } = await supabase.from('examen_preguntas').select('puntos').eq('examen_id', attempt?.examen_id);
+  const total = (questions ?? []).reduce((sum, question) => sum + Number(question.puntos), 0);
   const calif = total > 0 ? Math.round((obtenidos / total) * 100) / 10 : 0;
   await supabase.from('examen_intentos').update({ calificacion: calif, estado: 'calificado' }).eq('id', intento_id);
 }

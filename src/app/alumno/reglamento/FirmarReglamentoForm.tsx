@@ -12,7 +12,7 @@ export function FirmarReglamentoForm({
   const [pending, start] = useTransition();
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-300 rounded-2xl p-6 shadow-sm">
+    <div className="bg-linear-to-br from-amber-50 to-white border-2 border-amber-300 rounded-2xl p-6 shadow-xs">
       <div className="flex items-start gap-3 mb-4">
         <div className="text-3xl">✍️</div>
         <div>

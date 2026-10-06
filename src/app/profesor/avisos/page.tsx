@@ -1,8 +1,11 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { PageHeader } from '@/components/privado/ui';
 import { AvisosList } from '@/components/avisos/AvisosList';
 
-export default function ProfesorAvisos() {
+export default async function ProfesorAvisos() {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
   return (
     <div className="max-w-4xl space-y-6">
       <PageHeader
@@ -15,7 +18,6 @@ export default function ProfesorAvisos() {
           </Link>
         }
       />
-      {/* @ts-expect-error async server component */}
       <AvisosList />
     </div>
   );

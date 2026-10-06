@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Conversación directa entre dos alumnos del mismo grupo.
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -6,8 +7,11 @@ import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { ChatCompaneroForm } from './ChatCompaneroForm';
 
-export default async function ConversacionCompanero({ params }: { params: { hiloId: string } }) {
-  const auth = createClient();
+export default async function ConversacionCompanero(props: { params: Promise<{ hiloId: string }> }) {
+  await requireIdentity(["alumno"]);
+
+  const params = await props.params;
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) redirect('/login');
@@ -40,9 +44,8 @@ export default async function ConversacionCompanero({ params }: { params: { hilo
   const iniYo = (yo.nombre ?? 'Y')[0].toUpperCase();
   const iniOtro = (otro?.nombre ?? 'C')[0].toUpperCase();
   const Avatar = ({ foto, ini }: { foto: string | null; ini: string }) => (
-    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-verde to-verde-medio flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
+    <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-linear-to-br from-verde to-verde-medio flex items-center justify-center text-white text-[11px] font-bold shadow-xs">
       {foto ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={foto} alt={ini} className="w-full h-full object-cover" />
       ) : ini}
     </div>

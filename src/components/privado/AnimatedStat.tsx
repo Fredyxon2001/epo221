@@ -72,7 +72,7 @@ export function AnimatedStat({
       animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{ duration: 0.5, delay, ease: [0.2, 0.85, 0.2, 1] }}
       whileHover={{ y: -4 }}
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${t.bg} text-white p-4 md:p-5 shadow-xl shadow-black/10 ring-1 ${t.ring} h-full`}
+      className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${t.bg} text-white p-4 md:p-5 shadow-xl shadow-black/10 ring-1 ${t.ring} h-full`}
     >
       {/* spotlight */}
       <motion.span
@@ -89,7 +89,7 @@ export function AnimatedStat({
       />
 
       <div className="relative flex items-start justify-between" style={{ transform: 'translateZ(30px)' }}>
-        <div className={`w-10 h-10 rounded-xl ${t.iconBg} backdrop-blur flex items-center justify-center text-xl shadow-inner`}>
+        <div className={`w-10 h-10 rounded-xl ${t.iconBg} backdrop-blur-sm flex items-center justify-center text-xl shadow-inner`}>
           {icon}
         </div>
         {href && <span className="text-white/60 text-sm group-hover:translate-x-0.5 transition">→</span>}
@@ -106,7 +106,7 @@ export function AnimatedStat({
       {/* shimmer */}
       <span
         aria-hidden
-        className="pointer-events-none absolute -inset-1 opacity-0 hover:opacity-100 transition bg-[linear-gradient(110deg,transparent_40%,rgba(255,255,255,0.25)_50%,transparent_60%)] bg-[length:200%_100%] animate-[shimmer_2.5s_linear_infinite]"
+        className="pointer-events-none absolute -inset-1 opacity-0 hover:opacity-100 transition bg-[linear-gradient(110deg,transparent_40%,rgba(255,255,255,0.25)_50%,transparent_60%)] bg-size-[200%_100%] animate-[shimmer_2.5s_linear_infinite]"
       />
     </motion.div>
   );

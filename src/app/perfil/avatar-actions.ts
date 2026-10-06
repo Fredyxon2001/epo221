@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Subida de foto de perfil. Usa adminClient para bypass RLS y evitar
 // problemas de cookies/edge.
 import { createClient } from '@/lib/supabase/server';
@@ -8,7 +11,10 @@ import { revalidatePath } from 'next/cache';
 const MAX = 5 * 1024 * 1024; // 5 MB
 
 export async function subirAvatar(fd: FormData): Promise<{ error?: string; ok?: boolean; url?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "perfil/avatar-actions.ts:subirAvatar");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada. Vuelve a iniciar sesión.' };
 

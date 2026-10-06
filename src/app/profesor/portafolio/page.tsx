@@ -1,11 +1,15 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { ComentarEvidenciaForm } from './ComentarEvidenciaForm';
 
 export default async function PortafolioProfesor() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
@@ -27,7 +31,7 @@ export default async function PortafolioProfesor() {
         .in('alumno_id', aIds).order('created_at', { ascending: false }).limit(200)
     : { data: [] as any[] };
 
-  const admin = adminClient();
+  const admin = (await scopedClient());
   const withUrls = await Promise.all((evs ?? []).map(async (e: any) => {
     const { data } = await admin.storage.from('portafolio').createSignedUrl(e.archivo_url, 3600);
     return { ...e, signedUrl: data?.signedUrl };

@@ -1,10 +1,16 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearAnuncio(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/anuncios/actions.ts:crearAnuncio");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sin sesión' };
@@ -36,8 +42,11 @@ export async function crearAnuncio(fd: FormData) {
 }
 
 export async function eliminarAnuncio(fd: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/anuncios/actions.ts:eliminarAnuncio");
+  await validateFormData(fd);
+
   const id = String(fd.get('id') ?? '');
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('anuncios').delete().eq('id', id);
   revalidatePath('/admin/anuncios');
@@ -45,9 +54,12 @@ export async function eliminarAnuncio(fd: FormData) {
 }
 
 export async function togglePublicado(fd: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/anuncios/actions.ts:togglePublicado");
+  await validateFormData(fd);
+
   const id = String(fd.get('id') ?? '');
   const v = fd.get('publicado') === 'true';
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('anuncios').update({ publicado: !v }).eq('id', id);
   revalidatePath('/admin/anuncios');

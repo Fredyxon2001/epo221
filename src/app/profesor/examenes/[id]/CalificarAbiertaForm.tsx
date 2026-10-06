@@ -14,9 +14,9 @@ export function CalificarAbiertaForm({ id, puntosMax }: { id: string; puntosMax:
       className="flex gap-2 items-center mt-1"
     >
       <input name="puntos_obtenidos" type="number" step="0.1" min="0" max={puntosMax} required placeholder={`0 - ${puntosMax}`}
-        className="w-20 border rounded px-2 py-1 text-xs" />
+        className="w-20 border rounded-sm px-2 py-1 text-xs" />
       <label className="flex items-center gap-1 text-[10px]"><input type="checkbox" name="correcta" /> correcta</label>
-      <button type="submit" disabled={pending} className="text-xs px-2 py-1 rounded bg-verde text-white font-semibold">
+      <button type="submit" disabled={pending} className="text-xs px-2 py-1 rounded-sm bg-verde text-white font-semibold">
         {pending ? '…' : ok ? '✓' : 'Guardar'}
       </button>
     </form>

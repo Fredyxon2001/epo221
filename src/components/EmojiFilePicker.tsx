@@ -32,7 +32,7 @@ export function EmojiFilePicker({
       {file && (
         <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs">
           {preview ? (
-            <img src={preview} alt="preview" className="h-12 w-12 object-cover rounded" />
+            <img src={preview} alt="preview" className="h-12 w-12 object-cover rounded-sm" />
           ) : (
             <span className="text-2xl">📎</span>
           )}
@@ -73,7 +73,7 @@ export function EmojiFilePicker({
                 key={e}
                 type="button"
                 onClick={() => onInsertEmoji(e)}
-                className="text-xl hover:bg-gray-100 rounded p-1"
+                className="text-xl hover:bg-gray-100 rounded-sm p-1"
               >{e}</button>
             ))}
           </div>

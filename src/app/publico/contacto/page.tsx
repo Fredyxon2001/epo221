@@ -8,7 +8,7 @@ import { ConsentMap } from '@/components/ConsentMap';
 export const revalidate = 120;
 
 export default async function Contacto() {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const { data: cfg } = await supabase.from('sitio_config').select('*').maybeSingle();
 
   return (
@@ -23,7 +23,7 @@ export default async function Contacto() {
         />
 
         <Reveal delay={0.1} className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-verde/20 rounded-full px-5 py-2.5 shadow-sm text-sm text-verde-oscuro">
+          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-verde/20 rounded-full px-5 py-2.5 shadow-xs text-sm text-verde-oscuro">
             <span className="text-verde">📍</span>
             {cfg?.direccion ?? 'Valle del Guadalquivir Manzana 019, CTM 14, 55280 Ecatepec de Morelos, Méx.'}
           </div>
@@ -79,7 +79,7 @@ export default async function Contacto() {
                 <ConsentMap src={cfg.mapa_embed_url} />
               </div>
             ) : (
-              <div className="spotlight lift bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio rounded-3xl shadow-2xl shadow-verde/30 p-10 text-white flex flex-col items-center justify-center text-center aspect-[4/3] relative overflow-hidden">
+              <div className="spotlight lift bg-linear-to-br from-verde-oscuro via-verde to-verde-medio rounded-3xl shadow-2xl shadow-verde/30 p-10 text-white flex flex-col items-center justify-center text-center aspect-4/3 relative overflow-hidden">
                 <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 blob blur-3xl" aria-hidden />
                 <div className="relative">
                   <div className="text-6xl mb-4">🗺️</div>
@@ -98,10 +98,10 @@ export default async function Contacto() {
 function Item({ icon, label, value, link }: { icon: string; label: string; value: string; link?: string }) {
   const content = (
     <div className="flex items-start gap-3 p-2 -mx-2 rounded-lg hover:bg-crema/60 transition">
-      <div className="text-xl flex-shrink-0 mt-0.5">{icon}</div>
+      <div className="text-xl shrink-0 mt-0.5">{icon}</div>
       <div className="flex-1 min-w-0">
         <div className="text-[10px] uppercase tracking-[0.3em] text-gray-400">{label}</div>
-        <div className="font-semibold text-verde break-words">{value}</div>
+        <div className="font-semibold text-verde wrap-break-word">{value}</div>
       </div>
     </div>
   );

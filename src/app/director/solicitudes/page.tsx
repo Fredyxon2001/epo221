@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Supervisión global de solicitudes de revisión (sin poder responderlas — eso es del profesor).
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
@@ -6,9 +7,12 @@ const estadoTone: Record<string, any> = {
   abierta: 'ambar', respondida: 'azul', aceptada: 'verde', rechazada: 'rosa', cerrada: 'gray',
 };
 
-export default async function DirSolicitudes({ searchParams }: { searchParams: { tab?: string } }) {
+export default async function DirSolicitudes(props: { searchParams: Promise<{ tab?: string }> }) {
+  await requireIdentity(["director","admin"]);
+
+  const searchParams = await props.searchParams;
   const tab = (searchParams.tab ?? 'todas') as 'todas' | 'abierta' | 'respondida' | 'aceptada' | 'rechazada' | 'cerrada';
-  const supabase = createClient();
+  const supabase = (await createClient());
 
   let q = supabase
     .from('solicitudes_revision')

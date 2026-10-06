@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Editor de criterios de una rúbrica + calculadora de puntaje en vivo.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -5,8 +6,11 @@ import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { agregarCriterio, eliminarCriterio } from '../actions';
 import { CalculadoraRubrica } from './CalculadoraRubrica';
 
-export default async function EditorRubrica({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function EditorRubrica(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
+  const supabase = (await createClient());
 
   const { data: rubrica } = await supabase
     .from('rubricas')
@@ -72,7 +76,7 @@ export default async function EditorRubrica({ params }: { params: { id: string }
           <input name="peso" type="number" step="0.01" defaultValue={1} placeholder="Peso" className="border border-gray-300 rounded-xl px-3 py-2 text-sm" />
           <input name="max_puntos" type="number" step="0.5" defaultValue={10} placeholder="Máx. puntos" className="border border-gray-300 rounded-xl px-3 py-2 text-sm" />
           <textarea name="descripcion" rows={2} placeholder="Descripción / indicador de logro (opcional)" className="md:col-span-4 border border-gray-300 rounded-xl px-3 py-2 text-sm" />
-          <button className="md:col-span-4 bg-gradient-to-r from-verde to-verde-medio text-white rounded-xl px-4 py-2 text-sm font-semibold shadow hover:shadow-lg">
+          <button className="md:col-span-4 bg-linear-to-r from-verde to-verde-medio text-white rounded-xl px-4 py-2 text-sm font-semibold shadow-sm hover:shadow-lg">
             Agregar criterio →
           </button>
         </form>

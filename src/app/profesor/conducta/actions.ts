@@ -1,11 +1,20 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Profesor crea reporte de conducta. Notifica al orientador automáticamente.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearReporteConducta(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/conducta/actions.ts:crearReporteConducta");
+  await validateFormData(fd);
+  await requireResource("alumnos", fd.get("alumno_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -53,7 +62,12 @@ export async function crearReporteConducta(fd: FormData): Promise<{ error?: stri
 }
 
 export async function atenderReporte(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/conducta/actions.ts:atenderReporte");
+  await validateFormData(fd);
+  await requireReportOrientation(fd.get("id"));
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };

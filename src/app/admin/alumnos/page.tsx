@@ -1,13 +1,19 @@
+import { requireIdentity } from "@/lib/security/access";
 // Lista de alumnos + importador masivo (XLSX/CSV con plantilla descargable).
 import { createClient } from '@/lib/supabase/server';
 import { AdminResetPasswordButton } from '@/components/AdminResetPasswordButton';
 import { ImportadorMasivo, ResultadoImportacion } from './ImportadorMasivo';
 import { PageHeader, Card } from '@/components/privado/ui';
 
-export default async function AdminAlumnos({ searchParams }: {
-  searchParams?: { creados?: string; actualizados?: string; errores?: string; detalle?: string; motivo?: string; import_id?: string };
-}) {
-  const supabase = createClient();
+export default async function AdminAlumnos(
+  props: {
+    searchParams?: Promise<{ creados?: string; actualizados?: string; errores?: string; detalle?: string; motivo?: string; import_id?: string }>;
+  }
+) {
+  await requireIdentity(["admin","staff","director","finanzas"]);
+
+  const searchParams = await props.searchParams;
+  const supabase = (await createClient());
   const { data: alumnos } = await supabase
     .from('alumnos')
     .select('id, curp, matricula, nombre, apellido_paterno, apellido_materno, estatus, generacion, perfil_id')

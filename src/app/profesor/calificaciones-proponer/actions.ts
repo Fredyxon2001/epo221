@@ -1,4 +1,9 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+import { requireRoster } from '@/lib/security/resources';
+
 // El maestro de la asignación PROPONE calificaciones por parcial.
 // Luego el orientador del grupo las valida y se aplican a `calificaciones`.
 import { createClient } from '@/lib/supabase/server';
@@ -7,7 +12,12 @@ import { revalidatePath } from 'next/cache';
 import * as XLSX from 'xlsx';
 
 export async function enviarPropuestasCalificaciones(fd: FormData): Promise<{ ok?: boolean; error?: string; total?: number }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/calificaciones-proponer/actions.ts:enviarPropuestasCalificaciones");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const admin = adminClient();
   const { data: { user } } = await auth.auth.getUser();
@@ -94,6 +104,7 @@ export async function enviarPropuestasCalificaciones(fd: FormData): Promise<{ ok
   if (!rows.length) {
     return { ok: true, total: 0, error: `Sin cambios detectados (${sinCambio} alumnos ya tenían esos mismos valores validados)` };
   }
+  await requireRoster(asignacion_id, rows.map(row => row.alumno_id));
 
   const { error } = await admin.from('calificaciones_propuestas').insert(rows);
   if (error) return { error: error.message };
@@ -121,7 +132,10 @@ export async function enviarPropuestasCalificaciones(fd: FormData): Promise<{ ok
 }
 
 export async function validarPropuesta(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/calificaciones-proponer/actions.ts:validarPropuesta");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const admin = adminClient();
   const { data: { user } } = await auth.auth.getUser();
@@ -198,7 +212,10 @@ export async function validarPropuesta(fd: FormData): Promise<{ ok?: boolean; er
 }
 
 export async function validarLote(fd: FormData): Promise<{ ok?: boolean; error?: string; total?: number }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/calificaciones-proponer/actions.ts:validarLote");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -223,7 +240,12 @@ export async function validarLote(fd: FormData): Promise<{ ok?: boolean; error?:
 export async function importarCalificacionesXLSX(fd: FormData): Promise<{
   ok?: boolean; error?: string; total?: number; saltados?: number;
 }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/calificaciones-proponer/actions.ts:importarCalificacionesXLSX");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };

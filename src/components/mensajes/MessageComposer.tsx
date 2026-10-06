@@ -52,7 +52,7 @@ export function MessageComposer({
       {file && (
         <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs">
           {preview ? (
-            <img src={preview} alt="preview" className="h-12 w-12 object-cover rounded" />
+            <img src={preview} alt="preview" className="h-12 w-12 object-cover rounded-sm" />
           ) : (
             <span className="text-2xl">📎</span>
           )}
@@ -79,7 +79,7 @@ export function MessageComposer({
             name="cuerpo"
             placeholder="Escribe tu mensaje…"
             rows={2}
-            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm resize-none focus:border-verde focus:ring-2 focus:ring-verde/20 outline-none"
+            className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm resize-none focus:border-verde focus:ring-2 focus:ring-verde/20 outline-hidden"
           />
           {showEmojis && (
             <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg p-2 grid grid-cols-10 gap-1 z-10 w-[320px]">
@@ -88,7 +88,7 @@ export function MessageComposer({
                   key={e}
                   type="button"
                   onClick={() => { insertEmoji(e); }}
-                  className="text-xl hover:bg-gray-100 rounded p-1"
+                  className="text-xl hover:bg-gray-100 rounded-sm p-1"
                 >
                   {e}
                 </button>
@@ -121,7 +121,7 @@ export function MessageComposer({
         <button
           type="submit"
           disabled={sending}
-          className="bg-gradient-to-r from-verde to-verde-medio text-white rounded-xl px-4 py-2 font-semibold shadow hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-linear-to-r from-verde to-verde-medio text-white rounded-xl px-4 py-2 font-semibold shadow-sm hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {sending ? '…' : 'Enviar →'}
         </button>

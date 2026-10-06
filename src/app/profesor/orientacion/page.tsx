@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Grupos donde el profesor es ORIENTADOR (tutor). Puede ver panorama
 // completo: alumnos, asistencia acumulada, riesgo, observaciones.
 import { createClient } from '@/lib/supabase/server';
@@ -7,8 +9,10 @@ import { codigoGrupo } from '@/lib/grupos';
 import Link from 'next/link';
 
 export default async function Orientacion() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
@@ -117,7 +121,7 @@ export default async function Orientacion() {
                   <Link
                     key={a.id}
                     href={`/profesor/mensajes/${a.id}`}
-                    className="block border border-gray-200 rounded-lg px-3 py-2 bg-white/70 hover:border-verde hover:shadow transition"
+                    className="block border border-gray-200 rounded-lg px-3 py-2 bg-white/70 hover:border-verde hover:shadow-sm transition"
                   >
                     <div className="font-medium text-sm truncate">{a.apellido_paterno} {a.apellido_materno ?? ''} {a.nombre}</div>
                     <div className="text-[10px] text-gray-500 flex items-center gap-2">

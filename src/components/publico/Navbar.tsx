@@ -80,7 +80,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
         className={`transition-all duration-500 backdrop-blur-md ${
           scrolled
             ? 'bg-verde/95 backdrop-blur-xl border-b border-white/20 shadow-xl shadow-verde/30 py-1.5'
-            : 'bg-gradient-to-b from-verde/95 via-verde/95 to-verde/90 py-2'
+            : 'bg-linear-to-b from-verde/95 via-verde/95 to-verde/90 py-2'
         }`}
       >
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-6">
@@ -139,7 +139,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
                 {/* Shimmer sweep */}
                 <span
                   aria-hidden
-                  className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-verde-claro/40 to-transparent"
+                  className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-verde-claro/40 to-transparent"
                 />
               </Link>
             </motion.div>

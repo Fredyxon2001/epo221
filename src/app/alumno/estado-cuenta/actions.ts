@@ -1,11 +1,20 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function subirComprobante(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/estado-cuenta/actions.ts:subirComprobante");
+  await validateFormData(formData);
+  await requireResource("cargos", formData.get("cargo_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return;

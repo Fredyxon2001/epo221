@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Panel admin premium — KPIs, ciclo activo, últimos pagos, solicitudes globales.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -9,7 +10,9 @@ import { AnimatedStat } from '@/components/privado/AnimatedStat';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function AdminDashboard() {
-  const auth = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
 
   const { data: cicloActivo } = await supabase
@@ -76,7 +79,7 @@ export default async function AdminDashboard() {
         chip={cicloActivo ? { label: `Ciclo ${cicloActivo.codigo}`, tone: 'dorado' } : undefined}
         gradient="from-[#091f1e] via-[#103b39] to-verde-oscuro"
       >
-        <Link href="/admin/publico" className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur border border-white/25 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+        <Link href="/admin/publico" className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/25 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition">
           🌐 Sitio público
         </Link>
       </DashboardHero>
@@ -107,7 +110,7 @@ export default async function AdminDashboard() {
 
       {/* Solicitudes banner */}
       {(solicAbiertas ?? 0) > 0 && (
-        <div className="rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-white p-5 shadow-xl shadow-amber-500/20 flex items-center justify-between gap-4">
+        <div className="rounded-2xl bg-linear-to-r from-amber-500 to-orange-500 text-white p-5 shadow-xl shadow-amber-500/20 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <span className="text-3xl">💬</span>
             <div>
@@ -115,7 +118,7 @@ export default async function AdminDashboard() {
               <div className="text-sm text-white/85">Los profesores tienen solicitudes pendientes de responder.</div>
             </div>
           </div>
-          <Link href="/admin/calificaciones" className="bg-white/15 hover:bg-white/25 backdrop-blur px-4 py-2 rounded-xl text-sm font-semibold border border-white/30 whitespace-nowrap">
+          <Link href="/admin/calificaciones" className="bg-white/15 hover:bg-white/25 backdrop-blur-sm px-4 py-2 rounded-xl text-sm font-semibold border border-white/30 whitespace-nowrap">
             Supervisar →
           </Link>
         </div>
@@ -144,7 +147,7 @@ export default async function AdminDashboard() {
                 )}
               </div>
               <div className="relative w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-verde-oscuro via-verde to-verde-claro transition-all" style={{ width: `${Math.max(2, pctCiclo)}%` }} />
+                <div className="h-full bg-linear-to-r from-verde-oscuro via-verde to-verde-claro transition-all" style={{ width: `${Math.max(2, pctCiclo)}%` }} />
               </div>
 
               {gruposConAlumnos.length > 0 && (

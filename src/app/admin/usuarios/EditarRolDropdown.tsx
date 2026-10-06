@@ -35,7 +35,7 @@ export function EditarRolDropdown({ perfilId, rolActual }: { perfilId: string; r
         <select
           value={rol}
           onChange={(e) => setRol(e.target.value)}
-          className="text-[10px] border rounded px-1 py-0.5"
+          className="text-[10px] border rounded-sm px-1 py-0.5"
           disabled={pending}
         >
           {ROLES_OPS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -51,7 +51,7 @@ export function EditarRolDropdown({ perfilId, rolActual }: { perfilId: string; r
               else setEditing(false);
             });
           }}
-          className="text-[10px] bg-verde hover:bg-verde-oscuro text-white px-1.5 py-0.5 rounded disabled:opacity-50"
+          className="text-[10px] bg-verde hover:bg-verde-oscuro text-white px-1.5 py-0.5 rounded-sm disabled:opacity-50"
         >
           {pending ? '…' : '✓'}
         </button>

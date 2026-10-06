@@ -1,11 +1,20 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Chat grupal por asignación (alumnos + docente).
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function enviarMensajeChat(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(null, "chat-grupal/actions.ts:enviarMensajeChat");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -53,6 +62,10 @@ export async function enviarMensajeChat(fd: FormData): Promise<{ error?: string;
 }
 
 export async function eliminarMensajeChat(id: string, asignacion_id: string) {
+  await requireAccess(null, "chat-grupal/actions.ts:eliminarMensajeChat");
+  await requireResource("chat_grupal_mensajes", id, true);
+
+
   const supabase = adminClient();
   const { data: m } = await supabase.from('chat_grupal_mensajes').select('archivo_url').eq('id', id).maybeSingle();
   if (m?.archivo_url) {

@@ -43,8 +43,8 @@ export function CalificarEntregaForm({ entrega, puntosMax }: { entrega: any; pun
       </label>
       {err && <div className="text-xs text-rose-700">{err}</div>}
       <div className="flex gap-2 justify-end">
-        <button type="button" onClick={() => setOpen(false)} className="text-xs px-3 py-1.5 rounded border">Cancelar</button>
-        <button type="submit" disabled={pending} className="text-xs px-3 py-1.5 rounded bg-verde text-white font-semibold disabled:opacity-50">
+        <button type="button" onClick={() => setOpen(false)} className="text-xs px-3 py-1.5 rounded-sm border">Cancelar</button>
+        <button type="submit" disabled={pending} className="text-xs px-3 py-1.5 rounded-sm bg-verde text-white font-semibold disabled:opacity-50">
           {pending ? 'Guardando…' : 'Guardar'}
         </button>
       </div>

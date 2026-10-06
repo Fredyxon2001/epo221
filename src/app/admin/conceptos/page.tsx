@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // CRUD de conceptos de pago. Editable 100% por admin (edición inline por fila).
 import { createClient } from '@/lib/supabase/server';
 import { crearConcepto, toggleConcepto, asignarMasivo, actualizarConcepto, eliminarConcepto } from './actions';
@@ -8,7 +9,9 @@ const TIPOS = [
 ];
 
 export default async function AdminConceptos() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director","finanzas"]);
+
+  const supabase = (await createClient());
   const { data: conceptos } = await supabase
     .from('conceptos_pago').select('*').order('tipo').order('nombre');
 
@@ -19,20 +22,20 @@ export default async function AdminConceptos() {
         Puedes editar la clave, nombre, tipo y monto directamente en cada fila y presionar <strong>Guardar</strong>.
       </p>
 
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="font-semibold text-verde mb-3">Nuevo concepto</h2>
         <form action={crearConcepto} className="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
-          <input name="clave" placeholder="Clave única" required className="border rounded px-2 py-1" />
-          <input name="nombre" placeholder="Nombre" required className="md:col-span-2 border rounded px-2 py-1" />
-          <select name="tipo" className="border rounded px-2 py-1">
+          <input name="clave" placeholder="Clave única" required className="border rounded-sm px-2 py-1" />
+          <input name="nombre" placeholder="Nombre" required className="md:col-span-2 border rounded-sm px-2 py-1" />
+          <select name="tipo" className="border rounded-sm px-2 py-1">
             {TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <input name="monto" type="number" step="0.01" placeholder="Monto" required className="border rounded px-2 py-1" />
-          <button className="bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio">Crear</button>
+          <input name="monto" type="number" step="0.01" placeholder="Monto" required className="border rounded-sm px-2 py-1" />
+          <button className="bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio">Crear</button>
         </form>
       </section>
 
-      <section className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <section className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>
@@ -53,14 +56,14 @@ export default async function AdminConceptos() {
                     <input
                       name="clave"
                       defaultValue={c.clave}
-                      className="border rounded px-2 py-1 font-mono text-xs uppercase"
+                      className="border rounded-sm px-2 py-1 font-mono text-xs uppercase"
                     />
                     <input
                       name="nombre"
                       defaultValue={c.nombre}
-                      className="border rounded px-2 py-1"
+                      className="border rounded-sm px-2 py-1"
                     />
-                    <select name="tipo" defaultValue={c.tipo} className="border rounded px-2 py-1">
+                    <select name="tipo" defaultValue={c.tipo} className="border rounded-sm px-2 py-1">
                       {TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                     <input
@@ -68,11 +71,11 @@ export default async function AdminConceptos() {
                       type="number"
                       step="0.01"
                       defaultValue={Number(c.monto).toFixed(2)}
-                      className="border rounded px-2 py-1 text-right"
+                      className="border rounded-sm px-2 py-1 text-right"
                     />
                     <span className="text-center">{c.activo ? '✓' : '—'}</span>
                     <div className="flex items-center gap-1 justify-end flex-wrap">
-                      <button className="text-xs bg-verde text-white rounded px-2 py-1 hover:bg-verde-medio">
+                      <button className="text-xs bg-verde text-white rounded-sm px-2 py-1 hover:bg-verde-medio">
                         Guardar
                       </button>
                     </div>

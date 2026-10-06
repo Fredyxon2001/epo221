@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { crearAsignacion, actualizarProfesorAsignacion, eliminarAsignacion } from './actions';
@@ -15,12 +16,15 @@ const campoBadge: Record<number, string> = {
   15: 'bg-pink-100 text-pink-800',
 };
 
-export default async function AdminAsignaciones({
-  searchParams,
-}: {
-  searchParams: { ciclo_id?: string; semestre?: string };
-}) {
-  const auth = createClient();
+export default async function AdminAsignaciones(
+  props: {
+    searchParams: Promise<{ ciclo_id?: string; semestre?: string }>;
+  }
+) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
 
   // Datos base
@@ -94,7 +98,7 @@ export default async function AdminAsignaciones({
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-lg p-4 shadow-sm flex flex-wrap gap-4 items-end text-sm">
+      <div className="bg-white rounded-lg p-4 shadow-xs flex flex-wrap gap-4 items-end text-sm">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Ciclo escolar</label>
           <div className="flex gap-1 flex-wrap">
@@ -135,13 +139,13 @@ export default async function AdminAsignaciones({
       </div>
 
       {/* Formulario nueva asignación */}
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="font-semibold text-verde mb-3">Nueva asignación</h2>
         <form action={crearAsignacion} className="grid grid-cols-1 md:grid-cols-5 gap-3 text-sm">
           <input type="hidden" name="ciclo_id" value={cicloId} />
 
           {/* Semestre → filtra materias en el cliente vía JS nativo no disponible; mostramos todas agrupadas */}
-          <select name="materia_id" required className="border rounded px-2 py-1 col-span-1">
+          <select name="materia_id" required className="border rounded-sm px-2 py-1 col-span-1">
             <option value="">Materia…</option>
             {[1, 2, 3, 4, 5, 6].map((s) => {
               const mats = (materias ?? []).filter((m) => m.semestre === s);
@@ -158,7 +162,7 @@ export default async function AdminAsignaciones({
             })}
           </select>
 
-          <select name="grupo_id" required className="border rounded px-2 py-1">
+          <select name="grupo_id" required className="border rounded-sm px-2 py-1">
             <option value="">Grupo…</option>
             {gruposCiclo.map((g) => (
               <option key={g.id} value={g.id}>
@@ -174,7 +178,7 @@ export default async function AdminAsignaciones({
               ))}
           </select>
 
-          <select name="profesor_id" className="border rounded px-2 py-1">
+          <select name="profesor_id" className="border rounded-sm px-2 py-1">
             <option value="">Sin asignar</option>
             {(profesores ?? []).map((p) => (
               <option key={p.id} value={p.id}>
@@ -183,14 +187,14 @@ export default async function AdminAsignaciones({
             ))}
           </select>
 
-          <button className="bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio col-span-1">
+          <button className="bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio col-span-1">
             Crear asignación
           </button>
         </form>
       </section>
 
       {/* Tabla de asignaciones */}
-      <section className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <section className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>
@@ -267,7 +271,7 @@ export default async function AdminAsignaciones({
                             <select
                               name="profesor_id"
                               defaultValue={a.profesor?.id ?? ''}
-                              className="w-full border rounded px-2 py-1 text-xs"
+                              className="w-full border rounded-sm px-2 py-1 text-xs"
                             >
                               <option value="">Sin asignar</option>
                               {(profesores ?? []).map((p) => (
@@ -278,7 +282,7 @@ export default async function AdminAsignaciones({
                             </select>
                             <button
                               type="submit"
-                              className="w-full bg-verde text-white rounded px-2 py-1 text-xs hover:bg-verde-medio"
+                              className="w-full bg-verde text-white rounded-sm px-2 py-1 text-xs hover:bg-verde-medio"
                             >
                               Guardar
                             </button>

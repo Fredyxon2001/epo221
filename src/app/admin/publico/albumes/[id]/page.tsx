@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
@@ -5,8 +6,11 @@ import { adminClient } from '@/lib/supabase/admin';
 import { actualizarAlbum, subirFotos, eliminarFoto, definirPortada } from '../actions';
 import { ConfirmButton } from '@/components/ConfirmButton';
 
-export default async function EditarAlbum({ params }: { params: { id: string } }) {
-  const auth = createClient();
+export default async function EditarAlbum(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const params = await props.params;
+  const auth = (await createClient());
   const supabase = adminClient();
   const [{ data: a }, { data: fotos }] = await Promise.all([
     supabase.from('albumes').select('*').eq('id', params.id).maybeSingle(),
@@ -21,25 +25,25 @@ export default async function EditarAlbum({ params }: { params: { id: string } }
         <Link href="/admin/publico/albumes" className="text-xs text-gray-500 hover:underline">← Álbumes</Link>
         <h1 className="font-serif text-3xl text-verde mt-1">{a.titulo}</h1>
         <p className="text-xs text-gray-500 mt-1">
-          URL pública: <code className="bg-gray-100 px-1 rounded">/publico/albumes/{a.slug}</code>
+          URL pública: <code className="bg-gray-100 px-1 rounded-sm">/publico/albumes/{a.slug}</code>
         </p>
       </div>
 
       {/* Datos del álbum */}
-      <form action={actualizarAlbum} className="bg-white rounded-lg shadow-sm p-5 space-y-4">
+      <form action={actualizarAlbum} className="bg-white rounded-lg shadow-xs p-5 space-y-4">
         <input type="hidden" name="id" value={a.id} />
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-medium text-gray-600">Título</label>
-            <input name="titulo" defaultValue={a.titulo} required className="mt-1 w-full border rounded px-3 py-2 text-sm" />
+            <input name="titulo" defaultValue={a.titulo} required className="mt-1 w-full border rounded-sm px-3 py-2 text-sm" />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600">Slug (URL)</label>
-            <input name="slug" defaultValue={a.slug} required pattern="[a-z0-9][a-z0-9\-]*" className="mt-1 w-full border rounded px-3 py-2 text-sm font-mono" />
+            <input name="slug" defaultValue={a.slug} required pattern="[a-z0-9][a-z0-9\-]*" className="mt-1 w-full border rounded-sm px-3 py-2 text-sm font-mono" />
           </div>
           <div>
             <label className="text-xs font-medium text-gray-600">Fecha del evento</label>
-            <input name="fecha_evento" type="date" defaultValue={a.fecha_evento ?? ''} className="mt-1 w-full border rounded px-3 py-2 text-sm" />
+            <input name="fecha_evento" type="date" defaultValue={a.fecha_evento ?? ''} className="mt-1 w-full border rounded-sm px-3 py-2 text-sm" />
           </div>
           <div className="flex items-end">
             <label className="flex items-center gap-2 text-sm">
@@ -48,18 +52,18 @@ export default async function EditarAlbum({ params }: { params: { id: string } }
           </div>
           <div className="md:col-span-2">
             <label className="text-xs font-medium text-gray-600">Descripción</label>
-            <textarea name="descripcion" rows={3} defaultValue={a.descripcion ?? ''} className="mt-1 w-full border rounded px-3 py-2 text-sm" />
+            <textarea name="descripcion" rows={3} defaultValue={a.descripcion ?? ''} className="mt-1 w-full border rounded-sm px-3 py-2 text-sm" />
           </div>
         </div>
         <div className="flex justify-end gap-3 pt-3 border-t">
-          <button type="submit" className="bg-verde text-white px-6 py-2 rounded hover:bg-verde-medio text-sm font-medium">
+          <button type="submit" className="bg-verde text-white px-6 py-2 rounded-sm hover:bg-verde-medio text-sm font-medium">
             Guardar datos
           </button>
         </div>
       </form>
 
       {/* Subir fotos */}
-      <div className="bg-white rounded-lg shadow-sm p-5">
+      <div className="bg-white rounded-lg shadow-xs p-5">
         <h2 className="font-serif text-lg text-verde mb-3">Subir fotos</h2>
         <form action={subirFotos} encType="multipart/form-data" className="space-y-3">
           <input type="hidden" name="album_id" value={a.id} />
@@ -72,21 +76,21 @@ export default async function EditarAlbum({ params }: { params: { id: string } }
             className="w-full text-sm"
           />
           <p className="text-xs text-gray-400">Máx 8 MB por imagen. Puedes seleccionar varias a la vez.</p>
-          <button type="submit" className="bg-verde text-white px-6 py-2 rounded hover:bg-verde-medio text-sm font-medium">
+          <button type="submit" className="bg-verde text-white px-6 py-2 rounded-sm hover:bg-verde-medio text-sm font-medium">
             Subir fotos
           </button>
         </form>
       </div>
 
       {/* Grid de fotos */}
-      <div className="bg-white rounded-lg shadow-sm p-5">
+      <div className="bg-white rounded-lg shadow-xs p-5">
         <h2 className="font-serif text-lg text-verde mb-3">Fotos ({fotos?.length ?? 0})</h2>
         {(!fotos || fotos.length === 0) ? (
           <p className="text-center text-gray-400 text-sm py-10">Aún no hay fotos.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {fotos.map((f: any) => (
-              <div key={f.id} className="relative group border rounded overflow-hidden">
+              <div key={f.id} className="relative group border rounded-sm overflow-hidden">
                 <img src={f.foto_url} alt={f.caption ?? ''} className="w-full aspect-square object-cover" />
                 {a.portada_url === f.foto_url && (
                   <span className="absolute top-1 left-1 bg-dorado text-verde text-[10px] font-bold px-2 py-0.5 rounded-full">

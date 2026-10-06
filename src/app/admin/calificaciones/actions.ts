@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
@@ -29,6 +32,9 @@ function parseCSV(text: string): string[][] {
 const n = (v: string) => { const x = Number(v); return isNaN(x) ? null : x; };
 
 export async function importarCalificacionesCSV(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/calificaciones/actions.ts:importarCalificacionesCSV");
+  await validateFormData(formData);
+
   const archivo = formData.get('archivo') as File;
   if (!archivo || archivo.size === 0) return;
 
@@ -68,7 +74,7 @@ export async function importarCalificacionesCSV(formData: FormData) {
         const { data } = await admin.from('ciclos_escolares')
           .upsert({ codigo: row[iCiclo], periodo: row[iPeriodo] }, { onConflict: 'codigo,periodo' })
           .select('id').single();
-        cicloId = data!.id; ciclos.set(cicloKey, cicloId);
+        if (!data?.id) throw new Error('No se pudo guardar el ciclo.'); cicloId = String(data.id); ciclos.set(cicloKey, cicloId);
       }
 
       let materiaId = materias.get(row[iUAC]);
@@ -94,7 +100,7 @@ export async function importarCalificacionesCSV(formData: FormData) {
             grupo: Number(row[iGrupo]), turno: 'matutino',
           }, { onConflict: 'ciclo_id,semestre,grupo,turno' })
           .select('id').single();
-        grupoId = g!.id; grupos.set(grupoKey, grupoId);
+        if (!g?.id) throw new Error('No se pudo guardar el grupo.'); grupoId = String(g.id); grupos.set(grupoKey, grupoId);
       }
 
       // Asignación (respetar idAsignacion original si viene)

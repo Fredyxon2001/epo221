@@ -1,16 +1,21 @@
+import { requireIdentity } from "@/lib/security/access";
 // Bitácora docente: registra tema visto en clase, actividades, observaciones y tarea.
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import Link from 'next/link';
 import { registrarClase, eliminarRegistro } from './actions';
 
-export default async function Bitacora({
-  params, searchParams,
-}: {
-  params: { asignacionId: string };
-  searchParams: { ok?: string; error?: string };
-}) {
-  const supabase = createClient();
+export default async function Bitacora(
+  props: {
+    params: Promise<{ asignacionId: string }>;
+    searchParams: Promise<{ ok?: string; error?: string }>;
+  }
+) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+  const supabase = (await createClient());
 
   const { data: asig } = await supabase
     .from('asignaciones')
@@ -39,12 +44,12 @@ export default async function Bitacora({
       <Card eyebrow="Nueva entrada" title="Registrar clase">
         <form action={registrarClase} className="grid md:grid-cols-2 gap-3 text-sm">
           <input type="hidden" name="asignacion_id" value={params.asignacionId} />
-          <input name="fecha" type="date" defaultValue={new Date().toISOString().slice(0,10)} required className="border rounded px-2 py-1.5" />
-          <input name="tema" required placeholder="Tema de la clase *" className="border rounded px-2 py-1.5" />
-          <textarea name="actividades" placeholder="Actividades realizadas" rows={3} className="border rounded px-2 py-1.5 md:col-span-2" />
-          <textarea name="observaciones" placeholder="Observaciones (comportamiento, participación, etc.)" rows={2} className="border rounded px-2 py-1.5 md:col-span-2" />
-          <input name="tarea" placeholder="Tarea para la próxima sesión" className="border rounded px-2 py-1.5 md:col-span-2" />
-          <button className="bg-verde text-white rounded px-4 py-2 hover:bg-verde-medio md:col-span-2 font-semibold">
+          <input name="fecha" type="date" defaultValue={new Date().toISOString().slice(0,10)} required className="border rounded-sm px-2 py-1.5" />
+          <input name="tema" required placeholder="Tema de la clase *" className="border rounded-sm px-2 py-1.5" />
+          <textarea name="actividades" placeholder="Actividades realizadas" rows={3} className="border rounded-sm px-2 py-1.5 md:col-span-2" />
+          <textarea name="observaciones" placeholder="Observaciones (comportamiento, participación, etc.)" rows={2} className="border rounded-sm px-2 py-1.5 md:col-span-2" />
+          <input name="tarea" placeholder="Tarea para la próxima sesión" className="border rounded-sm px-2 py-1.5 md:col-span-2" />
+          <button className="bg-verde text-white rounded-sm px-4 py-2 hover:bg-verde-medio md:col-span-2 font-semibold">
             Guardar registro
           </button>
         </form>

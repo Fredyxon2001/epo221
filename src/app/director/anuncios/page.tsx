@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // La dirección comparte el mismo CRUD de anuncios — ajustado con estética institucional.
 // Reutilizamos las server actions del admin.
 import { createClient } from '@/lib/supabase/server';
@@ -9,7 +10,9 @@ const prioridadTone: Record<string, any> = {
 };
 
 export default async function DirAnuncios() {
-  const supabase = createClient();
+  await requireIdentity(["director","admin"]);
+
+  const supabase = (await createClient());
   const { data } = await supabase
     .from('anuncios')
     .select('id, titulo, cuerpo, prioridad, audiencia, icono, fijado, publicado, created_at, autor_id')
@@ -28,18 +31,18 @@ export default async function DirAnuncios() {
       />
 
       <Card eyebrow="Nuevo" title="Publicar comunicado">
-        <form action={crearAnuncio} className="grid md:grid-cols-2 gap-4">
+        <form action={async (data) => { 'use server'; const result = await crearAnuncio(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }} className="grid md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Título</label>
-            <input name="titulo" required minLength={4} placeholder="Ej. Homenaje institucional — lunes 10:00" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none" />
+            <input name="titulo" required minLength={4} placeholder="Ej. Homenaje institucional — lunes 10:00" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden" />
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Mensaje</label>
-            <textarea name="cuerpo" rows={4} placeholder="Detalles del comunicado" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none" />
+            <textarea name="cuerpo" rows={4} placeholder="Detalles del comunicado" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden" />
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Audiencia</label>
-            <select name="audiencia" defaultValue="todos" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde outline-none">
+            <select name="audiencia" defaultValue="todos" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde outline-hidden">
               <option value="todos">Comunidad EPO 221</option>
               <option value="alumnos">Sólo alumnos</option>
               <option value="profesores">Sólo docentes</option>
@@ -49,7 +52,7 @@ export default async function DirAnuncios() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Prioridad</label>
-            <select name="prioridad" defaultValue="alta" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde outline-none">
+            <select name="prioridad" defaultValue="alta" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:border-verde outline-hidden">
               <option value="baja">Baja</option>
               <option value="normal">Normal</option>
               <option value="alta">Alta</option>
@@ -58,7 +61,7 @@ export default async function DirAnuncios() {
           </div>
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Icono</label>
-            <input name="icono" placeholder="🏛️" maxLength={2} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde outline-none" />
+            <input name="icono" placeholder="🏛️" maxLength={2} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 focus:border-verde outline-hidden" />
           </div>
           <div className="flex items-center gap-4 pt-6">
             <label className="inline-flex items-center gap-2 text-sm">
@@ -71,7 +74,7 @@ export default async function DirAnuncios() {
             </label>
           </div>
           <div className="md:col-span-2 flex justify-end">
-            <button className="bg-gradient-to-r from-dorado to-dorado-claro text-verde-oscuro font-bold px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition">
+            <button className="bg-linear-to-r from-dorado to-dorado-claro text-verde-oscuro font-bold px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition">
               📣 Publicar comunicado
             </button>
           </div>
@@ -98,16 +101,16 @@ export default async function DirAnuncios() {
                   <div className="text-[11px] text-gray-400 mt-1">{new Date(a.created_at).toLocaleString('es-MX')}</div>
                 </div>
                 <div className="flex gap-1 shrink-0">
-                  <form action={togglePublicado}>
+                  <form action={async (data) => { 'use server'; const result = await togglePublicado(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }}>
                     <input type="hidden" name="id" value={a.id} />
                     <input type="hidden" name="publicado" value={String(a.publicado)} />
-                    <button className="text-xs font-semibold px-2 py-1 rounded border border-gray-200 hover:bg-white">
+                    <button className="text-xs font-semibold px-2 py-1 rounded-sm border border-gray-200 hover:bg-white">
                       {a.publicado ? '👁 Ocultar' : '🚀 Publicar'}
                     </button>
                   </form>
-                  <form action={eliminarAnuncio}>
+                  <form action={async (data) => { 'use server'; const result = await eliminarAnuncio(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }}>
                     <input type="hidden" name="id" value={a.id} />
-                    <button className="text-xs font-semibold px-2 py-1 rounded border border-rose-200 text-rose-700 hover:bg-rose-50">
+                    <button className="text-xs font-semibold px-2 py-1 rounded-sm border border-rose-200 text-rose-700 hover:bg-rose-50">
                       Eliminar
                     </button>
                   </form>

@@ -100,7 +100,7 @@ export default function ConocePage() {
 
           {/* CTA */}
           <Reveal delay={0.4}>
-            <div className="mt-16 bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio text-white rounded-3xl p-10 text-center shadow-2xl shadow-verde/30">
+            <div className="mt-16 bg-linear-to-br from-verde-oscuro via-verde to-verde-medio text-white rounded-3xl p-10 text-center shadow-2xl shadow-verde/30">
               <div className="text-4xl mb-4">🎓</div>
               <h3 className="font-serif text-3xl mb-3">¿Quieres formar parte de la EPO 221?</h3>
               <p className="text-white/85 max-w-2xl mx-auto mb-6">

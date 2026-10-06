@@ -1,11 +1,15 @@
+import { requireIdentity } from "@/lib/security/access";
 // Listado de hilos de mensajes del profesor con sus alumnos.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 
-export default async function MensajesProfesor({ searchParams }: { searchParams?: { q?: string } }) {
-  const auth = createClient();
+export default async function MensajesProfesor(props: { searchParams?: Promise<{ q?: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
@@ -15,9 +19,11 @@ export default async function MensajesProfesor({ searchParams }: { searchParams?
   let hilosFiltrados: string[] | null = null;
   let matchesPorHilo = new Map<string, number>();
   if (q) {
-    const { data: msgs } = await supabase
+    const { data: ownThreads } = await supabase.from('mensajes_hilos').select('id').eq('profesor_id', profesor?.id ?? '');
+    const { data: msgs } = await auth
       .from('mensajes')
       .select('hilo_id')
+      .in('hilo_id', (ownThreads ?? []).map(thread => thread.id))
       .ilike('cuerpo', `%${q}%`)
       .limit(500);
     hilosFiltrados = Array.from(new Set((msgs ?? []).map((m: any) => m.hilo_id)));
@@ -65,9 +71,9 @@ export default async function MensajesProfesor({ searchParams }: { searchParams?
           name="q"
           defaultValue={q}
           placeholder="🔎 Buscar palabra en todos los chats…"
-          className="flex-1 border rounded px-3 py-1.5 text-sm"
+          className="flex-1 border rounded-sm px-3 py-1.5 text-sm"
         />
-        <button className="text-sm bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-1.5 rounded">Buscar</button>
+        <button className="text-sm bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-1.5 rounded-sm">Buscar</button>
         {q && <a href="/profesor/mensajes" className="text-xs text-gray-500 hover:underline">limpiar</a>}
       </form>
 
@@ -82,11 +88,10 @@ export default async function MensajesProfesor({ searchParams }: { searchParams?
                 <Link
                   key={h.id}
                   href={`/profesor/mensajes/${h.alumno?.id}`}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70 hover:border-verde hover:shadow transition"
+                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70 hover:border-verde hover:shadow-sm transition"
                 >
-                  <div className="w-11 h-11 rounded-full overflow-hidden bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow shrink-0">
+                  <div className="w-11 h-11 rounded-full overflow-hidden bg-linear-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow-sm shrink-0">
                     {h.alumno?.foto_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={h.alumno.foto_url} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <>{h.alumno?.nombre?.[0]}{h.alumno?.apellido_paterno?.[0]}</>

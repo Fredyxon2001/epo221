@@ -1,8 +1,11 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { crearNoticia, togglePublicada, eliminarNoticia } from './actions';
 
 export default async function AdminNoticias() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: noticias } = await supabase
     .from('noticias').select('*').order('created_at', { ascending: false });
 
@@ -10,17 +13,17 @@ export default async function AdminNoticias() {
     <div className="max-w-5xl space-y-6">
       <h1 className="font-serif text-3xl text-verde">Noticias</h1>
 
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="font-semibold text-verde mb-3">Nueva noticia</h2>
         <form action={crearNoticia} className="space-y-3 text-sm">
-          <input name="titulo" placeholder="Título" required className="w-full border rounded px-3 py-2" />
-          <input name="resumen" placeholder="Resumen corto" className="w-full border rounded px-3 py-2" />
-          <textarea name="contenido" placeholder="Contenido (markdown)" rows={5} className="w-full border rounded px-3 py-2" />
-          <button className="bg-verde text-white px-4 py-2 rounded hover:bg-verde-medio">Publicar borrador</button>
+          <input name="titulo" placeholder="Título" required className="w-full border rounded-sm px-3 py-2" />
+          <input name="resumen" placeholder="Resumen corto" className="w-full border rounded-sm px-3 py-2" />
+          <textarea name="contenido" placeholder="Contenido (markdown)" rows={5} className="w-full border rounded-sm px-3 py-2" />
+          <button className="bg-verde text-white px-4 py-2 rounded-sm hover:bg-verde-medio">Publicar borrador</button>
         </form>
       </section>
 
-      <section className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <section className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>

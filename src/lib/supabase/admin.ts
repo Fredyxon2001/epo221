@@ -1,5 +1,6 @@
 // Cliente con service_role — SOLO usar en Server Actions protegidas.
 // Tiene acceso total, salta RLS. No exponer NUNCA al cliente.
+import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 
 export const adminClient = () =>

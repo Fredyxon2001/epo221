@@ -1,10 +1,16 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearPMI(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/pmi/actions.ts:crearPMI");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) throw new Error('no-auth');
@@ -23,7 +29,10 @@ export async function crearPMI(fd: FormData) {
 }
 
 export async function actualizarPMI(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/pmi/actions.ts:actualizarPMI");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   const estado = String(fd.get('estado') ?? '');

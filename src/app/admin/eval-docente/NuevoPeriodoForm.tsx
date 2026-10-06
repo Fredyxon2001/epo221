@@ -52,8 +52,8 @@ export function NuevoPeriodoForm() {
           className="mt-1 w-full border rounded-lg px-3 py-2 font-mono text-xs" />
       </label>
 
-      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded p-2">⚠️ {err}</div>}
-      {ok && <div className="bg-verde-claro/30 border border-verde text-verde-oscuro rounded p-2">✅ Periodo abierto.</div>}
+      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-sm p-2">⚠️ {err}</div>}
+      {ok && <div className="bg-verde-claro/30 border border-verde text-verde-oscuro rounded-sm p-2">✅ Periodo abierto.</div>}
 
       <div className="flex justify-end">
         <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-5 py-2 rounded-lg disabled:opacity-50">

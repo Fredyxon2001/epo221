@@ -1,10 +1,16 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearVersion(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/reglamento/actions.ts:crearVersion");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) throw new Error('no-auth');
@@ -26,7 +32,10 @@ export async function crearVersion(fd: FormData) {
 }
 
 export async function marcarVigente(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/reglamento/actions.ts:marcarVigente");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   if (!id) return;

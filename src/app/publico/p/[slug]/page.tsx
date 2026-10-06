@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
-export default async function PaginaPublica({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
+export default async function PaginaPublica(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+  const supabase = (await createClient());
   const { data: p } = await supabase
     .from('paginas_publicas')
     .select('titulo, contenido, updated_at')

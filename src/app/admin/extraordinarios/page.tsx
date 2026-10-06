@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
@@ -5,8 +6,11 @@ import { ProcesarExtraordinarioForm } from './ProcesarExtraordinarioForm';
 
 const ESTADOS = ['solicitado', 'pago_pendiente', 'pagado', 'agendado', 'aplicado', 'calificado', 'rechazado'];
 
-export default async function AdminExtraordinarios({ searchParams }: { searchParams: { estado?: string } }) {
-  const auth = createClient();
+export default async function AdminExtraordinarios(props: { searchParams: Promise<{ estado?: string }> }) {
+  await requireIdentity(["admin","staff","director","finanzas"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
   const estado = searchParams.estado ?? 'solicitado';
 
@@ -48,7 +52,7 @@ export default async function AdminExtraordinarios({ searchParams }: { searchPar
                     <div className="text-xs text-gray-500">{s.asignacion?.materia?.nombre ?? '—'} · {s.tipo} · {new Date(s.created_at).toLocaleDateString('es-MX')}</div>
                     {s.motivo && <p className="text-xs text-gray-700 italic mt-1">"{s.motivo}"</p>}
                   </div>
-                  <span className="text-xs px-2 py-1 rounded bg-gray-100 font-semibold shrink-0">{s.estado}</span>
+                  <span className="text-xs px-2 py-1 rounded-sm bg-gray-100 font-semibold shrink-0">{s.estado}</span>
                 </div>
                 <ProcesarExtraordinarioForm solicitud={s} />
               </div>

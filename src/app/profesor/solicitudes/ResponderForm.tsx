@@ -63,7 +63,7 @@ export function ResponderForm({ id }: { id: string }) {
         required
         minLength={10}
         placeholder="Escribe una respuesta clara para el alumno. Explica el criterio, la evidencia considerada, o los pasos a seguir."
-        className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none"
+        className="w-full border border-gray-200 rounded-lg p-3 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden"
       />
 
       <EmojiFilePicker onInsertEmoji={insertEmoji} onFileChange={setFile} file={file} />

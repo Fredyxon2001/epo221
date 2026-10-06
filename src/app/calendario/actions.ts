@@ -1,9 +1,15 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function crearEvento(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(["admin","staff","director"], "calendario/actions.ts:crearEvento");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
@@ -34,8 +40,11 @@ export async function crearEvento(fd: FormData): Promise<{ error?: string; ok?: 
 }
 
 export async function eliminarEvento(fd: FormData): Promise<void> {
+  await requireAccess(["admin","staff","director"], "calendario/actions.ts:eliminarEvento");
+  await validateFormData(fd);
+
   const id = String(fd.get('id') ?? '');
-  const supabase = createClient();
+  const supabase = (await createClient());
   await supabase.from('eventos_calendario').delete().eq('id', id);
   revalidatePath('/admin/calendario');
   revalidatePath('/alumno/calendario');

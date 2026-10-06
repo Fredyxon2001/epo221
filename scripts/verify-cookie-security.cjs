@@ -12,7 +12,7 @@ function load(file, modules = {}, environment = 'production') {
   }).outputText;
   const exports = {};
   vm.runInNewContext(source, { exports, require: (name) => modules[name] ?? require(name),
-    process: { env: { NODE_ENV: environment } }, URL, console });
+    process: { env: { NODE_ENV: environment, NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co' } }, URL, console, Buffer, Headers });
   return exports;
 }
 
@@ -58,7 +58,8 @@ async function main() {
     const createServerClient = (_url, _key, options) => {
       receivedOptions = options.cookieOptions;
       return {
-        auth: { getUser: async () => {
+        rpc: async () => ({data:true,error:null}),
+        auth: { mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:'aal1',nextLevel:'aal1'}})}, getUser: async () => {
           if (scenario.refresh) options.cookies.setAll([{ name: 'sb-test-auth-token', value: 'synthetic-test', options: production }]);
           return { data: { user: scenario.user } };
         } },
@@ -67,12 +68,14 @@ async function main() {
         } }) }) }) }),
       };
     };
-    const { middleware } = load('src/middleware.ts', {
+    const { proxy } = load('src/proxy.ts', {
       'next/server': { NextRequest, NextResponse },
       '@supabase/ssr': { createServerClient },
       '@/lib/supabase/cookie-options': { authCookieOptions: production },
+      '@/lib/security/csp': require('./security-loader.cjs').load('src/lib/security/csp.ts'),
+      '@/lib/security/policy': require('./security-loader.cjs').load('src/lib/security/policy.ts'),
     });
-    const result = await middleware(req);
+    const result = await proxy(req);
     assert.equal(receivedOptions.secure, true);
     if (scenario.target) assert.equal(new URL(result.headers.get('location')).pathname, scenario.target);
     if (scenario.refresh) {

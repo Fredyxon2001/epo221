@@ -1,6 +1,6 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { adminResetPassword } from './reset-actions';
+import { adminResetPassword, adminResetMfa } from './reset-actions';
 
 export function ResetPasswordRow({ perfilId, email, nombre }: { perfilId: string; email: string; nombre: string }) {
   const [pending, start] = useTransition();
@@ -31,6 +31,12 @@ export function ResetPasswordRow({ perfilId, email, nombre }: { perfilId: string
       setTimeout(() => setCopiado(false), 2000);
     }
   };
+  const recuperarMfa = () => {
+    const reference = prompt('Después de verificar la identidad por el procedimiento institucional, introduce el folio del trámite. Se eliminarán los autenticadores y las sesiones del usuario.');
+    if (!reference) return;
+    const fd = new FormData(); fd.set('perfil_id',perfilId); fd.set('verification_reference',reference);
+    start(async () => { const result = await adminResetMfa(fd); setErr(result.error ?? null); if(result.ok)alert('Autenticadores restablecidos. El usuario debe volver a configurar la verificación.'); });
+  };
 
   return (
     <div className="space-y-1.5 inline-block text-right">
@@ -38,7 +44,7 @@ export function ResetPasswordRow({ perfilId, email, nombre }: { perfilId: string
         <button
           type="button" disabled={pending}
           onClick={() => ejecutar('temporal')}
-          className="text-[10px] bg-amber-500 hover:bg-amber-600 text-white font-semibold px-2 py-1 rounded disabled:opacity-50"
+          className="text-[10px] bg-amber-500 hover:bg-amber-600 text-white font-semibold px-2 py-1 rounded-sm disabled:opacity-50"
           title="Generar password aleatoria (mostrarla en pantalla)"
         >
           {pending ? '…' : '🔑 Temporal'}
@@ -46,19 +52,20 @@ export function ResetPasswordRow({ perfilId, email, nombre }: { perfilId: string
         <button
           type="button" disabled={pending}
           onClick={() => ejecutar('magic')}
-          className="text-[10px] bg-sky-600 hover:bg-sky-700 text-white font-semibold px-2 py-1 rounded disabled:opacity-50"
+          className="text-[10px] bg-sky-600 hover:bg-sky-700 text-white font-semibold px-2 py-1 rounded-sm disabled:opacity-50"
           title="Enviar magic link al correo"
         >
           {pending ? '…' : '📧 Magic'}
         </button>
       </div>
-      {err && <div className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 rounded p-1 max-w-[260px]">⚠️ {err}</div>}
+      <button type="button" disabled={pending} onClick={recuperarMfa} className="text-[10px] underline text-rose-800">Recuperar verificación en dos pasos</button>
+      {err && <div className="text-[10px] text-rose-700 bg-rose-50 border border-rose-200 rounded-sm p-1 max-w-[260px]">⚠️ {err}</div>}
       {resultado?.tipo === 'temporal' && resultado.valor && (
-        <div className="text-[10px] bg-amber-50 border border-amber-300 rounded p-2 max-w-[260px] text-left">
+        <div className="text-[10px] bg-amber-50 border border-amber-300 rounded-sm p-2 max-w-[260px] text-left">
           <div className="font-semibold text-amber-800 mb-1">⚠️ Cópiala AHORA — solo se muestra una vez</div>
           <div className="flex items-center gap-1">
-            <code className="font-mono text-[11px] bg-white px-2 py-1 rounded border border-amber-200 flex-1 select-all">{resultado.valor}</code>
-            <button type="button" onClick={copiar} className="text-[10px] bg-verde hover:bg-verde-oscuro text-white px-1.5 py-0.5 rounded">
+            <code className="font-mono text-[11px] bg-white px-2 py-1 rounded-sm border border-amber-200 flex-1 select-all">{resultado.valor}</code>
+            <button type="button" onClick={copiar} className="text-[10px] bg-verde hover:bg-verde-oscuro text-white px-1.5 py-0.5 rounded-sm">
               {copiado ? '✓' : '📋'}
             </button>
           </div>
@@ -66,8 +73,8 @@ export function ResetPasswordRow({ perfilId, email, nombre }: { perfilId: string
         </div>
       )}
       {resultado?.tipo === 'magic' && (
-        <div className="text-[10px] bg-sky-50 border border-sky-300 rounded p-2 max-w-[260px] text-left text-sky-800">
-          ✅ Magic link enviado a <strong>{email}</strong>. Vence en 1 hora.
+        <div className="text-[10px] bg-sky-50 border border-sky-300 rounded-sm p-2 max-w-[260px] text-left text-sky-800">
+          ✅ Correo de recuperación enviado a <strong>{email}</strong>.
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+import { requireAccess } from '@/lib/security/access';
 import { redirect } from 'next/navigation';
 import { PrivateShell } from '@/components/privado/PrivateShell';
 import { Topbar } from '@/components/privado/Topbar';
@@ -8,7 +9,13 @@ import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const auth = createClient();
+  const identity = await requireAccess(['admin', 'staff', 'director', 'finanzas'], 'admin:page');
+  if (identity.profile.rol === 'finanzas') {
+    const { headers } = await import('next/headers');
+    const path = (await headers()).get('x-pathname') ?? '';
+    if (!/^\/admin(?:$|\/(pagos|conceptos|extraordinarios|perfil)(\/|$)|\/alumnos$)/.test(path)) redirect('/admin');
+  }
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) redirect('/login');

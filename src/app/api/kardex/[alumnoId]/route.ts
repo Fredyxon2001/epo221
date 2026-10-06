@@ -1,3 +1,6 @@
+import type { ReactElement } from 'react';
+import type { DocumentProps } from '@react-pdf/renderer';
+import { apiAccess } from '@/lib/security/api-access';
 import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -6,8 +9,12 @@ import { getHistorialAcademico, getEvaluacionGeneral } from '@/lib/queries';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(_req: NextRequest, { params }: { params: { alumnoId: string } }) {
-  const auth = createClient();
+export async function GET(_req: NextRequest, props: { params: Promise<{ alumnoId: string }> }) {
+  const denied = await apiAccess(_req, null);
+  if (denied) return denied;
+
+  const params = await props.params;
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
@@ -48,7 +55,7 @@ export async function GET(_req: NextRequest, { params }: { params: { alumnoId: s
         conductaNeg,
         reconocimientos,
       },
-    }),
+    }) as unknown as ReactElement<DocumentProps>,
   );
 
   const filename = `kardex-${alumno.matricula ?? alumno.curp}.pdf`;

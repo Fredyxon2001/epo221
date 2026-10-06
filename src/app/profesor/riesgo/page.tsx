@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Panel de alumnos en riesgo académico para el profesor: promedio bajo + faltas altas.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -6,8 +8,10 @@ import { codigoGrupoDesdeSemestre } from '@/lib/grupos';
 import Link from 'next/link';
 
 export default async function AlumnosEnRiesgo() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
@@ -95,7 +99,7 @@ export default async function AlumnosEnRiesgo() {
                     ))}
                   </div>
                 </div>
-                <Link href={`/profesor/grupo/${f.asignacion_id}`} className="text-xs bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-50 shrink-0">
+                <Link href={`/profesor/grupo/${f.asignacion_id}`} className="text-xs bg-white border border-gray-300 rounded-sm px-2 py-1 hover:bg-gray-50 shrink-0">
                   Abrir →
                 </Link>
               </div>

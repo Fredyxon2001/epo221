@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { actualizarMateria, eliminarMateria, crearMateria } from './actions';
@@ -22,12 +23,15 @@ const tipoLabel: Record<string, string> = {
   optativa:     'Optativa',
 };
 
-export default async function AdminMaterias({
-  searchParams,
-}: {
-  searchParams: { semestre?: string; campo?: string; q?: string };
-}) {
-  const auth = createClient();
+export default async function AdminMaterias(
+  props: {
+    searchParams: Promise<{ semestre?: string; campo?: string; q?: string }>;
+  }
+) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
 
   const [{ data: materias }, { data: campos }] = await Promise.all([
@@ -89,7 +93,7 @@ export default async function AdminMaterias({
 
         {/* Crear nueva */}
         <details className="relative">
-          <summary className="bg-verde text-white text-sm font-medium px-4 py-2 rounded cursor-pointer hover:bg-verde-medio list-none">
+          <summary className="bg-verde text-white text-sm font-medium px-4 py-2 rounded-sm cursor-pointer hover:bg-verde-medio list-none">
             + Nueva materia
           </summary>
           <div className="absolute right-0 z-20 mt-2 w-80 bg-white border rounded-lg shadow-lg p-4">
@@ -98,21 +102,21 @@ export default async function AdminMaterias({
               <input
                 name="nombre"
                 required
-                className="w-full border rounded px-2 py-1"
+                className="w-full border rounded-sm px-2 py-1"
                 placeholder="Nombre de la materia"
               />
-              <select name="semestre" required defaultValue="1" className="w-full border rounded px-2 py-1">
+              <select name="semestre" required defaultValue="1" className="w-full border rounded-sm px-2 py-1">
                 {[1, 2, 3, 4, 5, 6].map((s) => (
                   <option key={s} value={s}>{s}° Semestre</option>
                 ))}
               </select>
-              <select name="campo_disciplinar_id" className="w-full border rounded px-2 py-1">
+              <select name="campo_disciplinar_id" className="w-full border rounded-sm px-2 py-1">
                 <option value="">Sin campo</option>
                 {(campos ?? []).map((c) => (
                   <option key={c.id} value={c.id}>{c.nombre}</option>
                 ))}
               </select>
-              <select name="tipo" defaultValue="obligatoria" className="w-full border rounded px-2 py-1">
+              <select name="tipo" defaultValue="obligatoria" className="w-full border rounded-sm px-2 py-1">
                 <option value="obligatoria">Obligatoria</option>
                 <option value="paraescolar">Paraescolar</option>
                 <option value="capacitacion">Capacitación</option>
@@ -122,11 +126,11 @@ export default async function AdminMaterias({
                 name="horas_semestrales"
                 type="number"
                 placeholder="Horas semestrales"
-                className="w-full border rounded px-2 py-1"
+                className="w-full border rounded-sm px-2 py-1"
               />
               <button
                 type="submit"
-                className="w-full bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio text-xs"
+                className="w-full bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio text-xs"
               >
                 Crear materia
               </button>
@@ -136,7 +140,7 @@ export default async function AdminMaterias({
       </div>
 
       {/* Barra de filtros */}
-      <div className="bg-white rounded-lg shadow-sm p-4 space-y-3">
+      <div className="bg-white rounded-lg shadow-xs p-4 space-y-3">
         {/* Búsqueda */}
         <form method="get" className="flex gap-2">
           {semestreFilter > 0 && <input type="hidden" name="semestre" value={semestreFilter} />}
@@ -145,18 +149,18 @@ export default async function AdminMaterias({
             name="q"
             defaultValue={q}
             placeholder="Buscar por nombre…"
-            className="flex-1 border rounded px-3 py-1.5 text-sm"
+            className="flex-1 border rounded-sm px-3 py-1.5 text-sm"
           />
           <button
             type="submit"
-            className="bg-verde text-white text-sm px-4 py-1.5 rounded hover:bg-verde-medio"
+            className="bg-verde text-white text-sm px-4 py-1.5 rounded-sm hover:bg-verde-medio"
           >
             Buscar
           </button>
           {(q || semestreFilter > 0 || campoFilter > 0) && (
             <a
               href="/admin/materias"
-              className="text-sm px-4 py-1.5 rounded border hover:bg-gray-50"
+              className="text-sm px-4 py-1.5 rounded-sm border hover:bg-gray-50"
             >
               Limpiar
             </a>
@@ -233,7 +237,7 @@ export default async function AdminMaterias({
         .map(Number)
         .sort((a, b) => a - b)
         .map((sem) => (
-          <section key={sem} className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <section key={sem} className="bg-white rounded-lg shadow-xs overflow-hidden">
             <header className="bg-verde px-4 py-2 text-white font-semibold text-sm">
               {sem}° Semestre — {porSemestre[sem].length} materias
             </header>
@@ -284,13 +288,13 @@ export default async function AdminMaterias({
                                 name="nombre"
                                 defaultValue={m.nombre}
                                 required
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full border rounded-sm px-2 py-1"
                                 placeholder="Nombre de la materia"
                               />
                               <select
                                 name="campo_disciplinar_id"
                                 defaultValue={m.campo_disciplinar_id ?? ''}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full border rounded-sm px-2 py-1"
                               >
                                 <option value="">Sin campo</option>
                                 {(campos ?? []).map((c) => (
@@ -302,7 +306,7 @@ export default async function AdminMaterias({
                               <select
                                 name="tipo"
                                 defaultValue={m.tipo}
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full border rounded-sm px-2 py-1"
                               >
                                 <option value="obligatoria">Obligatoria</option>
                                 <option value="paraescolar">Paraescolar</option>
@@ -314,11 +318,11 @@ export default async function AdminMaterias({
                                 type="number"
                                 defaultValue={m.horas_semestrales ?? ''}
                                 placeholder="Horas semestrales"
-                                className="w-full border rounded px-2 py-1"
+                                className="w-full border rounded-sm px-2 py-1"
                               />
                               <button
                                 type="submit"
-                                className="w-full bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio text-xs"
+                                className="w-full bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio text-xs"
                               >
                                 Guardar cambios
                               </button>
@@ -345,7 +349,7 @@ export default async function AdminMaterias({
         ))}
 
       {filtradas.length === 0 && (
-        <div className="bg-white rounded-lg p-10 text-center text-gray-400 shadow-sm">
+        <div className="bg-white rounded-lg p-10 text-center text-gray-400 shadow-xs">
           No hay materias para este filtro.
         </div>
       )}

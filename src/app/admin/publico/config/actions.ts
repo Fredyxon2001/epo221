@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -33,6 +36,9 @@ const schema = z.object({
 });
 
 export async function guardarConfig(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/config/actions.ts:guardarConfig");
+  await validateFormData(formData);
+
   const raw = Object.fromEntries(formData.entries());
   const input: any = {};
   for (const key of Object.keys(schema.shape)) {
@@ -48,7 +54,7 @@ export async function guardarConfig(formData: FormData) {
     if (Number.isNaN(data[k])) data[k] = null;
   }
 
-  const supabase = createClient();
+  const supabase = (await createClient());
   await supabase
     .from('sitio_config')
     .upsert({ id: 1, ...data, updated_at: new Date().toISOString() }, { onConflict: 'id' });

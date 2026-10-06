@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Carga horaria visual: grid semanal por grupo con las sesiones programadas.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -8,12 +9,15 @@ import { crearHorario, eliminarHorario, generarHorariosAutomaticos } from './act
 const DIAS = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const HORAS = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 
-export default async function HorariosPage({
-  searchParams,
-}: {
-  searchParams: { grupo_id?: string; ok?: string; error?: string };
-}) {
-  const auth = createClient();
+export default async function HorariosPage(
+  props: {
+    searchParams: Promise<{ grupo_id?: string; ok?: string; error?: string }>;
+  }
+) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
 
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id, codigo').eq('activo', true).maybeSingle();
@@ -63,7 +67,7 @@ export default async function HorariosPage({
           Turno vespertino: 14:00–20:20 con receso 16:40–17:20. Esto <u>reemplaza</u> los horarios actuales del ciclo.
         </p>
         <form action={generarHorariosAutomaticos}>
-          <button className="bg-gradient-to-r from-verde to-verde-medio text-white rounded-lg px-4 py-2 text-sm font-semibold shadow hover:shadow-lg">
+          <button className="bg-linear-to-r from-verde to-verde-medio text-white rounded-lg px-4 py-2 text-sm font-semibold shadow-sm hover:shadow-lg">
             ⚙️ Generar horarios automáticamente
           </button>
         </form>
@@ -72,12 +76,12 @@ export default async function HorariosPage({
       <Card eyebrow="Filtros" title={`Ciclo ${ciclo?.codigo ?? '—'}`}>
         <form className="flex flex-wrap gap-3 items-center">
           <label className="text-sm text-gray-600">Grupo:</label>
-          <select name="grupo_id" defaultValue={grupoSel} className="border rounded px-2 py-1 text-sm">
+          <select name="grupo_id" defaultValue={grupoSel} className="border rounded-sm px-2 py-1 text-sm">
             {(grupos ?? []).map((g: any) => (
               <option key={g.id} value={g.id}>{labelGrupo(g)}</option>
             ))}
           </select>
-          <button className="bg-verde text-white rounded px-3 py-1 text-sm hover:bg-verde-medio">Ver</button>
+          <button className="bg-verde text-white rounded-sm px-3 py-1 text-sm hover:bg-verde-medio">Ver</button>
         </form>
       </Card>
 
@@ -106,7 +110,7 @@ export default async function HorariosPage({
                           {sesion && (
                             <form action={eliminarHorario} className="group relative">
                               <input type="hidden" name="id" value={sesion.id} />
-                              <div className="bg-gradient-to-br from-verde-claro/40 to-dorado/20 border border-verde/30 rounded-lg p-2 text-[11px] leading-tight">
+                              <div className="bg-linear-to-br from-verde-claro/40 to-dorado/20 border border-verde/30 rounded-lg p-2 text-[11px] leading-tight">
                                 <div className="font-semibold text-verde-oscuro truncate">{sesion.asig?.materia?.nombre ?? '—'}</div>
                                 {sesion.asig?.profesor && (
                                   <div className="text-[10px] text-gray-600 truncate">{sesion.asig.profesor.apellido_paterno} {sesion.asig.profesor.nombre?.[0]}.</div>
@@ -133,20 +137,20 @@ export default async function HorariosPage({
       <Card eyebrow="Agregar sesión" title="Programar clase">
         <form action={crearHorario} className="grid md:grid-cols-6 gap-2 text-sm">
           <input type="hidden" name="grupo_id" value={grupoSel} />
-          <select name="asignacion_id" required className="border rounded px-2 py-1 md:col-span-2">
+          <select name="asignacion_id" required className="border rounded-sm px-2 py-1 md:col-span-2">
             <option value="">Materia…</option>
             {(asignaciones ?? []).map((a: any) => (
               <option key={a.id} value={a.id}>{a.materia?.nombre}</option>
             ))}
           </select>
-          <select name="dia" required className="border rounded px-2 py-1">
+          <select name="dia" required className="border rounded-sm px-2 py-1">
             <option value="">Día…</option>
             {[1,2,3,4,5,6].map((d) => <option key={d} value={d}>{DIAS[d]}</option>)}
           </select>
-          <input name="hora_inicio" type="time" required className="border rounded px-2 py-1" defaultValue="07:00" />
-          <input name="hora_fin" type="time" required className="border rounded px-2 py-1" defaultValue="08:00" />
-          <input name="aula" placeholder="Aula (opcional)" className="border rounded px-2 py-1" />
-          <button className="bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio md:col-span-6">
+          <input name="hora_inicio" type="time" required className="border rounded-sm px-2 py-1" defaultValue="07:00" />
+          <input name="hora_fin" type="time" required className="border rounded-sm px-2 py-1" defaultValue="08:00" />
+          <input name="aula" placeholder="Aula (opcional)" className="border rounded-sm px-2 py-1" />
+          <button className="bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio md:col-span-6">
             + Agregar sesión
           </button>
         </form>

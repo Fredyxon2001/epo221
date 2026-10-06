@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Generador de boletas masivas por grupo — lista los alumnos activos del grupo
 // y abre los PDFs en lote (usa el endpoint /api/boleta/[alumnoId] ya existente).
 import { createClient } from '@/lib/supabase/server';
@@ -6,8 +7,11 @@ import { codigoGrupoDesdeSemestre } from '@/lib/grupos';
 import Link from 'next/link';
 import { BoletasLauncher } from './BoletasLauncher';
 
-export default async function BoletasGrupo({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function BoletasGrupo(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const params = await props.params;
+  const supabase = (await createClient());
 
   const { data: grupo } = await supabase
     .from('grupos')
@@ -53,7 +57,7 @@ export default async function BoletasGrupo({ params }: { params: { id: string } 
                   <a
                     href={`/api/boleta/${a.id}`}
                     target="_blank"
-                    className="text-xs bg-verde text-white rounded px-2 py-1 hover:bg-verde-medio shrink-0"
+                    className="text-xs bg-verde text-white rounded-sm px-2 py-1 hover:bg-verde-medio shrink-0"
                   >
                     PDF ↗
                   </a>

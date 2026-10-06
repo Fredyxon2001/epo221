@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -19,7 +22,10 @@ export type ResultadoFicha = {
 };
 
 export async function actualizarFicha(formData: FormData): Promise<ResultadoFicha> {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/ficha/actions.ts:actualizarFicha");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const admin = adminClient();
   const { data: { user } } = await auth.auth.getUser();
@@ -95,7 +101,10 @@ export async function actualizarFicha(formData: FormData): Promise<ResultadoFich
 
 // Action para admin: aprobar/rechazar
 export async function resolverSolicitudFicha(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "alumno/ficha/actions.ts:resolverSolicitudFicha");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const admin = adminClient();
   const { data: { user } } = await auth.auth.getUser();
@@ -156,7 +165,10 @@ export async function resolverSolicitudFicha(fd: FormData): Promise<{ ok?: boole
 
 // Acción del admin para REINICIAR el contador de un alumno (cuando justifica en persona)
 export async function reiniciarContadorModificaciones(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "alumno/ficha/actions.ts:reiniciarContadorModificaciones");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const admin = adminClient();
   const { data: { user } } = await auth.auth.getUser();

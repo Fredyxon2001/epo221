@@ -64,7 +64,7 @@ export function DashboardHero({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.2, 0.85, 0.2, 1] }}
-      className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} text-white p-6 md:p-10 shadow-2xl shadow-verde-oscuro/30`}
+      className={`relative overflow-hidden rounded-3xl bg-linear-to-br ${gradient} text-white p-6 md:p-10 shadow-2xl shadow-verde-oscuro/30`}
     >
       {/* Spotlight que sigue el mouse */}
       <motion.div
@@ -169,7 +169,7 @@ export function DashboardHero({
                 ◆ {chip.label}
               </span>
             )}
-            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur rounded-full px-3 py-1 font-mono tabular-nums">
+            <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-3 py-1 font-mono tabular-nums">
               <span className="w-1.5 h-1.5 rounded-full bg-verde-claro animate-pulse" />
               {hora}
             </span>

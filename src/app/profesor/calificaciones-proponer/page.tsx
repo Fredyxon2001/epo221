@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // MAESTRO: propone calificaciones por parcial; el orientador del grupo las valida
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -5,11 +7,16 @@ import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { ProponerCalificacionesForm } from './ProponerCalificacionesForm';
 import { SolicitarParcialBtn } from './SolicitarParcialBtn';
 
-export default async function ProponerCalificacionesPage({ searchParams }: { searchParams?: { asignacion_id?: string; parcial?: string } }) {
-  const auth = createClient();
+export default async function ProponerCalificacionesPage(
+  props: { searchParams?: Promise<{ asignacion_id?: string; parcial?: string }> }
+) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const { data: { user } } = await auth.auth.getUser();
   // Usa adminClient para todas las queries (bypass RLS)
-  const supabase = adminClient();
+  const supabase = (await scopedClient());
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!prof) return <div className="p-5">No eres docente.</div>;
 
@@ -158,7 +165,7 @@ export default async function ProponerCalificacionesPage({ searchParams }: { sea
         )}
 
         {fueraDeVentana && (
-          <div className="mt-3 text-xs bg-rose-50 border-l-2 border-rose-400 p-2 rounded text-rose-800">
+          <div className="mt-3 text-xs bg-rose-50 border-l-2 border-rose-400 p-2 rounded-sm text-rose-800">
             ⚠️ <strong>Captura fuera de ventana.</strong> El parcial {parcial} solo se puede capturar entre {parcialActual?.abre} y {parcialActual?.cierra}. Si necesitas capturar fuera de plazo, contacta a Control Escolar.
           </div>
         )}
@@ -169,7 +176,7 @@ export default async function ProponerCalificacionesPage({ searchParams }: { sea
         </div>
 
         {orientNombre && (
-          <div className="mt-3 text-xs text-gray-600 bg-amber-50 border-l-2 border-amber-400 p-2 rounded">
+          <div className="mt-3 text-xs text-gray-600 bg-amber-50 border-l-2 border-amber-400 p-2 rounded-sm">
             🧭 Orientador del grupo: <strong>{orientNombre}</strong> · será quien valide las calificaciones que envíes.
           </div>
         )}

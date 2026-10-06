@@ -12,7 +12,7 @@ export default function PublicoLoading() {
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className="h-48 rounded-3xl bg-gradient-to-br from-verde/10 to-verde/5 border border-verde/10"
+              className="h-48 rounded-3xl bg-linear-to-br from-verde/10 to-verde/5 border border-verde/10"
             />
           ))}
         </div>

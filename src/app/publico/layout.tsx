@@ -9,7 +9,7 @@ import { PageBackdrop } from '@/components/publico/PageBackdrop';
 import { GobiernoBanner } from '@/components/publico/GobiernoBanner';
 
 export default async function PublicoLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const [{ data: cfg }, { data: paginasMenu }] = await Promise.all([
     supabase
       .from('sitio_config')
@@ -43,7 +43,7 @@ export default async function PublicoLayout({ children }: { children: React.Reac
         youtube={cfg?.youtube_url}
       />
 
-      <footer className="relative bg-gradient-to-br from-[#0b3d3a] via-[#115e59] to-[#0d9488] text-white/85 pt-20 pb-10 mt-24 overflow-hidden">
+      <footer className="relative bg-linear-to-br from-[#0b3d3a] via-verde-oscuro to-verde text-white/85 pt-20 pb-10 mt-24 overflow-hidden">
         <div className="absolute inset-0 opacity-25 pointer-events-none"
              style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(94,234,212,0.35), transparent 45%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.25), transparent 45%)' }} />
 
@@ -103,6 +103,8 @@ export default async function PublicoLayout({ children }: { children: React.Reac
               <li><Link href="/publico/descargas" className="hover:text-verde-claro">Descargas</Link></li>
               <li><Link href="/publico/albumes" className="hover:text-verde-claro">Galería</Link></li>
               <li><Link href="/publico/contacto" className="hover:text-verde-claro">Contacto</Link></li>
+              <li><Link href="/privacidad" className="hover:text-verde-claro">Privacidad y datos escolares</Link></li>
+              <li><Link href="/cookies" className="hover:text-verde-claro">Política de cookies</Link></li>
             </ul>
           </div>
 

@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Bandeja de solicitudes de revisión para el profesor.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -6,11 +8,14 @@ import { ResponderForm } from './ResponderForm';
 import { Adjunto } from '@/components/mensajes/Adjunto';
 import { ConversacionSolicitud } from '@/components/solicitudes/Conversacion';
 
-export default async function ProfSolicitudes({ searchParams }: { searchParams: { tab?: string } }) {
+export default async function ProfSolicitudes(props: { searchParams: Promise<{ tab?: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
   const tab = (searchParams.tab ?? 'abierta') as 'abierta' | 'respondida' | 'cerrada' | 'todas';
 
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 

@@ -50,9 +50,9 @@ function DocCard({ doc }: { doc: Doc }) {
     <a
       href={doc.href}
       download={fileName}
-      className="lift gradient-border group flex items-center gap-4 bg-white/95 backdrop-blur rounded-2xl p-5 transition"
+      className="lift gradient-border group flex items-center gap-4 bg-white/95 backdrop-blur-sm rounded-2xl p-5 transition"
     >
-      <div className="w-14 h-14 flex-shrink-0 rounded-2xl bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center text-2xl shadow-lg shadow-verde/30">
+      <div className="w-14 h-14 shrink-0 rounded-2xl bg-linear-to-br from-verde to-verde-medio text-white flex items-center justify-center text-2xl shadow-lg shadow-verde/30">
         {doc.icon}
       </div>
       <div className="flex-1 min-w-0">
@@ -80,7 +80,7 @@ export default function Descargas() {
 
         {/* Donación voluntaria de inscripción */}
         <Reveal delay={0.05}>
-          <div className="spotlight lift bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio text-white rounded-3xl p-8 shadow-2xl shadow-verde/30 relative overflow-hidden mb-12">
+          <div className="spotlight lift bg-linear-to-br from-verde-oscuro via-verde to-verde-medio text-white rounded-3xl p-8 shadow-2xl shadow-verde/30 relative overflow-hidden mb-12">
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 blob blur-3xl" aria-hidden />
             <div className="relative grid md:grid-cols-3 gap-6 items-center">
               <div className="md:col-span-2">
@@ -138,7 +138,7 @@ export default function Descargas() {
 
         {/* Requisitos reinscripción */}
         <Reveal delay={0.25}>
-          <section className="bg-white/90 backdrop-blur rounded-3xl p-8 border border-verde/15 shadow-sm">
+          <section className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 border border-verde/15 shadow-xs">
             <div className="flex items-center gap-3 mb-5">
               <span className="text-3xl">✅</span>
               <h2 className="font-serif text-2xl text-verde-oscuro">Requisitos de reinscripción 2025-2026-2</h2>

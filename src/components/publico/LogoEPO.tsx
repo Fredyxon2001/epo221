@@ -19,7 +19,7 @@ export function LogoEPO({
         className={`inline-flex items-center justify-center ${glow ? 'drop-shadow-[0_0_12px_rgba(240,200,74,0.6)]' : ''} ${className}`}
         style={{ width: size, height: size }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+
         <img
           src={url}
           alt="EPO 221 Nicolás Bravo"

@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
@@ -15,8 +16,11 @@ const LABELS: Record<string, string> = {
   tutor_email: 'Correo del tutor',
 };
 
-export default async function SolicitudesFichaPage({ searchParams }: { searchParams?: { estado?: string } }) {
-  const auth = createClient();
+export default async function SolicitudesFichaPage(props: { searchParams?: Promise<{ estado?: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
   const filtro = searchParams?.estado ?? 'pendiente';
 
@@ -87,12 +91,12 @@ export default async function SolicitudesFichaPage({ searchParams }: { searchPar
                     </Badge>
                   </div>
 
-                  <div className="text-xs bg-white border border-gray-200 rounded p-2 mb-2">
+                  <div className="text-xs bg-white border border-gray-200 rounded-sm p-2 mb-2">
                     <div className="text-[10px] uppercase font-semibold text-gray-500 mb-1">Motivo del alumno</div>
                     {s.motivo}
                   </div>
 
-                  <div className="bg-white border border-gray-200 rounded p-2 text-xs">
+                  <div className="bg-white border border-gray-200 rounded-sm p-2 text-xs">
                     <div className="text-[10px] uppercase font-semibold text-gray-500 mb-1">Cambios solicitados</div>
                     <table className="w-full">
                       <thead className="text-[10px] text-gray-500">
@@ -111,7 +115,7 @@ export default async function SolicitudesFichaPage({ searchParams }: { searchPar
                   </div>
 
                   {s.motivo_rechazo && (
-                    <div className="mt-2 text-xs bg-rose-100 border border-rose-300 rounded p-2 text-rose-800">
+                    <div className="mt-2 text-xs bg-rose-100 border border-rose-300 rounded-sm p-2 text-rose-800">
                       <strong>Rechazado:</strong> {s.motivo_rechazo}
                     </div>
                   )}

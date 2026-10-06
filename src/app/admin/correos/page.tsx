@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card } from '@/components/privado/ui';
 
@@ -8,7 +9,9 @@ const ESTADO_STYLE: Record<string, string> = {
 };
 
 export default async function CorreosLogPage() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: logs } = await supabase
     .from('correo_log')
     .select('*')
@@ -59,7 +62,7 @@ export default async function CorreosLogPage() {
                     <td className="px-2 py-1 max-w-[200px] truncate">{l.destinatario}</td>
                     <td className="px-2 py-1 max-w-[260px] truncate">{l.asunto ?? '—'}</td>
                     <td className="px-2 py-1">
-                      <span className={`text-[10px] px-2 py-0.5 rounded font-semibold uppercase ${ESTADO_STYLE[l.estado] ?? 'bg-gray-100'}`}>{l.estado}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-sm font-semibold uppercase ${ESTADO_STYLE[l.estado] ?? 'bg-gray-100'}`}>{l.estado}</span>
                     </td>
                     <td className="px-2 py-1 max-w-[260px] truncate text-rose-700">{l.error ?? ''}</td>
                   </tr>

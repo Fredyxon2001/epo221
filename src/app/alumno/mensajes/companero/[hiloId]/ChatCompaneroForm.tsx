@@ -53,7 +53,7 @@ export function ChatCompaneroForm({ hiloId }: { hiloId: string }) {
         {showEmojis && (
           <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-lg p-2 grid grid-cols-10 gap-1 z-20 w-[320px]">
             {EMOJIS.map((e) => (
-              <button key={e} type="button" onClick={() => insertEmoji(e)} className="text-xl hover:bg-gray-100 rounded p-1">{e}</button>
+              <button key={e} type="button" onClick={() => insertEmoji(e)} className="text-xl hover:bg-gray-100 rounded-sm p-1">{e}</button>
             ))}
           </div>
         )}
@@ -63,7 +63,7 @@ export function ChatCompaneroForm({ hiloId }: { hiloId: string }) {
           onChange={(e) => setTexto(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); } }}
           placeholder="Escribe un mensaje…"
-          className="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:border-verde outline-none"
+          className="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:border-verde outline-hidden"
         />
         <button
           type="button" onClick={enviar} disabled={pending || !texto.trim()}

@@ -23,7 +23,6 @@ export function GobiernoBanner({
   const v = 'v=4';
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={`/img/gobierno-edomex-sep.png?${v}`}
       srcSet={`/img/gobierno-edomex-sep.png?${v} 1x, /img/gobierno-edomex-sep@2x.png?${v} 2x`}

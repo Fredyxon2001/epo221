@@ -43,7 +43,7 @@ export function ChatGrupalForm({ asignacionId }: { asignacionId: string }) {
         onChange={(e) => setTexto(e.target.value)}
         rows={2}
         placeholder="Escribe un mensaje…"
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-none"
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-hidden"
       />
       <div className="flex items-end justify-between gap-2">
         <EmojiFilePicker

@@ -1,10 +1,15 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 
-export default async function DirectorioTutores({ searchParams }: { searchParams: { q?: string; grupo?: string } }) {
-  const auth = createClient();
-  const supabase = adminClient();
+export default async function DirectorioTutores(props: { searchParams: Promise<{ q?: string; grupo?: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
@@ -109,13 +114,13 @@ export default async function DirectorioTutores({ searchParams }: { searchParams
                         <div className="flex gap-1 flex-wrap">
                           {telWA10 && (
                             <a href={`https://wa.me/${telWA10}`} target="_blank"
-                              className="bg-[#25D366] hover:brightness-95 text-white px-2 py-1 rounded font-semibold">WhatsApp</a>
+                              className="bg-[#25D366] hover:brightness-95 text-white px-2 py-1 rounded-sm font-semibold">WhatsApp</a>
                           )}
                           {a.tutor_telefono && (
-                            <a href={`tel:${a.tutor_telefono}`} className="bg-sky-600 hover:bg-sky-700 text-white px-2 py-1 rounded font-semibold">Llamar</a>
+                            <a href={`tel:${a.tutor_telefono}`} className="bg-sky-600 hover:bg-sky-700 text-white px-2 py-1 rounded-sm font-semibold">Llamar</a>
                           )}
                           {a.tutor_email && (
-                            <a href={`mailto:${a.tutor_email}`} className="bg-gray-700 hover:bg-gray-900 text-white px-2 py-1 rounded font-semibold">Correo</a>
+                            <a href={`mailto:${a.tutor_email}`} className="bg-gray-700 hover:bg-gray-900 text-white px-2 py-1 rounded-sm font-semibold">Correo</a>
                           )}
                         </div>
                       </td>

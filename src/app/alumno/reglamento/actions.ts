@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
@@ -6,14 +9,17 @@ import { headers } from 'next/headers';
 import crypto from 'crypto';
 
 export async function firmarReglamento(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/reglamento/actions.ts:firmarReglamento");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) throw new Error('no-auth');
   const reglamento_id = String(fd.get('reglamento_id') ?? '');
   if (!reglamento_id) throw new Error('sin-id');
 
-  const h = headers();
+  const h = await headers();
   const ip = (h.get('x-forwarded-for') ?? h.get('x-real-ip') ?? '').split(',')[0].trim() || null;
   const user_agent = h.get('user-agent') ?? null;
 

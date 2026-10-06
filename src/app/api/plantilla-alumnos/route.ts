@@ -1,3 +1,4 @@
+import { apiAccess } from '@/lib/security/api-access';
 // Genera y descarga la plantilla XLSX para importación masiva de alumnos.
 import { NextRequest } from 'next/server';
 import * as XLSX from 'xlsx';
@@ -160,6 +161,9 @@ const PREVIEW_LOGIN = [
 ];
 
 export async function GET(_req: NextRequest) {
+  const denied = await apiAccess(_req, ["admin","staff","director"]);
+  if (denied) return denied;
+
   const wb = XLSX.utils.book_new();
 
   // Hoja 1: ALUMNOS (datos a llenar)

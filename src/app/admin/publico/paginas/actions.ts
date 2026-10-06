@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -17,6 +20,9 @@ const schema = z.object({
 });
 
 export async function crearPagina(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/paginas/actions.ts:crearPagina");
+  await validateFormData(formData);
+
   const parsed = schema.safeParse({
     slug:      formData.get('slug'),
     titulo:    formData.get('titulo'),
@@ -25,7 +31,7 @@ export async function crearPagina(formData: FormData) {
     orden:     formData.get('orden'),
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data, error } = await supabase
     .from('paginas_publicas')
@@ -38,6 +44,9 @@ export async function crearPagina(formData: FormData) {
 }
 
 export async function actualizarPagina(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/paginas/actions.ts:actualizarPagina");
+  await validateFormData(formData);
+
   const id = String(formData.get('id'));
   const parsed = schema.safeParse({
     slug:      formData.get('slug'),
@@ -47,7 +56,7 @@ export async function actualizarPagina(formData: FormData) {
     orden:     formData.get('orden'),
   });
   if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase
     .from('paginas_publicas')
@@ -58,8 +67,11 @@ export async function actualizarPagina(formData: FormData) {
 }
 
 export async function eliminarPagina(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/paginas/actions.ts:eliminarPagina");
+  await validateFormData(formData);
+
   const id = String(formData.get('id'));
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('paginas_publicas').update({ deleted_at: new Date().toISOString() }).eq('id', id);
   revalidatePath('/admin/publico/paginas');

@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Selector de profesor / compañero para iniciar un hilo de mensajes.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -7,9 +8,11 @@ import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { AbrirHiloCompaneroBtn } from './AbrirHiloCompaneroBtn';
 
 export default async function NuevoHiloAlumno() {
+  await requireIdentity(["alumno"]);
+
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
 
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
@@ -102,9 +105,9 @@ export default async function NuevoHiloAlumno() {
               <Link
                 key={p.id}
                 href={`/alumno/mensajes/${p.id}`}
-                className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:border-verde hover:shadow transition"
+                className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:border-verde hover:shadow-sm transition"
               >
-                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-dorado to-dorado-claro text-verde-oscuro flex items-center justify-center font-bold shadow">
+                <div className="w-11 h-11 rounded-full bg-linear-to-br from-dorado to-dorado-claro text-verde-oscuro flex items-center justify-center font-bold shadow-sm">
                   {p.nombre.split(' ').slice(0, 2).map(s => s[0]).join('')}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -134,7 +137,7 @@ export default async function NuevoHiloAlumno() {
                 key={c.id}
                 className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:border-verde transition"
               >
-                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow">
+                <div className="w-11 h-11 rounded-full bg-linear-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow-sm">
                   {c.nombre.split(' ').slice(0, 2).map((s: string) => s[0]).join('')}
                 </div>
                 <div className="flex-1 min-w-0">

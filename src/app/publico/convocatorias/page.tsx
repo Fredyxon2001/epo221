@@ -8,7 +8,7 @@ import { ArticuloMarkdown } from '@/components/publico/ArticuloMarkdown';
 export const revalidate = 60;
 
 export default async function Convocatorias() {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const hoy = new Date().toISOString().slice(0, 10);
   const { data: convs } = await supabase
     .from('convocatorias').select('*')
@@ -38,7 +38,7 @@ export default async function Convocatorias() {
               return (
                 <MotionItem key={c.id} variants={staggerItem}>
                   <div className="lift spotlight relative bg-white rounded-3xl shadow-xl shadow-verde/10 border border-verde/10 overflow-hidden group">
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-verde-oscuro via-verde to-verde-medio" aria-hidden />
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-linear-to-b from-verde-oscuro via-verde to-verde-medio" aria-hidden />
                     <div className="relative p-8">
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex-1 min-w-0">
@@ -76,7 +76,7 @@ export default async function Convocatorias() {
                           href={c.archivo_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-6 inline-flex items-center gap-2 bg-gradient-to-r from-verde to-verde-medio text-white font-semibold px-5 py-2.5 rounded-full shadow-lg shadow-verde/30 hover:shadow-xl hover:-translate-y-0.5 transition"
+                          className="mt-6 inline-flex items-center gap-2 bg-linear-to-r from-verde to-verde-medio text-white font-semibold px-5 py-2.5 rounded-full shadow-lg shadow-verde/30 hover:shadow-xl hover:-translate-y-0.5 transition"
                         >
                           📎 Descargar documento oficial
                         </a>

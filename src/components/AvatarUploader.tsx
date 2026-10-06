@@ -37,14 +37,14 @@ export function AvatarUploader({
   }
 
   return (
-    <div className="bg-white rounded-lg p-5 shadow-sm">
+    <div className="bg-white rounded-lg p-5 shadow-xs">
       <h2 className="text-sm uppercase text-gray-500 mb-3">Foto de perfil</h2>
       <div className="flex items-center gap-5">
         <div className="relative">
           {preview ? (
-            <img src={preview} alt="avatar" className="w-24 h-24 rounded-full object-cover border-4 border-verde/20 shadow" />
+            <img src={preview} alt="avatar" className="w-24 h-24 rounded-full object-cover border-4 border-verde/20 shadow-sm" />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center text-3xl font-bold shadow">
+            <div className="w-24 h-24 rounded-full bg-linear-to-br from-verde to-verde-medio text-white flex items-center justify-center text-3xl font-bold shadow-sm">
               {iniciales}
             </div>
           )}

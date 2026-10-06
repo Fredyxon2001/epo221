@@ -1,9 +1,12 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 
 export default async function EvalDocenteResultados() {
-  const auth = createClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
@@ -38,7 +41,7 @@ export default async function EvalDocenteResultados() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {Object.entries(r.promedios ?? {}).map(([k, v]: any) => (
-                    <div key={k} className="flex justify-between items-center bg-gray-50 rounded p-2 text-xs">
+                    <div key={k} className="flex justify-between items-center bg-gray-50 rounded-sm p-2 text-xs">
                       <span className="capitalize">{k.replace(/_/g, ' ')}</span>
                       <strong className="text-verde-oscuro tabular-nums">{Number(v).toFixed(2)}</strong>
                     </div>

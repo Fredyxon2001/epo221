@@ -1,10 +1,17 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Agenda de tutorías: horarios del docente + citas (alumno/tutor solicita, profe confirma).
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function guardarHorarioTutoria(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(null, "tutorias/actions.ts:guardarHorarioTutoria");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user.id).maybeSingle();
@@ -27,13 +34,22 @@ export async function guardarHorarioTutoria(fd: FormData): Promise<{ error?: str
 }
 
 export async function eliminarHorarioTutoria(id: string) {
-  const supabase = createClient();
+  await requireAccess(null, "tutorias/actions.ts:eliminarHorarioTutoria");
+  await requireResource("tutorias_horarios", id, false);
+
+
+  const supabase = (await createClient());
   await supabase.from('tutorias_horarios').delete().eq('id', id);
   revalidatePath('/profesor/tutorias');
 }
 
 export async function solicitarCita(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(null, "tutorias/actions.ts:solicitarCita");
+  await validateFormData(fd);
+  await requireProfessor(fd.get("profesor_id"));
+
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
@@ -80,7 +96,12 @@ export async function solicitarCita(fd: FormData): Promise<{ error?: string; ok?
 }
 
 export async function actualizarCita(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(null, "tutorias/actions.ts:actualizarCita");
+  await validateFormData(fd);
+  await requireResource("tutorias_citas", fd.get("id"), false);
+
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 

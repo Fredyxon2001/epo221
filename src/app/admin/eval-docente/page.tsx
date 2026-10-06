@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
@@ -5,7 +6,9 @@ import { NuevoPeriodoForm } from './NuevoPeriodoForm';
 import { CerrarPeriodoBtn } from './CerrarPeriodoBtn';
 
 export default async function AdminEvalDocente() {
-  const auth = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: periodos } = await supabase.from('eval_docente_periodos')
     .select('*').order('created_at', { ascending: false });

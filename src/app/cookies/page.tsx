@@ -18,9 +18,9 @@ export default function CookiesPage() {
       <h2 className="mt-8 text-xl font-semibold">Cambiar o retirar tu decisión</h2>
       <p className="mt-3">El botón «Preferencias de cookies» está disponible en todas las páginas. Rechazar las opcionales retira el mapa de la página y evita nuevas cargas. Las cookies que Google haya guardado en su propio dominio se eliminan desde tu navegador. Al vencer tu elección, o si cambia la versión de la política, volveremos a solicitarla.</p>
       <h2 className="mt-8 text-xl font-semibold">Otros recursos y almacenamiento</h2>
-      <p className="mt-3">El tema de color y la disposición del menú se recuerdan en el almacenamiento local del navegador. La aplicación instalable utiliza caché de recursos estáticos. Las fuentes se solicitan a Google Fonts y la página de la aplicación móvil solicita una imagen QR a un proveedor externo; esas solicitudes transmiten datos de conexión. Los enlaces a redes sociales abren sitios con sus propias políticas. No se han incorporado herramientas de publicidad ni analítica en esta implementación.</p>
+      <p className="mt-3">El tema de color y la disposición del menú se recuerdan en el almacenamiento local del navegador. La aplicación instalable utiliza caché de recursos estáticos y excluye páginas y respuestas privadas. Las fuentes y el QR de la aplicación móvil se sirven desde esta aplicación. Los enlaces a redes sociales abren sitios con sus propias políticas. No se han incorporado herramientas de publicidad ni analítica en esta implementación.</p>
       <h2 className="mt-8 text-xl font-semibold">Consultas</h2>
-      <p className="mt-3">Para consultas sobre el uso de cookies, utiliza los <Link href="/publico/contacto" className="text-teal-800 underline">datos oficiales de contacto de la escuela</Link>. Esta política describe cookies y almacenamiento; el aviso institucional de privacidad debe cubrir por separado el tratamiento de los datos escolares.</p>
+      <p className="mt-3">Para consultas sobre el uso de cookies, utiliza los <Link href="/publico/contacto" className="text-teal-800 underline">datos oficiales de contacto de la escuela</Link>. Consulta también la <Link href="/privacidad" className="text-teal-800 underline">información sobre privacidad y datos escolares</Link>.</p>
     </main>
   );
 }

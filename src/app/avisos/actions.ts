@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Creación de avisos y marca de lectura. El bucket usado es 'mensajes'
 // (reutilizamos el existente, path: avisos/<id>/<uuid>.<ext>).
 import { createClient } from '@/lib/supabase/server';
@@ -7,7 +10,10 @@ import { revalidatePath } from 'next/cache';
 const MAX = 10 * 1024 * 1024;
 
 export async function crearAviso(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(null, "avisos/actions.ts:crearAviso");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
 
@@ -64,7 +70,9 @@ export async function crearAviso(fd: FormData): Promise<{ error?: string; ok?: b
 }
 
 export async function marcarAvisoLeido(avisoId: string): Promise<void> {
-  const supabase = createClient();
+  await requireAccess(null, "avisos/actions.ts:marcarAvisoLeido");
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
   await supabase.from('avisos_lecturas')

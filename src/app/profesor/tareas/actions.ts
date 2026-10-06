@@ -1,11 +1,20 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Acciones de tareas (docente): crear, editar y calificar entregas.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearTarea(fd: FormData): Promise<{ error?: string; ok?: boolean; id?: string }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/tareas/actions.ts:crearTarea");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -64,7 +73,12 @@ export async function crearTarea(fd: FormData): Promise<{ error?: string; ok?: b
 }
 
 export async function calificarEntrega(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/tareas/actions.ts:calificarEntrega");
+  await validateFormData(fd);
+  await requireResource("entregas_tarea", fd.get("id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -104,7 +118,11 @@ export async function calificarEntrega(fd: FormData): Promise<{ error?: string; 
 }
 
 export async function eliminarTarea(id: string) {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/tareas/actions.ts:eliminarTarea");
+  await requireResource("tareas", id, false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };

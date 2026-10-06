@@ -1,3 +1,4 @@
+import { apiAccess } from '@/lib/security/api-access';
 // Endpoint admin/test para disparar un push manualmente.
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -5,7 +6,10 @@ import { adminClient } from '@/lib/supabase/admin';
 import { sendPushToUser, sendPushToUsers } from '@/lib/push';
 
 export async function POST(req: Request) {
-  const auth = createClient();
+  const denied = await apiAccess(req, null);
+  if (denied) return denied;
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });

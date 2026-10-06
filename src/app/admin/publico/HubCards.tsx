@@ -24,11 +24,11 @@ export function HubCards({ cards }: { cards: HubCard[] }) {
         >
           <Link
             href={c.href}
-            className="block relative overflow-hidden bg-white rounded-xl shadow-sm border hover:shadow-xl hover:border-verde transition p-5 group h-full"
+            className="block relative overflow-hidden bg-white rounded-xl shadow-xs border hover:shadow-xl hover:border-verde transition p-5 group h-full"
           >
             <span
               aria-hidden
-              className="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br from-verde-claro/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition"
+              className="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-linear-to-br from-verde-claro/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition"
             />
             <div className="flex items-start justify-between relative">
               <motion.div

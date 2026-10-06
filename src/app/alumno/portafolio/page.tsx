@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
@@ -6,11 +8,13 @@ import { SubirEvidenciaForm } from './SubirEvidenciaForm';
 import { EliminarEvidenciaBtn } from './EliminarEvidenciaBtn';
 
 export default async function PortafolioAlumno() {
+  await requireIdentity(["alumno"]);
+
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
-  const supabase = adminClient();
-  const admin = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
+  const admin = (await scopedClient());
 
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
   const { data: insc } = await supabase.from('inscripciones').select('grupo_id').eq('alumno_id', alumno.id);

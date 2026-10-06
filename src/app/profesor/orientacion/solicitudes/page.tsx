@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Bandeja de SOLICITUDES de revisión que el ORIENTADOR debe acompañar.
 // Cada solicitud creada para una asignación de un grupo orientado por mí aparece aquí.
 import { createClient } from '@/lib/supabase/server';
@@ -9,9 +11,12 @@ const ESTADO_TONO: Record<string, any> = {
   abierta: 'ambar', respondida: 'azul', aceptada: 'verde', rechazada: 'rosa', cerrada: 'gray',
 };
 
-export default async function OrientadorSolicitudes({ searchParams }: { searchParams?: { estado?: string } }) {
-  const auth = createClient();
-  const supabase = adminClient();
+export default async function OrientadorSolicitudes(props: { searchParams?: Promise<{ estado?: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!prof) return <div className="p-5">No eres docente.</div>;
@@ -109,12 +114,12 @@ export default async function OrientadorSolicitudes({ searchParams }: { searchPa
                 <div className="p-4 space-y-3 bg-crema/30">
                   <div>
                     <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Motivo del alumno</div>
-                    <div className="text-sm bg-white border border-gray-200 rounded p-2">{s.motivo}</div>
+                    <div className="text-sm bg-white border border-gray-200 rounded-sm p-2">{s.motivo}</div>
                   </div>
                   {s.respuesta && (
                     <div>
                       <div className="text-[10px] uppercase tracking-wider text-verde font-semibold mb-1">Respuesta del maestro</div>
-                      <div className="text-sm bg-verde-claro/10 border border-verde/30 rounded p-2">{s.respuesta}</div>
+                      <div className="text-sm bg-verde-claro/10 border border-verde/30 rounded-sm p-2">{s.respuesta}</div>
                     </div>
                   )}
 

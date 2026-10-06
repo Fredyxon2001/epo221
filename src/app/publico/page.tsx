@@ -14,7 +14,7 @@ import { MagneticLink, MagneticButton } from '@/components/publico/MagneticButto
 export const revalidate = 60;
 
 export default async function PublicoHome() {
-  const supabase = createClient();
+  const supabase = (await createClient());
 
   const [{ data: noticias }, { data: cfg }, { data: albumes }, { count: materiasCount }] = await Promise.all([
     supabase.from('noticias')
@@ -119,12 +119,12 @@ export default async function PublicoHome() {
           <Stagger className="grid grid-cols-2 md:grid-cols-4 gap-6" stagger={0.12}>
             {stats.map((s, i) => (
               <MotionItem key={i} variants={staggerItem}>
-                <TiltCard className="gradient-border lift bg-white/90 backdrop-blur rounded-3xl p-6 md:p-8 text-center h-full">
-                  <div className="font-serif text-5xl md:text-6xl font-black bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio bg-clip-text text-transparent">
+                <TiltCard className="gradient-border lift bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 text-center h-full">
+                  <div className="font-serif text-5xl md:text-6xl font-black bg-linear-to-br from-verde-oscuro via-verde to-verde-medio bg-clip-text text-transparent">
                     <Counter to={s.n} suffix={s.suffix} />
                   </div>
                   <div className="mt-3 text-[11px] text-gray-500 uppercase tracking-[0.3em]">{s.label}</div>
-                  <div className="mt-4 mx-auto h-px w-10 bg-gradient-to-r from-transparent via-verde/40 to-transparent" />
+                  <div className="mt-4 mx-auto h-px w-10 bg-linear-to-r from-transparent via-verde/40 to-transparent" />
                 </TiltCard>
               </MotionItem>
             ))}
@@ -148,7 +148,7 @@ export default async function PublicoHome() {
 
           <div className="grid md:grid-cols-2 gap-8">
             <Reveal>
-              <div className="spotlight lift relative bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio text-white rounded-3xl p-6 sm:p-8 md:p-10 overflow-hidden h-full shadow-2xl shadow-verde/25">
+              <div className="spotlight lift relative bg-linear-to-br from-verde-oscuro via-verde to-verde-medio text-white rounded-3xl p-6 sm:p-8 md:p-10 overflow-hidden h-full shadow-2xl shadow-verde/25">
                 <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-verde-claro/30 blob blur-2xl" aria-hidden />
                 <div className="relative">
                   <div className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-verde-claro mb-5">
@@ -199,7 +199,7 @@ export default async function PublicoHome() {
       )}
 
       {/* Carreras/capacitaciones */}
-      <section className="relative py-16 md:py-28 px-5 md:px-6 bg-gradient-to-b from-white to-crema overflow-hidden">
+      <section className="relative py-16 md:py-28 px-5 md:px-6 bg-linear-to-b from-white to-crema overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <SectionHeader
             eyebrow="Formación"
@@ -213,10 +213,10 @@ export default async function PublicoHome() {
             {carreras.map((c, i) => (
               <MotionItem key={i} variants={staggerItem}>
                 <TiltCard className="h-full lift">
-                  <div className={`spotlight relative bg-gradient-to-br ${c.color} text-white rounded-3xl p-6 md:p-8 h-full shadow-2xl shadow-verde/20 overflow-hidden group`}>
+                  <div className={`spotlight relative bg-linear-to-br ${c.color} text-white rounded-3xl p-6 md:p-8 h-full shadow-2xl shadow-verde/20 overflow-hidden group`}>
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_55%)]" />
                     <div className="relative">
-                      <div className="ring-conic inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 text-4xl mb-5">
+                      <div className="ring-conic inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-xs border border-white/20 text-4xl mb-5">
                         {c.icon}
                       </div>
                       <h3 className="font-serif text-2xl mb-3 leading-tight">{c.titulo}</h3>
@@ -234,7 +234,7 @@ export default async function PublicoHome() {
       </section>
 
       {/* Timeline admisión */}
-      <section className="relative py-16 md:py-28 px-5 md:px-6 bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio text-white overflow-hidden">
+      <section className="relative py-16 md:py-28 px-5 md:px-6 bg-linear-to-br from-verde-oscuro via-verde to-verde-medio text-white overflow-hidden">
         <div className="grain absolute inset-0 pointer-events-none" aria-hidden />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.18),transparent_50%)] pointer-events-none" aria-hidden />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(94,234,212,0.25),transparent_40%)] pointer-events-none" aria-hidden />
@@ -249,7 +249,7 @@ export default async function PublicoHome() {
           />
 
           <div className="grid md:grid-cols-4 gap-8 relative">
-            <div className="hidden md:block absolute top-14 left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-transparent via-white/60 to-transparent" aria-hidden />
+            <div className="hidden md:block absolute top-14 left-[12%] right-[12%] h-[2px] bg-linear-to-r from-transparent via-white/60 to-transparent" aria-hidden />
             {timeline.map((t, i) => (
               <Reveal key={i} delay={i * 0.12} className="relative text-center lift">
                 <div className="relative mx-auto glow-ring">
@@ -315,7 +315,7 @@ export default async function PublicoHome() {
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                       style={a.portada_url ? { backgroundImage: `url(${a.portada_url})` } : { background: 'linear-gradient(135deg, #1a5c2e, #c9a227)' }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-verde/90 via-verde/30 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-verde/90 via-verde/30 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
                       <div className="font-serif text-lg">{a.titulo}</div>
                       {a.fecha_evento && (
@@ -350,7 +350,7 @@ export default async function PublicoHome() {
                 <MotionItem key={n.id} variants={staggerItem}>
                   <Link href={`/publico/noticias/${n.slug}`}
                         className="bento-card block h-full bg-crema rounded-2xl overflow-hidden shadow-md hover:shadow-2xl border border-verde/15">
-                    <div className="aspect-[16/9] bg-verde/10 bg-cover bg-center"
+                    <div className="aspect-video bg-verde/10 bg-cover bg-center"
                          style={n.imagen_url ? { backgroundImage: `url(${n.imagen_url})` } : { background: 'linear-gradient(135deg, #1a5c2e, #2d8047)' }} />
                     <div className="p-6">
                       <div className="text-xs text-verde uppercase tracking-widest">
@@ -369,7 +369,7 @@ export default async function PublicoHome() {
       </section>
 
       {/* CTA final */}
-      <section className="relative py-14 md:py-24 px-5 md:px-6 bg-gradient-to-br from-verde via-verde-medio to-verde text-white overflow-hidden noise">
+      <section className="relative py-14 md:py-24 px-5 md:px-6 bg-linear-to-br from-verde via-verde-medio to-verde text-white overflow-hidden noise">
         <div className="absolute -right-32 -top-20 w-[500px] h-[500px] rounded-full bg-white/10 blob blur-3xl" aria-hidden />
         <div className="absolute -left-32 -bottom-20 w-[400px] h-[400px] rounded-full bg-verde-claro/30 blob blur-3xl" aria-hidden />
         <div className="relative max-w-5xl mx-auto text-center">

@@ -1,0 +1,11 @@
+.git
+node_modules
+.next
+.env*
+.playwright-cli
+output
+test-results
+playwright-report
+security-backups
+supabase/.temp
+*.log

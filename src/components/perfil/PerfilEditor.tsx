@@ -67,11 +67,10 @@ export function PerfilEditor({ data, esProfesor = false }: { data: PerfilData; e
         <div className="flex items-center gap-5 flex-wrap">
           <div className="relative">
             {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img src={avatarUrl} alt="Avatar"
                 className="w-24 h-24 rounded-full object-cover ring-4 ring-verde-claro/30" />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center text-3xl font-bold ring-4 ring-verde-claro/30">
+              <div className="w-24 h-24 rounded-full bg-linear-to-br from-verde to-verde-medio text-white flex items-center justify-center text-3xl font-bold ring-4 ring-verde-claro/30">
                 {iniciales || '?'}
               </div>
             )}
@@ -167,8 +166,8 @@ export function PerfilEditor({ data, esProfesor = false }: { data: PerfilData; e
             className="mt-1 w-full border rounded-lg px-3 py-2 resize-none" />
         </label>
 
-        {okMsg && <div className="bg-verde-claro/20 border border-verde rounded p-2 text-xs text-verde-oscuro">{okMsg}</div>}
-        {errMsg && <div className="bg-rose-50 border border-rose-300 rounded p-2 text-xs text-rose-700">⚠️ {errMsg}</div>}
+        {okMsg && <div className="bg-verde-claro/20 border border-verde rounded-sm p-2 text-xs text-verde-oscuro">{okMsg}</div>}
+        {errMsg && <div className="bg-rose-50 border border-rose-300 rounded-sm p-2 text-xs text-rose-700">⚠️ {errMsg}</div>}
 
         <div className="flex justify-end">
           <button type="submit" disabled={pending}

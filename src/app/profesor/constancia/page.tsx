@@ -1,10 +1,14 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 
 export default async function ConstanciaPage() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id, nombre, apellido_paterno, rfc').eq('perfil_id', user!.id).maybeSingle();
 
@@ -33,13 +37,13 @@ export default async function ConstanciaPage() {
                 <div>
                   <div className="font-semibold">{c.codigo}</div>
                   <div className="text-xs text-gray-500">
-                    {c.periodo ?? '—'} {c.activo && <span className="ml-2 bg-verde-claro/30 text-verde-oscuro px-2 py-0.5 rounded text-[10px]">Ciclo activo</span>}
+                    {c.periodo ?? '—'} {c.activo && <span className="ml-2 bg-verde-claro/30 text-verde-oscuro px-2 py-0.5 rounded-sm text-[10px]">Ciclo activo</span>}
                   </div>
                 </div>
                 <a
                   href={`/api/constancia/${prof.id}?ciclo_id=${c.id}`}
                   target="_blank"
-                  className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded text-xs"
+                  className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded-sm text-xs"
                 >
                   📄 Descargar PDF
                 </a>

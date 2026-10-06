@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -15,6 +18,9 @@ const schema = z.object({
 });
 
 export async function guardarParcial(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/parciales/actions.ts:guardarParcial");
+  await validateFormData(formData);
+
   const parsed = schema.safeParse({
     ciclo_id:       formData.get('ciclo_id'),
     numero:         formData.get('numero'),
@@ -33,6 +39,9 @@ export async function guardarParcial(formData: FormData) {
 }
 
 export async function agregarParcial(formData: FormData): Promise<void> {
+  await requireAccess(["admin","staff","director"], "admin/parciales/actions.ts:agregarParcial");
+  await validateFormData(formData);
+
   const ciclo_id = String(formData.get('ciclo_id') ?? '');
   if (!ciclo_id) return;
 
@@ -54,6 +63,9 @@ export async function agregarParcial(formData: FormData): Promise<void> {
 }
 
 export async function eliminarParcial(formData: FormData): Promise<void> {
+  await requireAccess(["admin","staff","director"], "admin/parciales/actions.ts:eliminarParcial");
+  await validateFormData(formData);
+
   const id = String(formData.get('id') ?? '');
   if (!id) return;
   const supabase = adminClient();

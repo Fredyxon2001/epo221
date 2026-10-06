@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
@@ -6,9 +7,11 @@ import { ResponderEvalForm } from './ResponderEvalForm';
 import crypto from 'crypto';
 
 export default async function AlumnoEvalDocente() {
+  await requireIdentity(["alumno"]);
+
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const ahora = new Date().toISOString();
 

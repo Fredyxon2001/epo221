@@ -33,38 +33,38 @@ export function ProcesarExtraordinarioForm({ solicitud }: { solicitud: any }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <label className="block">
           <span className="text-gray-600">Estado</span>
-          <select name="estado" defaultValue={solicitud.estado} required className="mt-1 w-full border rounded px-2 py-1">
+          <select name="estado" defaultValue={solicitud.estado} required className="mt-1 w-full border rounded-sm px-2 py-1">
             {ESTADOS.map((e) => <option key={e} value={e}>{e}</option>)}
           </select>
         </label>
         <label className="block">
           <span className="text-gray-600">Monto ($)</span>
-          <input name="monto" type="number" step="0.01" defaultValue={solicitud.monto ?? ''} className="mt-1 w-full border rounded px-2 py-1" />
+          <input name="monto" type="number" step="0.01" defaultValue={solicitud.monto ?? ''} className="mt-1 w-full border rounded-sm px-2 py-1" />
         </label>
         <label className="block">
           <span className="text-gray-600">Ref. pago</span>
-          <input name="referencia_pago" defaultValue={solicitud.referencia_pago ?? ''} className="mt-1 w-full border rounded px-2 py-1" />
+          <input name="referencia_pago" defaultValue={solicitud.referencia_pago ?? ''} className="mt-1 w-full border rounded-sm px-2 py-1" />
         </label>
         <label className="block">
           <span className="text-gray-600">Calificación</span>
-          <input name="calificacion" type="number" step="0.1" min="0" max="10" defaultValue={solicitud.calificacion ?? ''} className="mt-1 w-full border rounded px-2 py-1" />
+          <input name="calificacion" type="number" step="0.1" min="0" max="10" defaultValue={solicitud.calificacion ?? ''} className="mt-1 w-full border rounded-sm px-2 py-1" />
         </label>
       </div>
       <label className="block">
         <span className="text-gray-600">Fecha del examen</span>
         <input name="fecha_examen" type="datetime-local"
           defaultValue={solicitud.fecha_examen ? new Date(solicitud.fecha_examen).toISOString().slice(0, 16) : ''}
-          className="mt-1 w-full border rounded px-2 py-1" />
+          className="mt-1 w-full border rounded-sm px-2 py-1" />
       </label>
       <label className="block">
         <span className="text-gray-600">Observaciones</span>
-        <textarea name="observaciones" rows={2} defaultValue={solicitud.observaciones ?? ''} className="mt-1 w-full border rounded px-2 py-1" />
+        <textarea name="observaciones" rows={2} defaultValue={solicitud.observaciones ?? ''} className="mt-1 w-full border rounded-sm px-2 py-1" />
       </label>
 
       {err && <div className="text-rose-700">{err}</div>}
       <div className="flex gap-2 justify-end">
-        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1 rounded border">Cancelar</button>
-        <button type="submit" disabled={pending} className="px-3 py-1 rounded bg-verde text-white font-semibold disabled:opacity-50">
+        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1 rounded-sm border">Cancelar</button>
+        <button type="submit" disabled={pending} className="px-3 py-1 rounded-sm bg-verde text-white font-semibold disabled:opacity-50">
           {pending ? 'Guardando…' : 'Guardar'}
         </button>
       </div>

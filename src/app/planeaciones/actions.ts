@@ -1,10 +1,19 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function guardarPlaneacion(fd: FormData): Promise<{ error?: string; ok?: boolean; id?: string }> {
-  const supabase = createClient();
+  await requireAccess(null, "planeaciones/actions.ts:guardarPlaneacion");
+  await validateFormData(fd);
+  await requireResource("asignaciones", fd.get("asignacion_id"), false);
+
+
+  const supabase = (await createClient());
   const admin = adminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -59,7 +68,11 @@ export async function guardarPlaneacion(fd: FormData): Promise<{ error?: string;
 }
 
 export async function enviarPlaneacion(id: string) {
-  const supabase = createClient();
+  await requireAccess(null, "planeaciones/actions.ts:enviarPlaneacion");
+  await requireResource("planeaciones", id, false);
+
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
   await supabase.from('planeaciones').update({ estado: 'enviada', updated_at: new Date().toISOString() }).eq('id', id);
@@ -68,7 +81,11 @@ export async function enviarPlaneacion(id: string) {
 }
 
 export async function eliminarPlaneacion(id: string) {
-  const supabase = createClient();
+  await requireAccess(null, "planeaciones/actions.ts:eliminarPlaneacion");
+  await requireResource("planeaciones", id, false);
+
+
+  const supabase = (await createClient());
   const admin = adminClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -87,7 +104,10 @@ export async function eliminarPlaneacion(id: string) {
 }
 
 export async function revisarPlaneacion(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const supabase = createClient();
+  await requireAccess(["admin","staff","director"], "planeaciones/actions.ts:revisarPlaneacion");
+  await validateFormData(fd);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
   const { data: perfil } = await supabase.from('perfiles').select('rol').eq('id', user.id).maybeSingle();
@@ -123,7 +143,12 @@ export async function revisarPlaneacion(fd: FormData): Promise<{ error?: string;
 }
 
 export async function getSignedPlaneacionUrl(path: string): Promise<string | null> {
+  await requireAccess(null, "planeaciones/actions.ts:getSignedPlaneacionUrl");
+
   const admin = adminClient();
+  const identity = await requireAccess(null, 'planeacion:download');
+  const { data: plan } = await identity.client.from('planeaciones').select('id').eq('archivo_url', path).maybeSingle();
+  if (!plan) return null;
   const { data } = await admin.storage.from('planeaciones').createSignedUrl(path, 60 * 10);
   return data?.signedUrl ?? null;
 }

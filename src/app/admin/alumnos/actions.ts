@@ -1,7 +1,12 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { adminClient } from '@/lib/supabase/admin';
-import { esCurpValida, nombreApellidoAEmail, PASSWORD_TEMPORAL } from '@/lib/auth';
+import { esCurpValida, nombreApellidoAEmail } from '@/lib/auth';
+import { temporaryPassword } from '@/lib/security/password';
+import { encryptCredentials } from '@/lib/security/credentials';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import * as XLSX from 'xlsx';
@@ -78,6 +83,9 @@ type ResumenImport = {
 };
 
 export async function importarAlumnosExcel(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/alumnos/actions.ts:importarAlumnosExcel");
+  await validateFormData(formData);
+
   const archivo = formData.get('archivo') as File;
   if (!archivo || archivo.size === 0) {
     redirect('/admin/alumnos?errores=1&motivo=sin_archivo');
@@ -109,6 +117,7 @@ export async function importarAlumnosExcel(formData: FormData) {
   if (!filas.length) {
     redirect('/admin/alumnos?errores=1&motivo=archivo_vacio');
   }
+  if (filas.length > 5000 || archivo.size > 10 * 1024 * 1024) throw new Error('La importación admite hasta 5000 filas y 10 MB.');
 
   const admin = adminClient();
   const resumen: ResumenImport = { creados: 0, actualizados: 0, errores: 0, detalles: [], credenciales: [] };
@@ -244,24 +253,25 @@ export async function importarAlumnosExcel(formData: FormData) {
         }
 
         let perfilIdParaVincular: string | null = existente?.perfil_id ?? null;
+        const initialPassword = temporaryPassword();
+        const newAccount = !perfilIdParaVincular;
 
         if (perfilIdParaVincular) {
-          // Actualizar email y password del usuario existente
-          await admin.auth.admin.updateUserById(perfilIdParaVincular, {
-            email: emailLogin, password: PASSWORD_TEMPORAL,
-          });
+          // Reimporting records must never replace an existing user's password.
+          const { data: account, error: accountError } = await admin.auth.admin.getUserById(perfilIdParaVincular);
+          if (accountError || !account.user?.email) throw new Error('La cuenta vinculada requiere revisión de Control Escolar.');
+          emailLogin = account.user.email;
           await admin.from('perfiles').update({
             email: emailLogin,
             nombre,
             apellido_paterno: apellidoPaterno,
             apellido_materno: apellidoMaterno || null,
-            debe_cambiar_password: false,
           }).eq('id', perfilIdParaVincular);
         } else {
           // Crear nuevo
           const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
-            email: emailLogin, password: PASSWORD_TEMPORAL, email_confirm: true,
-            user_metadata: { curp, rol: 'alumno' },
+            email: emailLogin, password: initialPassword, email_confirm: true,
+            user_metadata: { rol: 'alumno' },
           });
           if (authErr) throw authErr;
           perfilIdParaVincular = authUser?.user?.id ?? null;
@@ -274,7 +284,7 @@ export async function importarAlumnosExcel(formData: FormData) {
               apellido_paterno: apellidoPaterno,
               apellido_materno: apellidoMaterno || null,
               email: emailLogin,
-              debe_cambiar_password: false,
+              debe_cambiar_password: true,
             });
           }
         }
@@ -283,11 +293,11 @@ export async function importarAlumnosExcel(formData: FormData) {
         if (perfilIdParaVincular) {
           await admin.from('alumnos').update({ perfil_id: perfilIdParaVincular }).eq('id', alumnoId);
           // Registrar credencial generada para mostrar al admin
-          resumen.credenciales.push({
+          if (newAccount) resumen.credenciales.push({
             nombre: `${nombre} ${apellidoPaterno}${apellidoMaterno ? ' ' + apellidoMaterno : ''}`,
             matricula: matricula ?? '',
             email: emailLogin,
-            password: PASSWORD_TEMPORAL,
+            password: initialPassword,
           });
         }
       } catch (e: any) {
@@ -302,12 +312,15 @@ export async function importarAlumnosExcel(formData: FormData) {
   // Persistir credenciales en BD para descarga posterior
   let importId: string | null = null;
   if (resumen.credenciales.length) {
-    const { data: { user } } = await (await import('@/lib/supabase/server')).createClient().auth.getUser();
-    const { data: imp } = await admin.from('imports_credenciales').insert({
+    const { user } = await requireAccess(['admin','staff','director'], 'import:credentials');
+    const { data: imp, error: credentialError } = await admin.from('imports_credenciales').insert({
       creado_por: user?.id ?? null,
       total: resumen.credenciales.length,
-      credenciales: resumen.credenciales,
+      credenciales: [],
+      credentials_ciphertext: encryptCredentials(resumen.credenciales),
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
     }).select('id').single();
+    if (credentialError || !imp) throw new Error('No se pudo conservar la entrega cifrada; recupera las cuentas desde administración.');
     importId = imp?.id ?? null;
   }
 
@@ -319,9 +332,7 @@ export async function importarAlumnosExcel(formData: FormData) {
     actualizados: String(resumen.actualizados),
     errores: String(resumen.errores),
   });
-  if (resumen.detalles.length) {
-    params.set('detalle', JSON.stringify(resumen.detalles.slice(0, 10)));
-  }
+  // Personal records and validation details must not enter URLs, history or logs.
   if (importId) params.set('import_id', importId);
   redirect(`/admin/alumnos?${params.toString()}`);
 }

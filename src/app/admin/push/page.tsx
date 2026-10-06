@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Admin: configurar webhook URL/secret + probar push.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -5,7 +6,9 @@ import { PageHeader, Card } from '@/components/privado/ui';
 import { guardarConfigPush } from './actions';
 
 export default async function PushConfigPage() {
-  const auth = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: cfg } = await supabase.from('push_webhook_config').select('*').eq('id', 1).maybeSingle();
   const { count: suscritos } = await supabase
@@ -32,19 +35,19 @@ export default async function PushConfigPage() {
             <span className="text-xs text-gray-600">Webhook URL (endpoint público del sitio)</span>
             <input name="webhook_url" defaultValue={cfg?.webhook_url ?? ''}
               placeholder="https://tu-dominio.com/api/push/from-trigger"
-              className="w-full border rounded px-2 py-1.5 font-mono text-xs" />
+              className="w-full border rounded-sm px-2 py-1.5 font-mono text-xs" />
           </label>
           <label className="block">
             <span className="text-xs text-gray-600">Secret (cualquier string aleatorio largo)</span>
             <input name="webhook_secret" defaultValue={cfg?.webhook_secret ?? ''}
               placeholder="genera uno con: openssl rand -hex 32"
-              className="w-full border rounded px-2 py-1.5 font-mono text-xs" />
+              className="w-full border rounded-sm px-2 py-1.5 font-mono text-xs" />
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="enabled" defaultChecked={cfg?.enabled ?? false} />
             Habilitado (cada notificación nueva dispara push automáticamente)
           </label>
-          <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-2 rounded text-sm">Guardar</button>
+          <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-2 rounded-sm text-sm">Guardar</button>
         </form>
       </Card>
 

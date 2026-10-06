@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -14,6 +17,9 @@ const schema = z.object({
 });
 
 export async function guardarRedes(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/publico/redes/actions.ts:guardarRedes");
+  await validateFormData(formData);
+
   const parsed = schema.safeParse({
     facebook_url:  formData.get('facebook_url')  || null,
     instagram_url: formData.get('instagram_url') || null,
@@ -27,7 +33,7 @@ export async function guardarRedes(formData: FormData) {
     throw new Error('URLs inválidas: ' + parsed.error.issues.map((i) => i.message).join(', '));
   }
 
-  const supabase = createClient();
+  const supabase = (await createClient());
 
   // upsert en fila única id=1
   await supabase

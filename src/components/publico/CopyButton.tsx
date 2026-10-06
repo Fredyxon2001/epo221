@@ -14,7 +14,7 @@ export function CopyButton({ value, label = 'Copiar', className = '' }: { value:
     <button
       type="button"
       onClick={handle}
-      className={`text-xs bg-verde text-white px-3 py-1.5 rounded hover:bg-verde-medio transition inline-flex items-center gap-1 ${className}`}
+      className={`text-xs bg-verde text-white px-3 py-1.5 rounded-sm hover:bg-verde-medio transition inline-flex items-center gap-1 ${className}`}
     >
       {copied ? '✓ Copiado' : `📋 ${label}`}
     </button>

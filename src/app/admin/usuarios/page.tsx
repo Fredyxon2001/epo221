@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Gestión universal de usuarios, alta unificada, edición de rol y reset de contraseñas
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -16,8 +17,11 @@ const ROL_ICON: Record<string, string> = {
   director: '🏛️', admin: '⚙️', staff: '🛠️', finanzas: '💰',
 };
 
-export default async function UsuariosPage({ searchParams }: { searchParams?: { rol?: string; q?: string } }) {
-  const auth = createClient();
+export default async function UsuariosPage(props: { searchParams?: Promise<{ rol?: string; q?: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
   const filtroRol = searchParams?.rol ?? 'todos';
   const q = (searchParams?.q ?? '').trim();
@@ -60,7 +64,7 @@ export default async function UsuariosPage({ searchParams }: { searchParams?: { 
         description="Alta, edición de rol y reset de contraseñas para cualquier rol del sistema."
         actions={
           <Link href="/admin/usuarios/nuevo"
-            className="bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-lg shadow inline-flex items-center gap-2">
+            className="bg-verde hover:bg-verde-oscuro text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm inline-flex items-center gap-2">
             ➕ Nuevo usuario
           </Link>
         }
@@ -141,8 +145,9 @@ export default async function UsuariosPage({ searchParams }: { searchParams?: { 
       <Card>
         <div className="text-xs text-gray-600 space-y-1">
           <p><strong>📌 Modos de reset:</strong></p>
-          <p>• <strong>Temporal</strong>: genera una password aleatoria de 12 caracteres. Se muestra UNA SOLA VEZ aquí en pantalla. Cópiala y compártela con el usuario por canal seguro. Al iniciar sesión deberá cambiarla.</p>
-          <p>• <strong>Magic link</strong>: envía un correo de recuperación al email del usuario (con enlace de 1 hora). Recomendado cuando el usuario tiene acceso al correo y solo lo olvidó.</p>
+          <p>• <strong>Temporal</strong>: genera una clave individual de 18 caracteres. Cópiala y entrégala por un canal seguro después de verificar la identidad. Al iniciar sesión deberá cambiarla.</p>
+          <p>• <strong>Correo de recuperación</strong>: envía un enlace al buzón registrado, con la vigencia configurada en el proveedor.</p>
+          <p>• <strong>Verificación en dos pasos</strong>: solo un administrador con verificación completada puede restablecer los factores de otra persona, con folio de verificación institucional.</p>
         </div>
       </Card>
     </div>

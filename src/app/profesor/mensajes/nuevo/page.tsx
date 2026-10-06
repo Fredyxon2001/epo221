@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Selector de alumno para iniciar un hilo (sólo alumnos de grupos del profesor).
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -5,8 +6,11 @@ import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { codigoGrupoDesdeSemestre } from '@/lib/grupos';
 
-export default async function NuevoHiloProfesor({ searchParams }: { searchParams: { grupo?: string; q?: string } }) {
-  const auth = createClient();
+export default async function NuevoHiloProfesor(props: { searchParams: Promise<{ grupo?: string; q?: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
@@ -28,6 +32,7 @@ export default async function NuevoHiloProfesor({ searchParams }: { searchParams
   const grupos = Array.from(gruposMap.values()).sort((a, b) => (a.semestre - b.semestre) || a.grupo.localeCompare(b.grupo));
 
   const grupoSel = searchParams.grupo ?? grupos[0]?.id ?? '';
+  if (grupoSel && !gruposMap.has(grupoSel)) return <EmptyState icon="🔒" title="Grupo no autorizado" />;
   const q = (searchParams.q ?? '').trim().toLowerCase();
 
   const { data: inscripciones } = grupoSel
@@ -58,7 +63,7 @@ export default async function NuevoHiloProfesor({ searchParams }: { searchParams
         <form className="flex flex-wrap gap-3 items-end text-sm">
           <div>
             <label className="block text-xs text-gray-500 mb-1">Grupo</label>
-            <select name="grupo" defaultValue={grupoSel} className="border rounded px-2 py-1">
+            <select name="grupo" defaultValue={grupoSel} className="border rounded-sm px-2 py-1">
               {grupos.map((g) => (
                 <option key={g.id} value={g.id}>
                   {codigoGrupoDesdeSemestre(g.semestre, g.grupo)} · {g.semestre}° · {g.turno}
@@ -68,9 +73,9 @@ export default async function NuevoHiloProfesor({ searchParams }: { searchParams
           </div>
           <div className="flex-1 min-w-[180px]">
             <label className="block text-xs text-gray-500 mb-1">Buscar alumno</label>
-            <input name="q" defaultValue={q} placeholder="Nombre o matrícula…" className="w-full border rounded px-2 py-1" />
+            <input name="q" defaultValue={q} placeholder="Nombre o matrícula…" className="w-full border rounded-sm px-2 py-1" />
           </div>
-          <button className="bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio">Filtrar</button>
+          <button className="bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio">Filtrar</button>
         </form>
       </Card>
 
@@ -83,9 +88,9 @@ export default async function NuevoHiloProfesor({ searchParams }: { searchParams
               <Link
                 key={a.id}
                 href={`/profesor/mensajes/${a.id}`}
-                className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:border-verde hover:shadow transition"
+                className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:border-verde hover:shadow-sm transition"
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow">
+                <div className="w-10 h-10 rounded-full bg-linear-to-br from-verde to-verde-medio text-white flex items-center justify-center font-bold shadow-sm">
                   {a.nombre?.[0]}{a.apellido_paterno?.[0]}
                 </div>
                 <div className="flex-1 min-w-0">

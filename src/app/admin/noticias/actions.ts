@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -8,7 +11,10 @@ const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300
   .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
 
 export async function crearNoticia(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/noticias/actions.ts:crearNoticia");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const titulo = String(formData.get('titulo'));
@@ -24,7 +30,10 @@ export async function crearNoticia(formData: FormData) {
 }
 
 export async function togglePublicada(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/noticias/actions.ts:togglePublicada");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const publicada = formData.get('publicada') === '1';
   await supabase.from('noticias')
@@ -35,7 +44,10 @@ export async function togglePublicada(formData: FormData) {
 }
 
 export async function eliminarNoticia(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/noticias/actions.ts:eliminarNoticia");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('noticias').delete().eq('id', String(formData.get('id')));
   revalidatePath('/admin/noticias');

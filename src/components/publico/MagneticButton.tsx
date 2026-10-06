@@ -48,7 +48,7 @@ export function MagneticButton({
     solid: 'bg-white text-verde shadow-xl hover:shadow-2xl',
     glass: 'glass text-white hover:bg-white/20',
     outline:
-      'border-2 border-white/40 text-white hover:border-white hover:bg-white/10 backdrop-blur',
+      'border-2 border-white/40 text-white hover:border-white hover:bg-white/10 backdrop-blur-sm',
   }[variant];
 
   return (
@@ -109,7 +109,7 @@ export function MagneticLink({
     solid: 'bg-white text-verde shadow-xl hover:shadow-2xl hover:shadow-verde/30',
     glass: 'glass text-white hover:bg-white/20',
     outline:
-      'border-2 border-white/40 text-white hover:border-white hover:bg-white/10 backdrop-blur',
+      'border-2 border-white/40 text-white hover:border-white hover:bg-white/10 backdrop-blur-sm',
   }[variant];
 
   return (

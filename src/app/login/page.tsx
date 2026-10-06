@@ -4,7 +4,7 @@ import { LoginForm } from './LoginForm';
 export const dynamic = 'force-dynamic';
 
 export default async function LoginPage() {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const { data: cfg } = await supabase
     .from('sitio_config')
     .select('logo_url, lema, cct, nombre_escuela')

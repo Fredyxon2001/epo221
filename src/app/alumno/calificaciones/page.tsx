@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Calificaciones detalladas + solicitud de revisión por materia/parcial.
 import { getAlumnoActual } from '@/lib/queries';
 import { createClient } from '@/lib/supabase/server';
@@ -20,8 +21,10 @@ type CalRow = {
 };
 
 export default async function Calificaciones() {
+  await requireIdentity(["alumno"]);
+
   const alumno = (await getAlumnoActual())!;
-  const supabase = createClient();
+  const supabase = (await createClient());
 
   const { data } = await supabase
     .from('calificaciones')

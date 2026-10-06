@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Vista académica institucional: promedios por grupo y rendimiento docente.
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState, StatCard } from '@/components/privado/ui';
@@ -5,7 +6,9 @@ import { DataTable } from '@/components/privado/DataTable';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function DirAcademico() {
-  const supabase = createClient();
+  await requireIdentity(["director","admin"]);
+
+  const supabase = (await createClient());
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('*').eq('activo', true).maybeSingle();
 
   // Resumen grupos con promedio real (vista_promedios_semestre es por alumno;

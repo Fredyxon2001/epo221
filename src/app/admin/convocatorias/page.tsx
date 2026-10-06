@@ -1,8 +1,11 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { crearConvocatoria, eliminarConvocatoria } from './actions';
 
 export default async function AdminConvocatorias() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: convocatorias } = await supabase
     .from('convocatorias')
     .select('*')
@@ -19,26 +22,26 @@ export default async function AdminConvocatorias() {
         </p>
       </div>
 
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="font-semibold text-verde mb-3">Nueva convocatoria</h2>
         <form action={crearConvocatoria} className="space-y-3 text-sm">
           <input
             name="titulo"
             placeholder="Título de la convocatoria"
             required
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-sm px-3 py-2"
           />
           <textarea
             name="descripcion"
             placeholder="Descripción (resumen del contenido, requisitos, etc.)"
             rows={4}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-sm px-3 py-2"
           />
           <input
             name="archivo_url"
             type="url"
             placeholder="URL del documento/archivo (opcional)"
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-sm px-3 py-2"
           />
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -46,7 +49,7 @@ export default async function AdminConvocatorias() {
               <input
                 name="vigente_desde"
                 type="date"
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded-sm px-3 py-2"
               />
             </div>
             <div>
@@ -54,17 +57,17 @@ export default async function AdminConvocatorias() {
               <input
                 name="vigente_hasta"
                 type="date"
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded-sm px-3 py-2"
               />
             </div>
           </div>
-          <button className="bg-verde text-white px-4 py-2 rounded hover:bg-verde-medio">
+          <button className="bg-verde text-white px-4 py-2 rounded-sm hover:bg-verde-medio">
             Publicar convocatoria
           </button>
         </form>
       </section>
 
-      <section className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <section className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>

@@ -74,7 +74,7 @@ export function NuevoExamenForm({ asignaciones }: { asignaciones: any[] }) {
         </label>
       </div>
 
-      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded p-2">⚠️ {err}</div>}
+      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-sm p-2">⚠️ {err}</div>}
       <div className="flex justify-end">
         <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-5 py-2 rounded-lg disabled:opacity-50">
           {pending ? 'Creando…' : 'Crear y añadir preguntas'}

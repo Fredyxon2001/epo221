@@ -3,7 +3,6 @@
 // Fácil de recordar para el alumno.
 
 export const DOMINIO_SINTETICO = 'epo221.edu.mx';
-export const PASSWORD_TEMPORAL = 'TEMPORALEPO221!';
 
 // Normaliza texto a slug ASCII lowercase (sin acentos, sin espacios, sin símbolos)
 export const aSlug = (s: string): string => {
@@ -35,7 +34,3 @@ export const curpAEmail = (curp: string) =>
 
 export const esCurpValida = (curp: string) =>
   /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/i.test(curp.trim());
-
-// Password inicial universal. El usuario puede cambiarla voluntariamente.
-export const passwordInicialDesdeMatricula = (_matricula: string) =>
-  PASSWORD_TEMPORAL;

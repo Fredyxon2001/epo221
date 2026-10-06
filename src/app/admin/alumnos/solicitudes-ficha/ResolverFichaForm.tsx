@@ -28,11 +28,11 @@ export function ResolverFichaForm({ id }: { id: string }) {
     <div className="flex gap-2 items-center justify-end">
       {err && <span className="text-xs text-rose-700 mr-2">⚠️ {err}</span>}
       <button type="button" disabled={pending} onClick={() => ejecutar('rechazar')}
-        className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded disabled:opacity-50">
+        className="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-sm disabled:opacity-50">
         ❌ Rechazar
       </button>
       <button type="button" disabled={pending} onClick={() => ejecutar('aprobar')}
-        className="bg-verde hover:bg-verde-oscuro text-white text-xs font-semibold px-3 py-1.5 rounded disabled:opacity-50">
+        className="bg-verde hover:bg-verde-oscuro text-white text-xs font-semibold px-3 py-1.5 rounded-sm disabled:opacity-50">
         ✅ Aprobar y aplicar
       </button>
     </div>

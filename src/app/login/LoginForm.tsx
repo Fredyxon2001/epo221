@@ -188,7 +188,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
           </div>
 
           {/* Segmented control de rol */}
-          <div className="relative mb-6 p-1 bg-white rounded-2xl border border-gray-200 flex shadow-sm">
+          <div className="relative mb-6 p-1 bg-white rounded-2xl border border-gray-200 flex shadow-xs">
             {(['alumno', 'staff'] as const).map((r) => {
               const active = role === r;
               return (
@@ -201,7 +201,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
                   {active && (
                     <motion.span
                       layoutId="role-pill"
-                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-verde-oscuro via-verde to-verde-medio shadow-md"
+                      className="absolute inset-0 rounded-xl bg-linear-to-r from-verde-oscuro via-verde to-verde-medio shadow-md"
                       transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                     />
                   )}
@@ -239,7 +239,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
                   required
                   autoComplete="username"
                   placeholder={role === 'alumno' ? 'nombre.apellido@epo221.edu.mx' : 'docente@epo221.edu.mx'}
-                  className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-3 py-3 tracking-wider font-mono text-sm text-verde-oscuro placeholder:text-gray-400 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none transition"
+                  className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-3 py-3 tracking-wider font-mono text-sm text-verde-oscuro placeholder:text-gray-400 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden transition"
                 />
               </div>
               <p className="text-[11px] text-gray-500 mt-1.5">
@@ -261,8 +261,8 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
                   type={showPwd ? 'text' : 'password'}
                   required
                   autoComplete="current-password"
-                  placeholder={role === 'alumno' ? 'Tu matrícula (primer ingreso)' : 'Tu contraseña'}
-                  className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-12 py-3 text-sm text-verde-oscuro placeholder:text-gray-400 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none transition"
+                  placeholder="Tu contraseña"
+                  className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-12 py-3 text-sm text-verde-oscuro placeholder:text-gray-400 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden transition"
                 />
                 <button
                   type="button"
@@ -275,7 +275,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
               </div>
               {role === 'alumno' && (
                 <p className="text-[11px] text-gray-500 mt-1.5">
-                  Primer ingreso: usa tu <strong>matrícula</strong> como contraseña. Te pediremos cambiarla.
+                  Primer ingreso: usa la clave individual entregada por Control Escolar. Te pediremos cambiarla.
                 </p>
               )}
             </div>
@@ -297,7 +297,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
             <button
               type="submit"
               disabled={pending}
-              className="btn-ripple relative w-full bg-gradient-to-r from-verde-oscuro via-verde to-verde-medio hover:from-verde hover:via-verde-medio hover:to-verde-claro text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-verde/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="btn-ripple relative w-full bg-linear-to-r from-verde-oscuro via-verde to-verde-medio hover:from-verde hover:via-verde-medio hover:to-verde-claro text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-verde/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {pending ? (
                 <>

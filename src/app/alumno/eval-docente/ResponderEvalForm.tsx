@@ -46,7 +46,7 @@ export function ResponderEvalForm({ periodo, asignacionId }: { periodo: any; asi
 
       {!ok && (
         <div className="flex justify-end">
-          <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-1.5 rounded text-xs disabled:opacity-50">
+          <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-1.5 rounded-sm text-xs disabled:opacity-50">
             {pending ? 'Enviando…' : 'Enviar evaluación'}
           </button>
         </div>

@@ -1,16 +1,21 @@
+import { requireIdentity } from "@/lib/security/access";
 // Captura rápida de asistencia por día. Un clic por alumno.
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import Link from 'next/link';
 import { guardarAsistencia } from './actions';
 
-export default async function AsistenciaGrupo({
-  params, searchParams,
-}: {
-  params: { asignacionId: string };
-  searchParams: { fecha?: string; ok?: string; error?: string };
-}) {
-  const supabase = createClient();
+export default async function AsistenciaGrupo(
+  props: {
+    params: Promise<{ asignacionId: string }>;
+    searchParams: Promise<{ fecha?: string; ok?: string; error?: string }>;
+  }
+) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+  const supabase = (await createClient());
   const fecha = searchParams.fecha || new Date().toISOString().slice(0, 10);
 
   const { data: asig } = await supabase
@@ -58,8 +63,8 @@ export default async function AsistenciaGrupo({
 
       <Card eyebrow="Día" title="Selecciona la fecha">
         <form className="flex flex-wrap gap-3 items-center">
-          <input type="date" name="fecha" defaultValue={fecha} className="border rounded px-2 py-1 text-sm" />
-          <button className="bg-verde text-white rounded px-3 py-1 text-sm hover:bg-verde-medio">Ver</button>
+          <input type="date" name="fecha" defaultValue={fecha} className="border rounded-sm px-2 py-1 text-sm" />
+          <button className="bg-verde text-white rounded-sm px-3 py-1 text-sm hover:bg-verde-medio">Ver</button>
         </form>
       </Card>
 
@@ -92,7 +97,7 @@ export default async function AsistenciaGrupo({
             })}
             <div className="pt-3 flex justify-between items-center text-xs text-gray-500">
               <span>P: Presente · R: Retardo · J: Justificada · F: Falta</span>
-              <button className="bg-gradient-to-r from-verde to-verde-medio text-white rounded-xl px-5 py-2 font-semibold shadow-lg shadow-verde/30">
+              <button className="bg-linear-to-r from-verde to-verde-medio text-white rounded-xl px-5 py-2 font-semibold shadow-lg shadow-verde/30">
                 💾 Guardar asistencia
               </button>
             </div>

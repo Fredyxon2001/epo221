@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { getAlumnoActual } from '@/lib/queries';
@@ -5,11 +7,14 @@ import { PageHeader, Card } from '@/components/privado/ui';
 import { PresentarExamen } from './PresentarExamen';
 import { iniciarIntento } from '../actions';
 
-export default async function PresentarExamenPage({ params }: { params: { id: string } }) {
+export default async function PresentarExamenPage(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["alumno"]);
+
+  const params = await props.params;
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   const { data: examen } = await supabase.from('examenes')
     .select('*, asignacion:asignaciones(materia:materias(nombre))')

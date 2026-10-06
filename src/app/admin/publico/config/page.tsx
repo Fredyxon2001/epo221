@@ -1,10 +1,13 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { guardarConfig } from './actions';
 
 export default async function AdminConfig() {
-  const auth = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: cfg } = await supabase.from('sitio_config').select('*').maybeSingle();
 
@@ -71,7 +74,7 @@ export default async function AdminConfig() {
           </p>
         </Section>
 
-        <div className="sticky bottom-0 bg-gradient-to-t from-white via-white to-transparent pt-6 pb-2">
+        <div className="sticky bottom-0 bg-linear-to-t from-white via-white to-transparent pt-6 pb-2">
           <button type="submit" className="w-full md:w-auto bg-verde text-white px-8 py-3 rounded-lg hover:bg-verde-medio font-semibold shadow-lg">
             💾 Guardar toda la configuración
           </button>
@@ -83,8 +86,8 @@ export default async function AdminConfig() {
 
 function Section({ title, icon, accent, children }: { title: string; icon: string; accent?: boolean; children: React.ReactNode }) {
   return (
-    <section className={`bg-white rounded-xl shadow-sm overflow-hidden border ${accent ? 'border-dorado/40' : 'border-transparent'}`}>
-      <header className={`px-5 py-3 ${accent ? 'bg-gradient-to-r from-dorado/20 to-dorado/5' : 'bg-crema'} border-b border-dorado/10`}>
+    <section className={`bg-white rounded-xl shadow-xs overflow-hidden border ${accent ? 'border-dorado/40' : 'border-transparent'}`}>
+      <header className={`px-5 py-3 ${accent ? 'bg-linear-to-r from-dorado/20 to-dorado/5' : 'bg-crema'} border-b border-dorado/10`}>
         <div className="flex items-center gap-2 text-verde font-serif text-lg">
           <span className="text-2xl">{icon}</span>
           {title}
@@ -106,7 +109,7 @@ function Field({
         name={name}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-none transition"
+        className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-hidden transition"
       />
     </div>
   );
@@ -122,7 +125,7 @@ function FieldTA({
         name={name}
         defaultValue={defaultValue}
         rows={rows}
-        className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-none transition resize-none"
+        className="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-hidden transition resize-none"
       />
     </div>
   );

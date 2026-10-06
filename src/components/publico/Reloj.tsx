@@ -36,7 +36,7 @@ export function Reloj({ variant = 'light', size = 'card', tone = 'onDark' }: Pro
     const light = tone === 'light';
     return (
       <div
-        className={`hidden md:flex items-center gap-2 rounded-full px-3.5 py-1.5 backdrop-blur border ${
+        className={`hidden md:flex items-center gap-2 rounded-full px-3.5 py-1.5 backdrop-blur-sm border ${
           light
             ? 'bg-verde-claro/20 border-verde/20 text-verde-oscuro'
             : 'bg-white/10 border-white/20 text-white/90'
@@ -70,7 +70,7 @@ export function Reloj({ variant = 'light', size = 'card', tone = 'onDark' }: Pro
     <div
       className={`relative overflow-hidden rounded-2xl px-6 py-5 border shadow-lg ${
         isDark
-          ? 'bg-gradient-to-br from-verde-oscuro via-verde to-verde-medio text-white border-white/10 shadow-verde/30'
+          ? 'bg-linear-to-br from-verde-oscuro via-verde to-verde-medio text-white border-white/10 shadow-verde/30'
           : 'bg-white text-verde-oscuro border-verde/15 shadow-verde/10'
       }`}
     >

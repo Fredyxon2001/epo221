@@ -58,7 +58,7 @@ export function NotificationBell({ count, items }: { count: number; items: Noti[
             transition={{ duration: 0.18 }}
             className="absolute right-0 mt-2 w-[360px] max-w-[92vw] bg-white rounded-2xl shadow-2xl shadow-verde-oscuro/20 border border-gray-200 overflow-hidden z-50"
           >
-            <div className="px-4 py-3 bg-gradient-to-r from-verde-oscuro to-verde text-white flex items-center justify-between">
+            <div className="px-4 py-3 bg-linear-to-r from-verde-oscuro to-verde text-white flex items-center justify-between">
               <div>
                 <div className="font-serif text-base">Notificaciones</div>
                 <div className="text-[11px] text-white/70">{count > 0 ? `${count} sin leer` : 'Todo al día'}</div>

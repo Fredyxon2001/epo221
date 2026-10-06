@@ -46,12 +46,12 @@ export function SolicitarParcialBtn({ asignacionId }: { asignacionId?: string })
         <label className="block">
           <span className="text-xs text-gray-600">Número del parcial (1-6)</span>
           <input name="numero" type="number" min="1" max="6" defaultValue="4" required
-            className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+            className="mt-1 w-full border rounded-sm px-2 py-1 text-sm" />
         </label>
         <label className="block">
           <span className="text-xs text-gray-600">Nombre sugerido (opcional)</span>
           <input name="nombre_sugerido" placeholder="Ej. Parcial extraordinario"
-            className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+            className="mt-1 w-full border rounded-sm px-2 py-1 text-sm" />
         </label>
       </div>
 
@@ -59,12 +59,12 @@ export function SolicitarParcialBtn({ asignacionId }: { asignacionId?: string })
         <label className="block">
           <span className="text-xs text-gray-600">Fecha sugerida de apertura</span>
           <input name="fecha_abre_sugerida" type="date"
-            className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+            className="mt-1 w-full border rounded-sm px-2 py-1 text-sm" />
         </label>
         <label className="block">
           <span className="text-xs text-gray-600">Fecha sugerida de cierre</span>
           <input name="fecha_cierra_sugerida" type="date"
-            className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+            className="mt-1 w-full border rounded-sm px-2 py-1 text-sm" />
         </label>
       </div>
 
@@ -72,7 +72,7 @@ export function SolicitarParcialBtn({ asignacionId }: { asignacionId?: string })
         <span className="text-xs text-gray-600">Motivo *</span>
         <textarea name="motivo" required rows={3} minLength={10}
           placeholder="Explica por qué necesitas este parcial. El admin lo verá al evaluar tu solicitud."
-          className="mt-1 w-full border rounded px-2 py-1 text-sm" />
+          className="mt-1 w-full border rounded-sm px-2 py-1 text-sm" />
       </label>
 
       {asignacionId && (
@@ -81,12 +81,12 @@ export function SolicitarParcialBtn({ asignacionId }: { asignacionId?: string })
         </div>
       )}
 
-      {err && <div className="text-xs text-rose-700 bg-rose-100 rounded p-2">⚠️ {err}</div>}
-      {msg && <div className="text-xs text-verde-oscuro bg-verde-claro/30 rounded p-2">{msg}</div>}
+      {err && <div className="text-xs text-rose-700 bg-rose-100 rounded-sm p-2">⚠️ {err}</div>}
+      {msg && <div className="text-xs text-verde-oscuro bg-verde-claro/30 rounded-sm p-2">{msg}</div>}
 
       <div className="flex justify-end">
         <button type="submit" disabled={pending}
-          className="bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm px-4 py-2 rounded disabled:opacity-50">
+          className="bg-sky-600 hover:bg-sky-700 text-white font-semibold text-sm px-4 py-2 rounded-sm disabled:opacity-50">
           {pending ? 'Enviando…' : '📤 Enviar solicitud al admin'}
         </button>
       </div>

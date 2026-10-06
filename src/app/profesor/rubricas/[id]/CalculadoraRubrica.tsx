@@ -44,7 +44,7 @@ export function CalculadoraRubrica({ criterios, escalaMax }: { criterios: Criter
           />
         </div>
       ))}
-      <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-verde to-verde-medio text-white shadow">
+      <div className="flex items-center justify-between p-4 rounded-xl bg-linear-to-r from-verde to-verde-medio text-white shadow-sm">
         <div>
           <div className="text-xs opacity-80">Calificación resultante</div>
           <div className="text-[11px] opacity-70">Escala 0 – {escalaMax}</div>

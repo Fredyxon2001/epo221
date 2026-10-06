@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Ficha personal editable (datos de contacto y tutor) con límite de 2 modificaciones libres.
 import { createClient } from '@/lib/supabase/server';
 import { getAlumnoActual } from '@/lib/queries';
@@ -5,9 +6,11 @@ import { AvatarUploader } from '@/components/AvatarUploader';
 import { FichaForm } from './FichaForm';
 
 export default async function FichaAlumno() {
+  await requireIdentity(["alumno"]);
+
   const a = await getAlumnoActual();
   if (!a) return null;
-  const supabase = createClient();
+  const supabase = (await createClient());
   const iniciales = `${a.nombre?.[0] ?? ''}${a.apellido_paterno?.[0] ?? ''}`.toUpperCase();
 
   // Solicitud pendiente
@@ -25,7 +28,7 @@ export default async function FichaAlumno() {
       <AvatarUploader fotoActual={(a as any).foto_url} iniciales={iniciales} />
 
       {/* ── Datos fijos (solo lectura) ───────────────────────── */}
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="text-sm uppercase text-gray-500 mb-3">Datos escolares</h2>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
           <Info k="Nombre completo" v={`${a.nombre} ${a.apellido_paterno} ${a.apellido_materno ?? ''}`} />

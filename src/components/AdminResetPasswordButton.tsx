@@ -36,9 +36,9 @@ export function AdminResetPasswordButton({ perfilId, nombre }: { perfilId: strin
                     autoservicio falló). El usuario deberá cambiar la contraseña al entrar.
                   </p>
                   <p className="text-gray-600 text-xs">
-                    La nueva contraseña temporal será <code className="bg-gray-100 px-1 rounded">EPO221!</code>.
+                    La nueva contraseña temporal será <code className="bg-gray-100 px-1 rounded-sm">EPO221!</code>.
                   </p>
-                  {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded p-2">⚠️ {err}</div>}
+                  {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-sm p-2">⚠️ {err}</div>}
                   <div className="flex gap-2 justify-end pt-2">
                     <button type="button" onClick={() => setOpen(false)} disabled={pending} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancelar</button>
                     <button

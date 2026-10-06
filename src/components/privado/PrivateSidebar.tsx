@@ -75,7 +75,7 @@ export function PrivateSidebar({
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-40"
           />
         )}
       </AnimatePresence>
@@ -86,7 +86,7 @@ export function PrivateSidebar({
           transition-[width,transform] duration-300 ease-out
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0
           w-[260px] ${width}
-          bg-gradient-to-b ${meta.gradient}
+          bg-linear-to-b ${meta.gradient}
           text-white flex flex-col overflow-hidden
           shadow-2xl shadow-black/30
         `}
@@ -105,7 +105,7 @@ export function PrivateSidebar({
             <motion.div
               whileHover={{ rotate: logoUrl ? 0 : 360, scale: 1.08 }}
               transition={{ duration: 0.7 }}
-              className="shrink-0 relative w-11 h-11 rounded-xl bg-white/10 border border-white/20 backdrop-blur flex items-center justify-center shadow-lg shadow-black/30 overflow-hidden"
+              className="shrink-0 relative w-11 h-11 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg shadow-black/30 overflow-hidden"
             >
               {logoUrl ? (
                 <LogoEPO url={logoUrl} size={38} />
@@ -158,7 +158,7 @@ export function PrivateSidebar({
                         {active && (
                           <motion.span
                             layoutId="priv-side-pill"
-                            className="absolute inset-0 rounded-xl bg-gradient-to-r from-white to-verde-claro/90 shadow-lg shadow-black/20"
+                            className="absolute inset-0 rounded-xl bg-linear-to-r from-white to-verde-claro/90 shadow-lg shadow-black/20"
                             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                             aria-hidden
                           />
@@ -192,9 +192,8 @@ export function PrivateSidebar({
         {/* Footer usuario */}
         <div className="relative border-t border-white/10 p-3 space-y-2">
           <div className={`flex items-center gap-3 px-2 py-2 rounded-xl bg-white/5 ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-9 h-9 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-dorado to-verde-claro flex items-center justify-center text-verde-oscuro font-bold text-sm shadow">
+            <div className="w-9 h-9 shrink-0 rounded-full overflow-hidden bg-linear-to-br from-dorado to-verde-claro flex items-center justify-center text-verde-oscuro font-bold text-sm shadow-sm">
               {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
               ) : (
                 userName.slice(0, 1).toUpperCase()

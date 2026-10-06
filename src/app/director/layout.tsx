@@ -1,3 +1,4 @@
+import { requireAccess } from '@/lib/security/access';
 import { redirect } from 'next/navigation';
 import { PrivateShell } from '@/components/privado/PrivateShell';
 import { Topbar } from '@/components/privado/Topbar';
@@ -8,7 +9,8 @@ import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
 export default async function DirectorLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
+  await requireAccess(['director', 'admin'], 'director:page');
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 

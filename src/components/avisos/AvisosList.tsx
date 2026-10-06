@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { MarcarLeidoClient } from './MarcarLeidoClient';
 
 export async function AvisosList({ limit = 50 }: { limit?: number }) {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 

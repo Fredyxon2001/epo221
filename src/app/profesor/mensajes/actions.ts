@@ -1,4 +1,8 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -39,7 +43,12 @@ async function subirAdjunto(supabase: any, hiloId: string, file: File | null) {
 }
 
 export async function enviarMensajeProfesor(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["profesor","admin","staff","director"], "profesor/mensajes/actions.ts:enviarMensajeProfesor");
+  await validateFormData(formData);
+  await requireResource("alumnos", formData.get("alumno_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).single();
@@ -78,7 +87,12 @@ export async function enviarMensajeProfesor(formData: FormData): Promise<void> {
 }
 
 export async function enviarMensajeAlumno(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["alumno"], "profesor/mensajes/actions.ts:enviarMensajeAlumno");
+  await validateFormData(formData);
+  await requireProfessor(formData.get("profesor_id"));
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: alumno } = await supabase.from('alumnos').select('id').eq('perfil_id', user!.id).single();
@@ -117,7 +131,14 @@ export async function enviarMensajeAlumno(formData: FormData): Promise<void> {
 }
 
 export async function marcarHiloLeido(hiloId: string, comoTipo: 'profesor' | 'alumno'): Promise<void> {
-  const auth = createClient();
+  await requireAccess(null, "profesor/mensajes/actions.ts:marcarHiloLeido");
+  await requireResource("mensajes_hilos", hiloId, false);
+
+
+  const auth = (await createClient());
+  const { data: { user } } = await auth.auth.getUser();
+  const { data: role } = await adminClient().from('perfiles').select('rol').eq('id', user!.id).maybeSingle();
+  comoTipo = role?.rol === 'alumno' ? 'alumno' : 'profesor';
   const supabase = adminClient();
   const autorOpuesto = comoTipo === 'profesor' ? 'alumno' : 'profesor';
   await supabase.from('mensajes')

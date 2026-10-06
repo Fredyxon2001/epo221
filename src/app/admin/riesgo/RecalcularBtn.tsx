@@ -14,7 +14,7 @@ export function RecalcularBtn() {
           const r = await recalcularRiesgo();
           setMsg(r?.error ? `⚠️ ${r.error}` : `✅ ${r?.total ?? 0} alumnos analizados`);
         })}
-        className="text-xs bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded disabled:opacity-50"
+        className="text-xs bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded-sm disabled:opacity-50"
       >
         {pending ? 'Calculando…' : '🔄 Recalcular ahora'}
       </button>

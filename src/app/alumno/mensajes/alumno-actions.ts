@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Chat directo alumno ↔ alumno (mismo grupo).
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -7,7 +10,7 @@ import { revalidatePath } from 'next/cache';
 // Abre (o reutiliza) un hilo entre el alumno actual y otro compañero,
 // devuelve el id del hilo. Valida que ambos compartan grupo activo.
 async function obtenerOcrearHilo(otroAlumnoId: string): Promise<{ hiloId?: string; error?: string }> {
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -38,11 +41,16 @@ async function obtenerOcrearHilo(otroAlumnoId: string): Promise<{ hiloId?: strin
 }
 
 export async function abrirHiloConCompanero(otroAlumnoId: string): Promise<{ hiloId?: string; error?: string }> {
+  await requireAccess(["alumno","admin","staff","director"], "alumno/mensajes/alumno-actions.ts:abrirHiloConCompanero");
+
   return obtenerOcrearHilo(otroAlumnoId);
 }
 
 export async function enviarMensajeAlumno(fd: FormData): Promise<{ ok?: boolean; error?: string }> {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/mensajes/alumno-actions.ts:enviarMensajeAlumno");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };

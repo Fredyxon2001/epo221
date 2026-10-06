@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/server';
  * al hacer scroll sin bloquear clics.
  */
 export async function PageBackdrop() {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const { data: cfg } = await supabase
     .from('sitio_config')
     .select('logo_url')
@@ -20,11 +20,10 @@ export async function PageBackdrop() {
   return (
     <div aria-hidden className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Base gradiente agua */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#e0f7f4] via-white to-[#ccfbf1]" />
+      <div className="absolute inset-0 bg-linear-to-br from-[#e0f7f4] via-white to-[#ccfbf1]" />
 
       {/* Logo gigante difuminado centrado */}
       {logo && (
-        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={logo}
           alt=""

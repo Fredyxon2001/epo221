@@ -1,3 +1,4 @@
+import { apiAccess } from '@/lib/security/api-access';
 // Devuelve URL firmada temporal para un comprobante de pago.
 // Solo admin (verificado por RLS del bucket).
 import { NextRequest, NextResponse } from 'next/server';
@@ -5,11 +6,17 @@ import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 
 export async function GET(req: NextRequest) {
+  const denied = await apiAccess(req, ["admin","staff","director","finanzas"]);
+  if (denied) return denied;
+
   const path = req.nextUrl.searchParams.get('path');
   if (!path) return NextResponse.json({ error: 'path requerido' }, { status: 400 });
+  if (path.length > 1000 || path.includes('..') || path.startsWith('/') || path.includes('\\')) return NextResponse.json({ error: 'Ruta inválida' }, { status: 400 });
 
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
+  const { data: payment } = await supabase.from('pagos').select('id').eq('comprobante_url', path).maybeSingle();
+  if (!payment) return NextResponse.json({ error: 'Comprobante no disponible' }, { status: 404 });
   const { data, error } = await supabase.storage
     .from('comprobantes')
     .createSignedUrl(path, 300);

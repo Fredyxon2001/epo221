@@ -26,14 +26,14 @@ export function ComentarEvidenciaForm({ id, current }: { id: string; current: st
           else setOpen(false);
         });
       }}
-      className="mt-2 bg-gray-50 border border-gray-200 rounded p-2 space-y-2"
+      className="mt-2 bg-gray-50 border border-gray-200 rounded-sm p-2 space-y-2"
     >
       <textarea name="comentario" required defaultValue={current ?? ''} rows={2}
-        className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs" />
+        className="w-full border border-gray-300 rounded-sm px-2 py-1.5 text-xs" />
       {err && <div className="text-xs text-rose-700">{err}</div>}
       <div className="flex gap-2 justify-end">
-        <button type="button" onClick={() => setOpen(false)} className="text-xs px-3 py-1 rounded border">Cancelar</button>
-        <button type="submit" disabled={pending} className="text-xs px-3 py-1 rounded bg-verde text-white font-semibold disabled:opacity-50">
+        <button type="button" onClick={() => setOpen(false)} className="text-xs px-3 py-1 rounded-sm border">Cancelar</button>
+        <button type="submit" disabled={pending} className="text-xs px-3 py-1 rounded-sm bg-verde text-white font-semibold disabled:opacity-50">
           {pending ? 'Guardando…' : 'Guardar'}
         </button>
       </div>

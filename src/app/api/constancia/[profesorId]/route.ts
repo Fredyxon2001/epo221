@@ -1,3 +1,6 @@
+import type { ReactElement } from 'react';
+import type { DocumentProps } from '@react-pdf/renderer';
+import { apiAccess } from '@/lib/security/api-access';
 import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -5,8 +8,12 @@ import { adminClient } from '@/lib/supabase/admin';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest, { params }: { params: { profesorId: string } }) {
-  const auth = createClient();
+export async function GET(req: NextRequest, props: { params: Promise<{ profesorId: string }> }) {
+  const denied = await apiAccess(req, null);
+  if (denied) return denied;
+
+  const params = await props.params;
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return new Response('Unauthorized', { status: 401 });
@@ -57,7 +64,7 @@ export async function GET(req: NextRequest, { params }: { params: { profesorId: 
   const { createElement } = await import('react');
 
   const buffer = await renderToBuffer(
-    createElement(ConstanciaServicioPDF as any, { profesor, ciclo, cargas, escuela, folio, fecha }),
+    createElement(ConstanciaServicioPDF as any, { profesor, ciclo, cargas, escuela, folio, fecha }) as unknown as ReactElement<DocumentProps>,
   );
 
   const filename = `constancia-${(profesor.rfc ?? profesor.id).toLowerCase()}.pdf`;

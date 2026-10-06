@@ -1,9 +1,12 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { crearVersion, marcarVigente } from './actions';
 
 export default async function ReglamentoAdmin() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: versiones } = await supabase
     .from('reglamento_versiones')
     .select('*')
@@ -34,15 +37,15 @@ export default async function ReglamentoAdmin() {
           <summary className="cursor-pointer text-sm font-semibold">➕ Publicar nueva versión</summary>
           <form action={crearVersion} className="mt-3 space-y-2 text-sm">
             <div className="grid grid-cols-2 gap-2">
-              <input name="version" required placeholder="Versión (ej. 2026.1)" className="border rounded px-2 py-1.5" />
-              <input name="titulo" required placeholder="Título" className="border rounded px-2 py-1.5" />
+              <input name="version" required placeholder="Versión (ej. 2026.1)" className="border rounded-sm px-2 py-1.5" />
+              <input name="titulo" required placeholder="Título" className="border rounded-sm px-2 py-1.5" />
             </div>
-            <textarea name="contenido_md" required rows={10} className="w-full border rounded px-2 py-1.5 font-mono text-xs"
+            <textarea name="contenido_md" required rows={10} className="w-full border rounded-sm px-2 py-1.5 font-mono text-xs"
               placeholder="Contenido en Markdown…&#10;&#10;## 1. Asistencia&#10;...&#10;&#10;## 2. Conducta&#10;..." />
             <label className="flex items-center gap-2 text-xs">
               <input type="checkbox" name="vigente" defaultChecked /> Marcar como vigente (reemplaza la anterior)
             </label>
-            <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded text-sm">Publicar versión</button>
+            <button className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-3 py-1.5 rounded-sm text-sm">Publicar versión</button>
           </form>
         </details>
       </Card>
@@ -54,7 +57,7 @@ export default async function ReglamentoAdmin() {
         ) : (
           <ul className="space-y-2">
             {versiones.map((v: any) => (
-              <li key={v.id} className={`border rounded p-3 flex justify-between items-center gap-3 ${v.vigente ? 'bg-verde-claro/10 border-verde' : ''}`}>
+              <li key={v.id} className={`border rounded-sm p-3 flex justify-between items-center gap-3 ${v.vigente ? 'bg-verde-claro/10 border-verde' : ''}`}>
                 <div>
                   <div className="font-semibold">{v.titulo} <span className="text-xs text-gray-500">v{v.version}</span></div>
                   <div className="text-xs text-gray-500">Publicado: {new Date(v.publicado_at).toLocaleString('es-MX')}</div>
@@ -64,7 +67,7 @@ export default async function ReglamentoAdmin() {
                   {!v.vigente && (
                     <form action={marcarVigente}>
                       <input type="hidden" name="id" value={v.id} />
-                      <button className="text-xs bg-verde-oscuro text-white px-3 py-1 rounded">Marcar vigente</button>
+                      <button className="text-xs bg-verde-oscuro text-white px-3 py-1 rounded-sm">Marcar vigente</button>
                     </form>
                   )}
                 </div>

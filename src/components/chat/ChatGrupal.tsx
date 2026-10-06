@@ -3,7 +3,7 @@ import { adminClient } from '@/lib/supabase/admin';
 import { ChatGrupalForm } from './ChatGrupalForm';
 
 export async function ChatGrupal({ asignacionId, title }: { asignacionId: string; title: string }) {
-  const auth = createClient();
+  const auth = (await createClient());
   const admin = adminClient();
   const supabase = admin;
   const { data: mensajes } = await supabase.from('chat_grupal_mensajes')
@@ -39,9 +39,8 @@ export async function ChatGrupal({ asignacionId, title }: { asignacionId: string
             const avatar = avatarPorAutor.get(m.autor_id);
             const ini = (m.autor_nombre ?? 'U').split(' ').slice(0, 2).map((s: string) => s[0]).join('').toUpperCase();
             const burbujaAvatar = (
-              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-verde to-verde-medio flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
+              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-linear-to-br from-verde to-verde-medio flex items-center justify-center text-white text-[11px] font-bold shadow-xs">
                 {avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={avatar} alt={m.autor_nombre ?? ''} className="w-full h-full object-cover" />
                 ) : ini}
               </div>

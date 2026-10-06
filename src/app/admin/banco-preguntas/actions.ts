@@ -1,10 +1,16 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function agregarPregunta(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/banco-preguntas/actions.ts:agregarPregunta");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const opcCsv = String(fd.get('opciones_csv') ?? '').trim();
@@ -29,7 +35,10 @@ export async function agregarPregunta(fd: FormData) {
 }
 
 export async function eliminarPregunta(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/banco-preguntas/actions.ts:eliminarPregunta");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   if (!id) return;

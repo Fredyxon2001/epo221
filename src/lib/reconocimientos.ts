@@ -99,10 +99,10 @@ export function calcularBadges(
 }
 
 export const tonoClases: Record<Badge['tono'], string> = {
-  oro:    'bg-gradient-to-br from-yellow-300 to-yellow-500 text-yellow-900 border-yellow-400',
-  plata:  'bg-gradient-to-br from-gray-200 to-gray-400 text-gray-800 border-gray-300',
-  bronce: 'bg-gradient-to-br from-orange-300 to-orange-500 text-orange-900 border-orange-400',
-  verde:  'bg-gradient-to-br from-verde-claro to-verde text-white border-verde-oscuro',
-  azul:   'bg-gradient-to-br from-sky-400 to-sky-600 text-white border-sky-700',
-  dorado: 'bg-gradient-to-br from-dorado to-dorado-claro text-verde-oscuro border-dorado',
+  oro:    'bg-linear-to-br from-yellow-300 to-yellow-500 text-yellow-900 border-yellow-400',
+  plata:  'bg-linear-to-br from-gray-200 to-gray-400 text-gray-800 border-gray-300',
+  bronce: 'bg-linear-to-br from-orange-300 to-orange-500 text-orange-900 border-orange-400',
+  verde:  'bg-linear-to-br from-verde-claro to-verde text-white border-verde-oscuro',
+  azul:   'bg-linear-to-br from-sky-400 to-sky-600 text-white border-sky-700',
+  dorado: 'bg-linear-to-br from-dorado to-dorado-claro text-verde-oscuro border-dorado',
 };

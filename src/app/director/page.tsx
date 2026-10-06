@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Panorama institucional para la Dirección.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -5,7 +6,9 @@ import { PageHeader, StatCard, Card, Badge, EmptyState, Countdown } from '@/comp
 import { DashboardHero } from '@/components/privado/DashboardHero';
 
 export default async function DirectorHome() {
-  const supabase = createClient();
+  await requireIdentity(["director","admin"]);
+
+  const supabase = (await createClient());
   const { data: perfil } = await supabase
     .from('perfiles').select('nombre').eq('id', (await supabase.auth.getUser()).data.user!.id).single();
 
@@ -64,7 +67,7 @@ export default async function DirectorHome() {
         chip={ciclo ? { label: `Ciclo ${ciclo.codigo}`, tone: 'dorado' } : undefined}
         gradient="from-[#1a1200] via-[#3a2a05] to-verde-oscuro"
       >
-        <Link href="/director/anuncios" className="inline-flex items-center gap-2 bg-gradient-to-r from-dorado to-dorado-claro text-verde-oscuro text-sm font-bold px-4 py-2.5 rounded-xl shadow-md transition">
+        <Link href="/director/anuncios" className="inline-flex items-center gap-2 bg-linear-to-r from-dorado to-dorado-claro text-verde-oscuro text-sm font-bold px-4 py-2.5 rounded-xl shadow-md transition">
           📣 Nuevo comunicado
         </Link>
       </DashboardHero>
@@ -85,7 +88,7 @@ export default async function DirectorHome() {
 
       {/* Hero ciclo activo */}
       {ciclo && (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a1200] via-[#3a2a05] to-verde-oscuro text-white p-6 md:p-8 shadow-2xl shadow-black/30">
+        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-[#1a1200] via-[#3a2a05] to-verde-oscuro text-white p-6 md:p-8 shadow-2xl shadow-black/30">
           <div className="aurora absolute inset-0 opacity-40" aria-hidden />
           <div className="grain absolute inset-0" aria-hidden />
           <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

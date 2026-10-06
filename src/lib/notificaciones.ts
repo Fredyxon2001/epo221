@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 
 export async function getNotificaciones(userId: string, limit = 10) {
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data } = await supabase
     .from('notificaciones')
@@ -17,7 +17,7 @@ export async function getNotificaciones(userId: string, limit = 10) {
 }
 
 export async function marcarNotificacionesLeidas(userId: string, ids?: string[]) {
-  const auth = createClient();
+  const auth = (await createClient());
   const supabase = adminClient();
   let q = supabase.from('notificaciones').update({ leida: true }).eq('user_id', userId);
   if (ids && ids.length) q = q.in('id', ids);

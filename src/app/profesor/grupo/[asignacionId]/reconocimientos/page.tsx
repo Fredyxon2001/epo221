@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Reconocimientos y badges automáticos del grupo.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -5,9 +7,12 @@ import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
 import { calcularBadges, tonoClases } from '@/lib/reconocimientos';
 import Link from 'next/link';
 
-export default async function ReconocimientosGrupo({ params }: { params: { asignacionId: string } }) {
-  const auth = createClient();
-  const supabase = adminClient();
+export default async function ReconocimientosGrupo(props: { params: Promise<{ asignacionId: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   const { data: asig } = await supabase
     .from('asignaciones')
@@ -73,7 +78,7 @@ export default async function ReconocimientosGrupo({ params }: { params: { asign
                 const a = alumnos.find((x) => x.id === alumnoId);
                 return (
                   <div key={alumnoId} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-verde-claro to-verde text-white flex items-center justify-center font-bold shadow">
+                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-verde-claro to-verde text-white flex items-center justify-center font-bold shadow-sm">
                       {a?.nombre?.[0]}{a?.apellido_paterno?.[0]}
                     </div>
                     <div className="flex-1 min-w-0">

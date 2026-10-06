@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -30,6 +33,9 @@ function readForm(fd: FormData) {
 }
 
 export async function actualizarMateria(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/materias/actions.ts:actualizarMateria");
+  await validateFormData(formData);
+
   const id = String(formData.get('id'));
   const parsed = materiaSchema.partial({ semestre: true }).safeParse(readForm(formData));
   if (!parsed.success) {
@@ -49,6 +55,9 @@ export async function actualizarMateria(formData: FormData) {
 }
 
 export async function crearMateria(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/materias/actions.ts:crearMateria");
+  await validateFormData(formData);
+
   const parsed = materiaSchema.safeParse(readForm(formData));
   if (!parsed.success) {
     throw new Error(parsed.error.issues.map((i) => i.message).join('; '));
@@ -65,6 +74,9 @@ export async function crearMateria(formData: FormData) {
 }
 
 export async function eliminarMateria(formData: FormData) {
+  await requireAccess(["admin","staff","director"], "admin/materias/actions.ts:eliminarMateria");
+  await validateFormData(formData);
+
   const id = String(formData.get('id'));
   if (!id) throw new Error('ID requerido');
   const supabase = adminClient();

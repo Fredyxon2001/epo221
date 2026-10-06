@@ -27,14 +27,14 @@ export function AccionPropuestaForm({ id }: { id: string }) {
       <button
         type="button" disabled={pending}
         onClick={() => ejecutar('validar')}
-        className="bg-verde hover:bg-verde-oscuro text-white text-[10px] font-semibold px-2 py-1 rounded disabled:opacity-50"
+        className="bg-verde hover:bg-verde-oscuro text-white text-[10px] font-semibold px-2 py-1 rounded-sm disabled:opacity-50"
       >
         ✅ Validar
       </button>
       <button
         type="button" disabled={pending}
         onClick={() => ejecutar('rechazar')}
-        className="bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-semibold px-2 py-1 rounded disabled:opacity-50"
+        className="bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-semibold px-2 py-1 rounded-sm disabled:opacity-50"
       >
         ❌ Rechazar
       </button>

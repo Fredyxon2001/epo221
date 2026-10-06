@@ -1,12 +1,17 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // ORIENTADOR: bandeja de propuestas de calificaciones por validar
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import { AccionPropuestaForm } from './AccionPropuestaForm';
 
-export default async function OrientadorCalificaciones({ searchParams }: { searchParams?: { estado?: string; grupo_id?: string } }) {
-  const auth = createClient();
-  const supabase = adminClient();
+export default async function OrientadorCalificaciones(props: { searchParams?: Promise<{ estado?: string; grupo_id?: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!prof) return <div className="p-5">No eres docente.</div>;
@@ -127,7 +132,7 @@ export default async function OrientadorCalificaciones({ searchParams }: { searc
                         <div className="font-semibold">{nombre}</div>
                         <div className="text-[10px] text-gray-500">{al?.matricula ?? '—'}</div>
                         {esModif && (
-                          <div className="text-[9px] mt-1 inline-block bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">
+                          <div className="text-[9px] mt-1 inline-block bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded-sm uppercase font-bold tracking-wider">
                             🔄 Modificación
                           </div>
                         )}

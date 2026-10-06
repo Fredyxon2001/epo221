@@ -23,22 +23,22 @@ export function ProcesarCitaForm({ cita }: { cita: any }) {
           else setOpen(false);
         });
       }}
-      className="mt-2 bg-gray-50 border border-gray-200 rounded p-2 space-y-2 text-xs"
+      className="mt-2 bg-gray-50 border border-gray-200 rounded-sm p-2 space-y-2 text-xs"
     >
       <label className="block">
         <span className="text-gray-600">Estado</span>
-        <select name="estado" defaultValue={cita.estado} required className="mt-1 w-full border rounded px-2 py-1">
+        <select name="estado" defaultValue={cita.estado} required className="mt-1 w-full border rounded-sm px-2 py-1">
           {ESTADOS.map((e) => <option key={e} value={e}>{e}</option>)}
         </select>
       </label>
       <label className="block">
         <span className="text-gray-600">Notas</span>
-        <textarea name="notas_profesor" rows={2} defaultValue={cita.notas_profesor ?? ''} className="mt-1 w-full border rounded px-2 py-1" />
+        <textarea name="notas_profesor" rows={2} defaultValue={cita.notas_profesor ?? ''} className="mt-1 w-full border rounded-sm px-2 py-1" />
       </label>
       {err && <div className="text-rose-700">{err}</div>}
       <div className="flex gap-2 justify-end">
-        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1 rounded border">Cancelar</button>
-        <button type="submit" disabled={pending} className="px-3 py-1 rounded bg-verde text-white font-semibold disabled:opacity-50">
+        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1 rounded-sm border">Cancelar</button>
+        <button type="submit" disabled={pending} className="px-3 py-1 rounded-sm bg-verde text-white font-semibold disabled:opacity-50">
           {pending ? 'Guardando…' : 'Guardar'}
         </button>
       </div>

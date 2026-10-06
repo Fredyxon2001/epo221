@@ -1,11 +1,19 @@
 'use server';
+import { requireResource, requireAttempt, requireProfessor, requireReportOrientation } from '@/lib/security/resources';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 // Alumno inicia intento, guarda respuestas y entrega.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function iniciarIntento(examen_id: string): Promise<{ error?: string; id?: string }> {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/examenes/actions.ts:iniciarIntento");
+  await requireResource("examenes", examen_id, false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -34,7 +42,12 @@ export async function iniciarIntento(examen_id: string): Promise<{ error?: strin
 }
 
 export async function guardarRespuesta(fd: FormData): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/examenes/actions.ts:guardarRespuesta");
+  await validateFormData(fd);
+  await requireAttempt(fd.get("intento_id"), fd.get("pregunta_id"), false);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const intento_id = String(fd.get('intento_id') ?? '');
   const pregunta_id = String(fd.get('pregunta_id') ?? '');
@@ -58,7 +71,11 @@ export async function guardarRespuesta(fd: FormData): Promise<{ error?: string; 
 }
 
 export async function entregarIntento(intento_id: string): Promise<{ error?: string; ok?: boolean }> {
-  const auth = createClient();
+  await requireAccess(["alumno","admin","staff","director"], "alumno/examenes/actions.ts:entregarIntento");
+  const attempt = await requireAttempt(intento_id, undefined, true);
+
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) return { error: 'Sesión expirada' };
@@ -67,8 +84,9 @@ export async function entregarIntento(intento_id: string): Promise<{ error?: str
   const { data: resp } = await supabase.from('examen_respuestas')
     .select('puntos_obtenidos, pregunta:examen_preguntas(puntos, tipo)').eq('intento_id', intento_id);
   const obtenidos = (resp ?? []).reduce((s: number, r: any) => s + (Number(r.puntos_obtenidos) || 0), 0);
-  const totalPts = (resp ?? []).reduce((s: number, r: any) => s + (Number(r.pregunta?.puntos) || 0), 0);
-  const tieneAbiertas = (resp ?? []).some((r: any) => r.pregunta?.tipo === 'abierta');
+  const { data: questions } = await supabase.from('examen_preguntas').select('puntos,tipo').eq('examen_id', attempt.examen_id);
+  const totalPts = (questions ?? []).reduce((sum, question) => sum + Number(question.puntos), 0);
+  const tieneAbiertas = (questions ?? []).some(question => question.tipo === 'abierta');
   const calif = totalPts > 0 ? Math.round((obtenidos / totalPts) * 100) / 10 : 0;
 
   const { error } = await supabase.from('examen_intentos').update({

@@ -23,7 +23,7 @@ export function ExportExcelButton<T extends Record<string, any>>({
       disabled={!rows?.length}
       className={
         className ??
-        'text-xs px-3 py-1.5 rounded bg-verde-oscuro hover:bg-verde text-white font-semibold disabled:opacity-50'
+        'text-xs px-3 py-1.5 rounded-sm bg-verde-oscuro hover:bg-verde text-white font-semibold disabled:opacity-50'
       }
     >
       {label}

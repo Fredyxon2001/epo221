@@ -1,12 +1,17 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { CalificarEntregaForm } from './CalificarEntregaForm';
 
-export default async function TareaDetalle({ params }: { params: { id: string } }) {
-  const auth = createClient();
-  const supabase = adminClient();
+export default async function TareaDetalle(props: { params: Promise<{ id: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
 
@@ -26,7 +31,7 @@ export default async function TareaDetalle({ params }: { params: { id: string } 
     .select('*').eq('tarea_id', params.id);
   const byAlumno = new Map((entregas ?? []).map((e: any) => [e.alumno_id, e]));
 
-  const admin = adminClient();
+  const admin = (await scopedClient());
 
   const alumnosConEntrega = await Promise.all((inscrip ?? []).map(async (i: any) => {
     const e = byAlumno.get(i.alumno.id);

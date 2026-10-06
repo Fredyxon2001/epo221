@@ -1,11 +1,17 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearConvocatoria(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/convocatorias/actions.ts:crearConvocatoria");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const vigenteDesde = String(formData.get('vigente_desde') ?? '').trim() || null;
   const vigenteHasta = String(formData.get('vigente_hasta') ?? '').trim() || null;
@@ -23,7 +29,10 @@ export async function crearConvocatoria(formData: FormData) {
 }
 
 export async function eliminarConvocatoria(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/convocatorias/actions.ts:eliminarConvocatoria");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('convocatorias').delete().eq('id', String(formData.get('id')));
   revalidatePath('/admin/convocatorias');

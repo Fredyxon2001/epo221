@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/alt-text */
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 // Colores institucionales

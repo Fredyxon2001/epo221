@@ -1,8 +1,12 @@
+import { apiAccess } from '@/lib/security/api-access';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
-  const supabase = createClient();
+  const denied = await apiAccess(req, null);
+  if (denied) return denied;
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });
   const body = await req.json();

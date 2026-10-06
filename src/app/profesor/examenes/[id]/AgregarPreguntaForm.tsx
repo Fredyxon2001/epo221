@@ -75,7 +75,7 @@ export function AgregarPreguntaForm({ examenId, ordenInicial }: { examenId: stri
         <p className="text-xs text-gray-500 italic">Las preguntas abiertas se califican manualmente después.</p>
       )}
 
-      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded p-2 text-xs">⚠️ {err}</div>}
+      {err && <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-sm p-2 text-xs">⚠️ {err}</div>}
 
       <div className="flex justify-end">
         <button type="submit" disabled={pending} className="bg-verde hover:bg-verde-oscuro text-white font-semibold px-4 py-2 rounded-lg disabled:opacity-50 text-xs">

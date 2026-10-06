@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { RevisarPlaneacionForm } from './RevisarPlaneacionForm';
@@ -10,8 +11,11 @@ const ESTADO_STYLE: Record<string, string> = {
   rechazada: 'bg-rose-100 text-rose-700',
 };
 
-export default async function AdminPlaneacionesPage({ searchParams }: { searchParams?: { estado?: string } }) {
-  const supabase = createClient();
+export default async function AdminPlaneacionesPage(props: { searchParams?: Promise<{ estado?: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const supabase = (await createClient());
   const filtro = searchParams?.estado ?? 'enviada';
 
   let q = supabase
@@ -59,7 +63,7 @@ export default async function AdminPlaneacionesPage({ searchParams }: { searchPa
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-sm">{p.titulo}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase ${ESTADO_STYLE[p.estado]}`}>{p.estado}</span>
-                        <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">v{p.version}</span>
+                        <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-sm">v{p.version}</span>
                       </div>
                       <div className="text-xs text-gray-500 mt-0.5">
                         {p.asignacion?.materia?.nombre} · {grupo} · Parcial {p.parcial} · Prof. {docente}

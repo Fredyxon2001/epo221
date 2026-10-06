@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -8,12 +9,15 @@ const accionBadge: Record<string, string> = {
   delete: 'bg-red-100 text-red-700',
 };
 
-export default async function AdminAuditoria({
-  searchParams,
-}: {
-  searchParams: { tabla?: string; accion?: string; page?: string };
-}) {
-  const auth = createClient();
+export default async function AdminAuditoria(
+  props: {
+    searchParams: Promise<{ tabla?: string; accion?: string; page?: string }>;
+  }
+) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
   const page = Math.max(1, Number(searchParams.page ?? 1));
   const pageSize = 50;
@@ -64,7 +68,7 @@ export default async function AdminAuditoria({
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-4 flex flex-wrap gap-2 text-sm">
+      <div className="bg-white rounded-lg shadow-xs p-4 flex flex-wrap gap-2 text-sm">
         <a
           href="/admin/auditoria"
           className={`px-3 py-1 rounded-full text-xs font-medium ${!searchParams.tabla && !searchParams.accion ? 'bg-verde text-white' : 'bg-gray-50 border hover:bg-gray-100'}`}
@@ -92,7 +96,7 @@ export default async function AdminAuditoria({
         ))}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-xs uppercase text-gray-600 border-b">
             <tr>
@@ -123,7 +127,7 @@ export default async function AdminAuditoria({
                 <td className="p-3">
                   <details>
                     <summary className="text-xs text-verde cursor-pointer hover:underline">Ver diff</summary>
-                    <pre className="mt-2 p-2 bg-gray-900 text-green-300 text-[11px] rounded overflow-auto max-w-md max-h-60">
+                    <pre className="mt-2 p-2 bg-gray-900 text-green-300 text-[11px] rounded-sm overflow-auto max-w-md max-h-60">
                       {JSON.stringify(l.cambios, null, 2)}
                     </pre>
                   </details>
@@ -144,10 +148,10 @@ export default async function AdminAuditoria({
           <span className="text-gray-500">Página {page} de {totalPaginas}</span>
           <div className="flex gap-2">
             {page > 1 && (
-              <Link href={build({ page: page - 1 })} className="px-3 py-1 border rounded hover:bg-gray-50">← Anterior</Link>
+              <Link href={build({ page: page - 1 })} className="px-3 py-1 border rounded-sm hover:bg-gray-50">← Anterior</Link>
             )}
             {page < totalPaginas && (
-              <Link href={build({ page: page + 1 })} className="px-3 py-1 border rounded hover:bg-gray-50">Siguiente →</Link>
+              <Link href={build({ page: page + 1 })} className="px-3 py-1 border rounded-sm hover:bg-gray-50">Siguiente →</Link>
             )}
           </div>
         </div>

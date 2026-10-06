@@ -23,7 +23,7 @@ export function CambiarPasswordForm({ sugerida }: { sugerida: boolean }) {
       {sugerida && (
         <div className="bg-dorado/20 border border-dorado/50 rounded-lg p-3 text-xs text-verde-oscuro">
           💡 <strong>Sugerencia:</strong> usa tu matrícula como contraseña para recordarla fácilmente,
-          o crea una con al menos 8 caracteres (letras + números).
+          o crea una con al menos 12 caracteres (letras + números).
         </div>
       )}
 
@@ -33,10 +33,10 @@ export function CambiarPasswordForm({ sugerida }: { sugerida: boolean }) {
           type="password"
           name="nueva"
           required
-          minLength={8}
+          minLength={12}
           value={nueva}
           onChange={(e) => setNueva(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden"
         />
       </label>
 
@@ -46,14 +46,14 @@ export function CambiarPasswordForm({ sugerida }: { sugerida: boolean }) {
           type="password"
           name="confirma"
           required
-          minLength={8}
+          minLength={12}
           value={confirma}
           onChange={(e) => setConfirma(e.target.value)}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-none"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden"
         />
         {confirma.length > 0 && !coincide && (
           <span className="text-xs text-rose-500 mt-1 block">
-            {nueva.length < 8 ? 'Mínimo 8 caracteres' : 'No coinciden'}
+            {nueva.length < 12 ? 'Mínimo 12 caracteres' : 'No coinciden'}
           </span>
         )}
       </label>

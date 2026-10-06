@@ -23,7 +23,7 @@ export function FichaForm({ a, modificacionesUsadas, solicitudPendiente }: {
           else if (r?.modo === 'solicitada') setMsg({ tipo: 'solicitada', texto: '📝 Solicitud enviada al admin. Acude a Control Escolar para justificar tu cambio.' });
         });
       }}
-      className="bg-white rounded-lg p-5 shadow-sm space-y-4"
+      className="bg-white rounded-lg p-5 shadow-xs space-y-4"
     >
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-sm uppercase text-gray-500">Datos de contacto</h2>
@@ -31,13 +31,13 @@ export function FichaForm({ a, modificacionesUsadas, solicitudPendiente }: {
       </div>
 
       {solicitudPendiente && (
-        <div className="bg-amber-50 border border-amber-300 rounded p-3 text-xs text-amber-800">
+        <div className="bg-amber-50 border border-amber-300 rounded-sm p-3 text-xs text-amber-800">
           ⏳ Tienes una solicitud de modificación <strong>pendiente</strong> de aprobación por Control Escolar.
         </div>
       )}
 
       {requiereAprobacion && !solicitudPendiente && (
-        <div className="bg-sky-50 border border-sky-300 rounded p-3 text-xs text-sky-800 space-y-1">
+        <div className="bg-sky-50 border border-sky-300 rounded-sm p-3 text-xs text-sky-800 space-y-1">
           <div className="font-semibold">⚠️ Ya usaste tus 2 modificaciones libres</div>
           <p>
             Para más cambios necesitas <strong>escribir un motivo</strong> y luego <strong>acudir a Control Escolar</strong> para justificar.
@@ -68,7 +68,7 @@ export function FichaForm({ a, modificacionesUsadas, solicitudPendiente }: {
           <textarea
             name="motivo" rows={3} minLength={15} required={requiereAprobacion}
             placeholder="Explica claramente por qué necesitas modificar tu ficha. Esta información será revisada por Control Escolar."
-            className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-none"
+            className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-hidden"
           />
           <span className="text-[10px] text-gray-500 mt-0.5 block">
             Después de enviar, debes acudir físicamente a Control Escolar para que tu solicitud sea aprobada.
@@ -100,7 +100,7 @@ function Field({ name, label, type = 'text', defaultValue, full = false }: any) 
       <span className="text-xs text-gray-600">{label}</span>
       <input
         name={name} type={type} defaultValue={defaultValue}
-        className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-none"
+        className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:border-verde focus:ring-1 focus:ring-verde outline-hidden"
       />
     </label>
   );

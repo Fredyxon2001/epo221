@@ -1,4 +1,7 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -6,7 +9,10 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 export async function crearHorario(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/horarios/actions.ts:crearHorario");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const asigId = String(formData.get('asignacion_id'));
   const dia = Number(formData.get('dia'));
@@ -28,7 +34,10 @@ export async function crearHorario(formData: FormData): Promise<void> {
 }
 
 export async function eliminarHorario(formData: FormData): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/horarios/actions.ts:eliminarHorario");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(formData.get('id'));
   await supabase.from('horarios').delete().eq('id', id);
@@ -62,7 +71,9 @@ const SLOTS_VESPERTINO = [
 //  • Distribuye esas horas en los 5 días usando los bloques del turno.
 //  • No duplica el mismo bloque en el mismo grupo (pero sí puede coincidir entre grupos).
 export async function generarHorariosAutomaticos(): Promise<void> {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/horarios/actions.ts:generarHorariosAutomaticos");
+
+  const auth = (await createClient());
   const supabase = adminClient();
 
   const { data: ciclo } = await supabase

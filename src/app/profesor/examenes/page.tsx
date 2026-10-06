@@ -1,11 +1,15 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
 
 export default async function ExamenesProfesor() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id').eq('activo', true).maybeSingle();
@@ -42,7 +46,7 @@ export default async function ExamenesProfesor() {
               const a: any = asigMap.get(e.asignacion_id);
               const cerrado = new Date(e.fecha_cierre) < new Date();
               return (
-                <Link key={e.id} href={`/profesor/examenes/${e.id}`} className="flex justify-between items-center py-3 px-2 hover:bg-gray-50 rounded">
+                <Link key={e.id} href={`/profesor/examenes/${e.id}`} className="flex justify-between items-center py-3 px-2 hover:bg-gray-50 rounded-sm">
                   <div className="min-w-0">
                     <div className="font-semibold text-sm truncate">{e.titulo}</div>
                     <div className="text-xs text-gray-500">

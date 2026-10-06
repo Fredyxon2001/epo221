@@ -1,10 +1,14 @@
+import { apiAccess } from '@/lib/security/api-access';
 // Reporte SEIEM: alumnos de un grupo con datos requeridos en formato XLSX.
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import * as XLSX from 'xlsx';
 
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const denied = await apiAccess(req, ["admin","staff","director"]);
+  if (denied) return denied;
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'no-auth' }, { status: 401 });
 

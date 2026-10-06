@@ -1,11 +1,17 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearConcepto(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director","finanzas"], "admin/conceptos/actions.ts:crearConcepto");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: ciclo } = await supabase
     .from('ciclos_escolares').select('id').eq('activo', true).single();
@@ -21,7 +27,10 @@ export async function crearConcepto(formData: FormData) {
 }
 
 export async function actualizarConcepto(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director","finanzas"], "admin/conceptos/actions.ts:actualizarConcepto");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(formData.get('id'));
   const clave = String(formData.get('clave') ?? '').trim().toUpperCase();
@@ -42,7 +51,10 @@ export async function actualizarConcepto(formData: FormData) {
 }
 
 export async function eliminarConcepto(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director","finanzas"], "admin/conceptos/actions.ts:eliminarConcepto");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(formData.get('id'));
   // Si ya hay cargos asociados, mejor desactivar que borrar.
@@ -57,7 +69,10 @@ export async function eliminarConcepto(formData: FormData) {
 }
 
 export async function toggleConcepto(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director","finanzas"], "admin/conceptos/actions.ts:toggleConcepto");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   await supabase.from('conceptos_pago')
     .update({ activo: formData.get('activo') === '1' })
@@ -67,7 +82,10 @@ export async function toggleConcepto(formData: FormData) {
 
 // Genera un cargo por cada alumno activo con este concepto.
 export async function asignarMasivo(formData: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director","finanzas"], "admin/conceptos/actions.ts:asignarMasivo");
+  await validateFormData(formData);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const conceptoId = String(formData.get('concepto_id'));
 

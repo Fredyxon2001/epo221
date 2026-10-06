@@ -1,10 +1,14 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { ResolverForm } from './ResolverForm';
 
-export default async function SolicitudesParcialPage({ searchParams }: { searchParams?: { estado?: string } }) {
-  const auth = createClient();
+export default async function SolicitudesParcialPage(props: { searchParams?: Promise<{ estado?: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const auth = (await createClient());
   const supabase = adminClient();
   const filtro = searchParams?.estado ?? 'pendiente';
 
@@ -73,7 +77,7 @@ export default async function SolicitudesParcialPage({ searchParams }: { searchP
                         Solicitado por: <strong>{s.solicitante?.nombre ?? s.solicitante?.email ?? '—'}</strong> ·
                         {new Date(s.solicitado_at).toLocaleString('es-MX')}
                       </div>
-                      <div className="mt-2 text-sm bg-white border border-gray-200 rounded p-2">
+                      <div className="mt-2 text-sm bg-white border border-gray-200 rounded-sm p-2">
                         <div className="text-[10px] text-gray-500 uppercase font-semibold mb-1">Motivo</div>
                         {s.motivo}
                       </div>
@@ -88,7 +92,7 @@ export default async function SolicitudesParcialPage({ searchParams }: { searchP
                         <div className="text-xs text-gray-600">📝 Nombre sugerido: <strong>{s.nombre_sugerido}</strong></div>
                       )}
                       {s.motivo_rechazo && (
-                        <div className="mt-2 text-xs bg-rose-100 border border-rose-300 rounded p-2 text-rose-800">
+                        <div className="mt-2 text-xs bg-rose-100 border border-rose-300 rounded-sm p-2 text-rose-800">
                           <strong>Rechazado:</strong> {s.motivo_rechazo}
                         </div>
                       )}

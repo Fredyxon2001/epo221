@@ -63,7 +63,7 @@ export function NavItem({ href, label, icon, active }: Props) {
       {!active && (
         <motion.span
           aria-hidden
-          className="absolute left-2.5 right-2.5 2xl:left-4 2xl:right-4 -bottom-0.5 h-[2px] rounded-full origin-center bg-gradient-to-r from-verde-claro via-white to-verde-claro"
+          className="absolute left-2.5 right-2.5 2xl:left-4 2xl:right-4 -bottom-0.5 h-[2px] rounded-full origin-center bg-linear-to-r from-verde-claro via-white to-verde-claro"
           initial={false}
           animate={{ scaleX: hovered ? 1 : 0, opacity: hovered ? 1 : 0 }}
           transition={{ duration: 0.35, ease: [0.2, 0.85, 0.2, 1] }}

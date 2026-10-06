@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Horario semanal del alumno, basado en su grupo activo.
 import { Fragment } from 'react';
 import { createClient } from '@/lib/supabase/server';
@@ -10,10 +12,12 @@ const HORAS_MAT = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00'];
 const HORAS_VES = ['14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 
 export default async function AlumnoHorario() {
+  await requireIdentity(["alumno"]);
+
   const alumno = await getAlumnoActual();
   if (!alumno) return null;
-  const auth = createClient();
-  const supabase = adminClient();
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   const { data: ciclo } = await supabase.from('ciclos_escolares').select('id, codigo').eq('activo', true).maybeSingle();
 
@@ -83,7 +87,7 @@ export default async function AlumnoHorario() {
                     {showReceso && (
                       <tr key={`receso-${h}`}>
                         <td className="p-2 border-b border-r border-gray-200 font-mono text-gray-500 bg-dorado/10">{recesoIni}</td>
-                        <td colSpan={5} className="p-2 border-b border-r border-dorado/30 bg-gradient-to-r from-dorado/20 to-verde-claro/20 text-center font-semibold text-verde-oscuro">
+                        <td colSpan={5} className="p-2 border-b border-r border-dorado/30 bg-linear-to-r from-dorado/20 to-verde-claro/20 text-center font-semibold text-verde-oscuro">
                           🍎 RECESO · {recesoIni}–{recesoFin}
                         </td>
                       </tr>
@@ -95,7 +99,7 @@ export default async function AlumnoHorario() {
                         return (
                           <td key={d} className="p-1 border-b border-r border-gray-100 align-top min-w-[120px]">
                             {sesion ? (
-                              <div className="bg-gradient-to-br from-verde-claro/40 to-dorado/20 border border-verde/30 rounded-lg p-2 text-[11px] leading-tight">
+                              <div className="bg-linear-to-br from-verde-claro/40 to-dorado/20 border border-verde/30 rounded-lg p-2 text-[11px] leading-tight">
                                 <div className="font-semibold text-verde-oscuro truncate">{sesion.asig?.materia?.nombre ?? '—'}</div>
                                 {sesion.asig?.profesor && (
                                   <div className="text-[10px] text-gray-600 truncate">

@@ -35,7 +35,7 @@ export function HeroCanvas({
   const titleWords = titulo.split(' ');
 
   return (
-    <section ref={ref} className="relative min-h-[640px] md:min-h-[860px] lg:min-h-[920px] h-[100svh] overflow-hidden bg-animated-verde text-white">
+    <section ref={ref} className="relative min-h-[640px] md:min-h-[860px] lg:min-h-[920px] h-svh overflow-hidden bg-animated-verde text-white">
       {/* Aurora mesh backdrop */}
       <div className="aurora absolute inset-0 pointer-events-none opacity-90" aria-hidden />
       <div className="grain absolute inset-0 pointer-events-none" aria-hidden />
@@ -104,7 +104,7 @@ export function HeroCanvas({
           Estado de México · BGE
         </motion.div>
 
-        <h1 className="font-serif text-[2.15rem] leading-[1.08] sm:text-5xl sm:leading-[1.05] md:text-7xl lg:text-8xl max-w-5xl px-2 sm:px-4 break-words">
+        <h1 className="font-serif text-[2.15rem] leading-[1.08] sm:text-5xl sm:leading-[1.05] md:text-7xl lg:text-8xl max-w-5xl px-2 sm:px-4 wrap-break-word">
           {titleWords.map((w, i) => {
             const isLast = i === titleWords.length - 1;
             return (
@@ -134,7 +134,7 @@ export function HeroCanvas({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.95 }}
-          className="mt-3 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.4em] text-white/80 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 backdrop-blur"
+          className="mt-3 inline-flex items-center gap-2 text-[11px] md:text-xs uppercase tracking-[0.4em] text-white/80 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 backdrop-blur-sm"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-verde-claro animate-pulse" />
           CCT {cct ?? '15EBH0409B'}
@@ -182,7 +182,7 @@ export function HeroCanvas({
         <motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.6, repeat: Infinity }}
-          className="w-[2px] h-8 bg-gradient-to-b from-dorado to-transparent"
+          className="w-[2px] h-8 bg-linear-to-b from-dorado to-transparent"
         />
       </motion.div>
     </section>

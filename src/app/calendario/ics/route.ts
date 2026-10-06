@@ -1,6 +1,7 @@
 // Endpoint que genera un archivo .ics con los eventos del calendario escolar
 // para que el usuario lo importe a Google Calendar, Apple Calendar, Outlook, etc.
 import { createClient } from '@/lib/supabase/server';
+import { apiAccess } from '@/lib/security/api-access';
 
 function fmt(d: Date) {
   return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -9,8 +10,10 @@ function esc(s: string) {
   return (s ?? '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
 }
 
-export async function GET() {
-  const supabase = createClient();
+export async function GET(req: Request) {
+  const denied = await apiAccess(req);
+  if (denied) return denied;
+  const supabase = (await createClient());
   const { data } = await supabase
     .from('eventos_calendario')
     .select('id, titulo, descripcion, tipo, fecha_inicio, fecha_fin, todo_el_dia, lugar')
@@ -50,6 +53,7 @@ export async function GET() {
     headers: {
       'Content-Type': 'text/calendar; charset=utf-8',
       'Content-Disposition': 'attachment; filename="epo221-calendario.ics"',
+      'Cache-Control': 'private, no-store',
     },
   });
 }

@@ -8,7 +8,7 @@ import { AuroraBg } from '@/components/publico/AuroraBg';
 export const revalidate = 60;
 
 export default async function Noticias() {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const { data: noticias } = await supabase
     .from('noticias').select('*').eq('publicada', true).order('fecha_pub', { ascending: false });
 
@@ -38,7 +38,7 @@ export default async function Noticias() {
                 >
                   <div className="grid md:grid-cols-2">
                     <div
-                      className="aspect-[16/10] md:aspect-auto md:min-h-[340px] bg-cover bg-center"
+                      className="aspect-16/10 md:aspect-auto md:min-h-[340px] bg-cover bg-center"
                       style={
                         primera.imagen_url
                           ? { backgroundImage: `url(${primera.imagen_url})` }
@@ -73,7 +73,7 @@ export default async function Noticias() {
                     className="lift gradient-border group block h-full bg-white rounded-2xl overflow-hidden"
                   >
                     <div
-                      className="aspect-[16/9] bg-verde/10 bg-cover bg-center"
+                      className="aspect-video bg-verde/10 bg-cover bg-center"
                       style={
                         n.imagen_url
                           ? { backgroundImage: `url(${n.imagen_url})` }

@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Lista completa de grupos del profesor (todos los ciclos).
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -7,8 +9,10 @@ import { PageHeader, Card, Badge, EmptyState } from '@/components/privado/ui';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function MisGrupos() {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
   const profesorId = await getProfesorActualId();
-  const supabase = adminClient();
+  const supabase = (await scopedClient());
 
   const { data: asignaciones } = await supabase
     .from('asignaciones')

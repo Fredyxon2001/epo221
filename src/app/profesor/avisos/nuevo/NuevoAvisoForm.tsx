@@ -35,7 +35,7 @@ export function NuevoAvisoForm({ grupos }: { grupos: any[] }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <label className="md:col-span-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">Título</span>
-          <input name="titulo" required minLength={3} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-none" />
+          <input name="titulo" required minLength={3} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-hidden" />
         </label>
         <label>
           <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">Prioridad</span>
@@ -59,7 +59,7 @@ export function NuevoAvisoForm({ grupos }: { grupos: any[] }) {
       {alcance === 'grupos' && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {grupos.map((g) => (
-            <label key={g.id} className="flex items-center gap-2 text-xs border rounded p-2 cursor-pointer hover:bg-gray-50">
+            <label key={g.id} className="flex items-center gap-2 text-xs border rounded-sm p-2 cursor-pointer hover:bg-gray-50">
               <input
                 type="checkbox"
                 checked={gruposSel.includes(g.id)}
@@ -79,7 +79,7 @@ export function NuevoAvisoForm({ grupos }: { grupos: any[] }) {
           rows={6}
           required
           minLength={10}
-          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-none"
+          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:border-verde outline-hidden"
         />
       </label>
 

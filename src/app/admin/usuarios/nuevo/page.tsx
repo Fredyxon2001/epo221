@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Alta unificada de usuarios (cualquier rol)
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card } from '@/components/privado/ui';
@@ -5,7 +6,9 @@ import { NuevoUsuarioForm } from './NuevoUsuarioForm';
 import Link from 'next/link';
 
 export default async function NuevoUsuarioPage() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
 
   // Grupos disponibles para asignar como orientador
   const { data: grupos } = await supabase

@@ -1,12 +1,17 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Análisis estadístico del grupo: distribución, top/low, riesgo, evolución por parcial.
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, StatCard, Badge, EmptyState } from '@/components/privado/ui';
 import Link from 'next/link';
 
-export default async function AnalisisGrupo({ params }: { params: { asignacionId: string } }) {
-  const auth = createClient();
-  const supabase = adminClient();
+export default async function AnalisisGrupo(props: { params: Promise<{ asignacionId: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
 
   const { data: asig } = await supabase
     .from('asignaciones')
@@ -121,7 +126,7 @@ export default async function AnalisisGrupo({ params }: { params: { asignacionId
             {evol.map((p) => (
               <div key={p.label} className="flex-1 flex flex-col items-center gap-2">
                 <div className="text-sm font-bold text-verde-oscuro tabular-nums">{p.valor > 0 ? p.valor.toFixed(2) : '—'}</div>
-                <div className="w-full bg-gradient-to-t from-verde to-verde-claro rounded-t-xl flex items-start justify-center shadow-lg shadow-verde/20" style={{ height: `${p.valor * 10}%` }} />
+                <div className="w-full bg-linear-to-t from-verde to-verde-claro rounded-t-xl flex items-start justify-center shadow-lg shadow-verde/20" style={{ height: `${p.valor * 10}%` }} />
                 <div className="text-xs font-semibold text-gray-600">{p.label}</div>
               </div>
             ))}

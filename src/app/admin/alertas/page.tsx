@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Centro de alertas automáticas: revisa el ciclo activo y lista anomalías.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -5,7 +6,9 @@ import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 import { construirAlertas, nivelStyle } from '@/lib/alertas';
 
 export default async function AlertasPage() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const alertas = await construirAlertas(supabase);
 
   const porNivel = {

@@ -1,9 +1,12 @@
+import { requireIdentity } from "@/lib/security/access";
 // Validación de comprobantes de pago.
 import { createClient } from '@/lib/supabase/server';
 import { validarPago, rechazarPago } from './actions';
 
 export default async function AdminPagos() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director","finanzas"]);
+
+  const supabase = (await createClient());
   const { data: pendientes } = await supabase
     .from('pagos')
     .select(`
@@ -22,7 +25,7 @@ export default async function AdminPagos() {
 
       <div className="space-y-3">
         {(pendientes ?? []).map((p: any) => (
-          <div key={p.id} className="bg-white rounded-lg shadow-sm p-4 flex gap-4 items-start">
+          <div key={p.id} className="bg-white rounded-lg shadow-xs p-4 flex gap-4 items-start">
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span className="font-semibold">
@@ -50,7 +53,7 @@ export default async function AdminPagos() {
               <form action={validarPago}>
                 <input type="hidden" name="pago_id" value={p.id} />
                 <input type="hidden" name="cargo_id" value={p.cargo?.id} />
-                <button className="bg-green-600 text-white text-xs px-4 py-2 rounded hover:bg-green-700">
+                <button className="bg-green-600 text-white text-xs px-4 py-2 rounded-sm hover:bg-green-700">
                   ✓ Validar
                 </button>
               </form>
@@ -58,8 +61,8 @@ export default async function AdminPagos() {
                 <input type="hidden" name="pago_id" value={p.id} />
                 <input type="hidden" name="cargo_id" value={p.cargo?.id} />
                 <input name="motivo" placeholder="Motivo" required
-                       className="text-xs border rounded px-2 py-1 mb-1 w-full" />
-                <button className="bg-red-600 text-white text-xs px-4 py-2 rounded hover:bg-red-700 w-full">
+                       className="text-xs border rounded-sm px-2 py-1 mb-1 w-full" />
+                <button className="bg-red-600 text-white text-xs px-4 py-2 rounded-sm hover:bg-red-700 w-full">
                   ✗ Rechazar
                 </button>
               </form>

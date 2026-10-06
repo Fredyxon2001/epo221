@@ -1,4 +1,4 @@
-import { headers } from 'next/headers';
+// Recovery links never trust a client supplied Host or forwarded header.
 
 /** Dominio de producción; último recurso si no hay cabeceras ni variable. */
 const DOMINIO_PRODUCCION = 'https://epo221.edu.mx';
@@ -15,17 +15,12 @@ const DOMINIO_PRODUCCION = 'https://epo221.edu.mx';
  * al dominio por el que realmente entró el usuario.
  */
 export function baseUrl(): string {
-  try {
-    const h = headers();
-    const host = h.get('x-forwarded-host') ?? h.get('host');
-    if (host) {
-      const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
-      return `${proto}://${host}`;
-    }
-  } catch {
-    // headers() no está disponible fuera de un request (p. ej. en un cron).
+  const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (configured) {
+    try {
+      const url = new URL(configured);
+      if (process.env.NODE_ENV !== 'production' || (url.protocol === 'https:' && ['epo221.edu.mx', 'www.epo221.edu.mx'].includes(url.hostname))) return url.origin;
+    } catch { /* Use the institutional domain. */ }
   }
-  const env = process.env.NEXT_PUBLIC_APP_URL?.trim();
-  if (env && !env.includes('localhost')) return env.replace(/\/+$/, '');
-  return DOMINIO_PRODUCCION;
+  return process.env.NODE_ENV === 'production' ? DOMINIO_PRODUCCION : 'http://localhost:3000';
 }

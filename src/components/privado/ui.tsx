@@ -37,7 +37,7 @@ export function StatCard({
     >
       <Wrap
         {...(href ? { href } : {})}
-        className={`lift spotlight group relative block rounded-2xl overflow-hidden text-white bg-gradient-to-br ${t.grad} p-5 h-full shadow-xl shadow-black/10`}
+        className={`lift spotlight group relative block rounded-2xl overflow-hidden text-white bg-linear-to-br ${t.grad} p-5 h-full shadow-xl shadow-black/10`}
       >
         <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10 blob blur-2xl" aria-hidden />
         <div className="relative flex items-start justify-between">

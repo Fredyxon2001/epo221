@@ -93,7 +93,7 @@ export function NuevoUsuarioForm({ grupos }: { grupos: Grupo[] }) {
             </label>
           </div>
 
-          <div className="flex flex-col gap-2 bg-white rounded p-3 border border-gray-200">
+          <div className="flex flex-col gap-2 bg-white rounded-sm p-3 border border-gray-200">
             <span className="text-xs font-semibold text-gray-700">¿Qué rol funcional tendrá?</span>
             <label className="inline-flex items-center gap-2 text-sm">
               <input type="checkbox" checked={daClases} onChange={(e) => setDaClases(e.target.checked)} />
@@ -112,7 +112,7 @@ export function NuevoUsuarioForm({ grupos }: { grupos: Grupo[] }) {
           </div>
 
           {esOrientador && (
-            <div className="bg-white rounded p-3 border border-amber-300">
+            <div className="bg-white rounded-sm p-3 border border-amber-300">
               <span className="text-xs font-semibold text-amber-800 block mb-2">
                 Selecciona los grupos que orientará (máx. 4):
               </span>
@@ -123,7 +123,7 @@ export function NuevoUsuarioForm({ grupos }: { grupos: Grupo[] }) {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {gruposDisponibles.map((g) => (
-                    <label key={g.id} className="inline-flex items-center gap-2 text-xs border border-gray-200 rounded p-2 hover:bg-amber-50 cursor-pointer">
+                    <label key={g.id} className="inline-flex items-center gap-2 text-xs border border-gray-200 rounded-sm p-2 hover:bg-amber-50 cursor-pointer">
                       <input type="checkbox" name="grupos_orientador[]" value={g.id} />
                       <span>
                         <strong>{g.grado}°{String.fromCharCode(64 + (g.grupo ?? 1))}</strong>
@@ -164,9 +164,9 @@ export function NuevoUsuarioForm({ grupos }: { grupos: Grupo[] }) {
         <div className={`rounded-lg p-3 text-sm ${resultado.tipo === 'ok' ? 'bg-verde-claro/20 border border-verde text-verde-oscuro' : 'bg-rose-50 border border-rose-300 text-rose-800'}`}>
           {resultado.mensaje}
           {resultado.temporal && (
-            <div className="mt-2 bg-white border border-amber-300 rounded p-2 text-amber-900">
+            <div className="mt-2 bg-white border border-amber-300 rounded-sm p-2 text-amber-900">
               <div className="font-semibold mb-1">⚠️ Cópiala AHORA — solo se muestra una vez:</div>
-              <code className="font-mono text-base bg-amber-50 px-3 py-2 rounded border border-amber-200 select-all block">{resultado.temporal}</code>
+              <code className="font-mono text-base bg-amber-50 px-3 py-2 rounded-sm border border-amber-200 select-all block">{resultado.temporal}</code>
             </div>
           )}
         </div>

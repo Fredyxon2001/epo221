@@ -31,7 +31,7 @@ const TIPO_ICON: Record<string, string> = {
 };
 
 export default async function Oferta() {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const [{ data: materias }, { data: campos }] = await Promise.all([
     supabase.from('materias').select('*, campo:campos_disciplinares(nombre)')
       .eq('activo', true).is('deleted_at', null)
@@ -60,7 +60,7 @@ export default async function Oferta() {
             {campos.map((c: any) => (
               <span
                 key={c.id}
-                className="gradient-border bg-white/90 backdrop-blur text-verde px-4 py-2 rounded-full text-sm font-medium hover:bg-verde hover:text-white transition cursor-default"
+                className="gradient-border bg-white/90 backdrop-blur-sm text-verde px-4 py-2 rounded-full text-sm font-medium hover:bg-verde hover:text-white transition cursor-default"
               >
                 {c.nombre}
               </span>
@@ -71,9 +71,9 @@ export default async function Oferta() {
         <div className="space-y-8">
           {[1, 2, 3, 4, 5, 6].map((s) => (
             <Reveal key={s} delay={(s - 1) * 0.05} y={20}>
-              <div className="lift relative bg-white/95 backdrop-blur rounded-3xl shadow-xl border border-verde/10 overflow-hidden">
+              <div className="lift relative bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl border border-verde/10 overflow-hidden">
                 <div
-                  className={`relative bg-gradient-to-r ${SEMESTRE_COLORS[s - 1]} px-8 py-6 flex items-center justify-between overflow-hidden`}
+                  className={`relative bg-linear-to-r ${SEMESTRE_COLORS[s - 1]} px-8 py-6 flex items-center justify-between overflow-hidden`}
                   style={{ boxShadow: `inset 0 -1px 0 rgba(255,255,255,0.2), 0 10px 30px -15px ${SEMESTRE_GLOW[s - 1]}` }}
                 >
                   <div className="relative">
@@ -93,7 +93,7 @@ export default async function Oferta() {
                       key={m.id}
                       className="flex items-start gap-3 p-3 rounded-xl hover:bg-crema border border-transparent hover:border-verde/20 transition group"
                     >
-                      <div className="text-xl flex-shrink-0 mt-0.5">{TIPO_ICON[m.tipo] ?? '📗'}</div>
+                      <div className="text-xl shrink-0 mt-0.5">{TIPO_ICON[m.tipo] ?? '📗'}</div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-verde group-hover:text-verde-medio text-sm leading-tight">{m.nombre}</div>
                         <div className="text-xs text-gray-400 mt-0.5 uppercase tracking-wide">

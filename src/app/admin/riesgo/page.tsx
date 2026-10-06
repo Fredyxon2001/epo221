@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { RecalcularBtn } from './RecalcularBtn';
@@ -9,8 +10,11 @@ const NIVEL_STYLE: Record<string, string> = {
   bajo: 'bg-gray-100 text-gray-700 border-gray-200',
 };
 
-export default async function AdminRiesgoPage({ searchParams }: { searchParams?: { nivel?: string } }) {
-  const supabase = createClient();
+export default async function AdminRiesgoPage(props: { searchParams?: Promise<{ nivel?: string }> }) {
+  await requireIdentity(["admin","staff","director"]);
+
+  const searchParams = await props.searchParams;
+  const supabase = (await createClient());
   const filtro = searchParams?.nivel ?? 'critico';
 
   // Último snapshot por alumno
@@ -82,13 +86,13 @@ export default async function AdminRiesgoPage({ searchParams }: { searchParams?:
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-white/60">{s.nivel}</span>
+                      <span className="text-[10px] uppercase font-bold px-2 py-1 rounded-sm bg-white/60">{s.nivel}</span>
                       <span className="text-2xl font-bold tabular-nums">{s.score}</span>
                     </div>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {(s.factores ?? []).map((f: any, i: number) => (
-                      <span key={i} className="text-[10px] bg-white/60 rounded px-2 py-0.5" title={f.detalle}>
+                      <span key={i} className="text-[10px] bg-white/60 rounded-sm px-2 py-0.5" title={f.detalle}>
                         {f.etiqueta} (+{f.peso})
                       </span>
                     ))}

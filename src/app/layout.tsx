@@ -2,6 +2,13 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { PWARegister } from '@/components/PWARegister';
 import { CookieConsentProvider } from '@/components/CookieConsentProvider';
+import { headers } from 'next/headers';
+import '@fontsource/dm-sans/latin-400.css';
+import '@fontsource/dm-sans/latin-300.css';
+import '@fontsource/dm-sans/latin-500.css';
+import '@fontsource/dm-sans/latin-600.css';
+import '@fontsource/playfair-display/latin-700.css';
+import '@fontsource/playfair-display/latin-900.css';
 
 export const metadata: Metadata = {
   title: 'EPO 221 "Nicolás Bravo" — Preparatoria Oficial',
@@ -20,14 +27,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Per-request rendering keeps script nonces out of shared HTML caches.
+  await headers();
   return (
     <html lang="es">
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
-          rel="stylesheet"
-        />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body className="font-sans">

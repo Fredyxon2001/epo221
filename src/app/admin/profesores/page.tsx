@@ -1,9 +1,12 @@
+import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
 import { crearProfesor, toggleProfesor } from './actions';
 import { AdminResetPasswordButton } from '@/components/AdminResetPasswordButton';
 
 export default async function AdminProfesores() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: profes } = await supabase
     .from('profesores').select('*').order('apellido_paterno');
 
@@ -11,22 +14,22 @@ export default async function AdminProfesores() {
     <div className="max-w-5xl space-y-6">
       <h1 className="font-serif text-3xl text-verde">Profesores</h1>
 
-      <section className="bg-white rounded-lg p-5 shadow-sm">
+      <section className="bg-white rounded-lg p-5 shadow-xs">
         <h2 className="font-semibold text-verde mb-3">Nuevo profesor</h2>
-        <form action={crearProfesor} className="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
-          <input name="nombre" placeholder="Nombre" required className="border rounded px-2 py-1" />
-          <input name="apellido_paterno" placeholder="Ap. paterno" required className="border rounded px-2 py-1" />
-          <input name="apellido_materno" placeholder="Ap. materno" className="border rounded px-2 py-1" />
-          <input name="email" type="email" placeholder="Correo" required className="border rounded px-2 py-1" />
-          <input name="rfc" placeholder="RFC" className="border rounded px-2 py-1" />
-          <button className="bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio">Crear</button>
+        <form action={async (data) => { 'use server'; const result = await crearProfesor(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }} className="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
+          <input name="nombre" placeholder="Nombre" required className="border rounded-sm px-2 py-1" />
+          <input name="apellido_paterno" placeholder="Ap. paterno" required className="border rounded-sm px-2 py-1" />
+          <input name="apellido_materno" placeholder="Ap. materno" className="border rounded-sm px-2 py-1" />
+          <input name="email" type="email" placeholder="Correo" required className="border rounded-sm px-2 py-1" />
+          <input name="rfc" placeholder="RFC" className="border rounded-sm px-2 py-1" />
+          <button className="bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio">Crear</button>
         </form>
         <p className="text-xs text-gray-500 mt-2">
           Se crea cuenta de acceso con contraseña temporal enviada al correo indicado.
         </p>
       </section>
 
-      <section className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <section className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-100 text-xs uppercase text-gray-600">
             <tr>

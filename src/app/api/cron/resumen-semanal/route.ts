@@ -1,3 +1,4 @@
+import { cronAuthorized } from '@/lib/security/secrets';
 import { NextRequest } from 'next/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { enviarCorreo, envolverEmailHtml } from '@/lib/email/send';
@@ -8,8 +9,7 @@ export const maxDuration = 300;
 
 // Cron Vercel — envía resumen semanal a tutores con tutor_email
 export async function GET(req: NextRequest) {
-  const auth = req.headers.get('authorization');
-  if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!cronAuthorized(req)) {
     return new Response('Unauthorized', { status: 401 });
   }
 

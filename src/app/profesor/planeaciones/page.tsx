@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card } from '@/components/privado/ui';
@@ -13,8 +15,10 @@ const ESTADO_STYLE: Record<string, string> = {
 };
 
 export default async function ProfesorPlaneacionesPage() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   const { data: prof } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
   if (!prof) return <div className="p-5">No eres docente.</div>;
@@ -60,7 +64,7 @@ export default async function ProfesorPlaneacionesPage() {
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase ${ESTADO_STYLE[p.estado] ?? 'bg-gray-200'}`}>
                         {p.estado}
                       </span>
-                      <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded">v{p.version}</span>
+                      <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-sm">v{p.version}</span>
                     </div>
                     <div className="text-xs text-gray-500 mt-0.5">
                       {p.asignacion?.materia?.nombre} · {grupo} · Parcial {p.parcial}

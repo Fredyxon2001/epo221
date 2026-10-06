@@ -8,7 +8,7 @@ import { AuroraBg } from '@/components/publico/AuroraBg';
 export const revalidate = 60;
 
 export default async function PublicoAlbumes() {
-  const supabase = createClient();
+  const supabase = (await createClient());
   const { data: albumes } = await supabase
     .from('albumes')
     .select('slug, titulo, descripcion, portada_url, fecha_evento, album_fotos(count)')
@@ -40,7 +40,7 @@ export default async function PublicoAlbumes() {
                   href={`/publico/albumes/${a.slug}`}
                   className="lift group block relative bg-white rounded-3xl overflow-hidden shadow-xl shadow-verde/10 border border-verde/10 h-full"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden">
+                  <div className="relative aspect-4/3 overflow-hidden">
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                       style={
@@ -49,9 +49,9 @@ export default async function PublicoAlbumes() {
                           : { background: 'linear-gradient(135deg, #0f766e, #14b8a6)' }
                       }
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-verde-oscuro/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition" />
+                    <div className="absolute inset-0 bg-linear-to-t from-verde-oscuro/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition" />
                     {a.album_fotos?.[0]?.count != null && (
-                      <div className="absolute top-3 right-3 inline-flex items-center gap-1 bg-black/40 backdrop-blur text-white text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border border-white/20">
+                      <div className="absolute top-3 right-3 inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-[10px] uppercase tracking-widest px-3 py-1 rounded-full border border-white/20">
                         📷 {a.album_fotos[0].count} fotos
                       </div>
                     )}

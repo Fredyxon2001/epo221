@@ -37,7 +37,7 @@ const YT = (
 export function FloatingSocial({ facebook, instagram, tiktok, spotify, youtube }: Props) {
   const links = [
     { href: facebook,  label: 'Facebook',  icon: FB, bg: 'bg-[#1877F2]' },
-    { href: instagram, label: 'Instagram', icon: IG, bg: 'bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5]' },
+    { href: instagram, label: 'Instagram', icon: IG, bg: 'bg-linear-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5]' },
     { href: tiktok,    label: 'TikTok',    icon: TT, bg: 'bg-black' },
     { href: spotify,   label: 'Spotify',   icon: SP, bg: 'bg-[#1DB954]' },
     { href: youtube,   label: 'YouTube',   icon: YT, bg: 'bg-[#FF0000]' },

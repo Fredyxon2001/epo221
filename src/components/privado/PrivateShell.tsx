@@ -47,7 +47,7 @@ export function PrivateShell({
   const blob = blobTones[role];
 
   return (
-    <div className={`min-h-screen text-verde-oscuro flex bg-gradient-to-br ${bg}`}>
+    <div className={`min-h-screen text-verde-oscuro flex bg-linear-to-br ${bg}`}>
       <PrivateSidebar role={role} groups={groups} userName={userName} userSub={userSub} logoUrl={logoUrl} avatarUrl={avatarUrl} />
 
       <div className="flex-1 min-w-0 flex flex-col relative overflow-hidden">
@@ -102,7 +102,7 @@ export function PrivateShell({
               />
             </>
           ) : (
-            <div className="absolute top-1/2 -right-8 -translate-y-1/2 font-serif text-[360px] leading-none text-verde-oscuro/[0.06] select-none hidden lg:block">
+            <div className="absolute top-1/2 -right-8 -translate-y-1/2 font-serif text-[360px] leading-none text-verde-oscuro/6 select-none hidden lg:block">
               221
             </div>
           )}

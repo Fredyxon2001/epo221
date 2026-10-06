@@ -1,10 +1,13 @@
+import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { crearPagina, eliminarPagina } from './actions';
 import { ConfirmButton } from '@/components/ConfirmButton';
 
 export default async function AdminPaginas() {
-  const supabase = createClient();
+  await requireIdentity(["admin","staff","director"]);
+
+  const supabase = (await createClient());
   const { data: paginas } = await supabase
     .from('paginas_publicas')
     .select('*')
@@ -19,23 +22,23 @@ export default async function AdminPaginas() {
           <Link href="/admin/publico" className="text-xs text-gray-500 hover:underline">← Sitio público</Link>
           <h1 className="font-serif text-3xl text-verde mt-1">Páginas personalizadas</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Páginas estáticas accesibles en <code className="text-xs bg-gray-100 px-1 rounded">/publico/p/[slug]</code>
+            Páginas estáticas accesibles en <code className="text-xs bg-gray-100 px-1 rounded-sm">/publico/p/[slug]</code>
           </p>
         </div>
         <details className="relative">
-          <summary className="bg-verde text-white text-sm font-medium px-4 py-2 rounded cursor-pointer hover:bg-verde-medio list-none">
+          <summary className="bg-verde text-white text-sm font-medium px-4 py-2 rounded-sm cursor-pointer hover:bg-verde-medio list-none">
             + Nueva página
           </summary>
           <div className="absolute right-0 z-20 mt-2 w-96 bg-white border rounded-lg shadow-lg p-4">
             <p className="font-semibold text-sm mb-3">Crear página</p>
             <form action={crearPagina} className="space-y-2 text-sm">
-              <input name="titulo" required placeholder="Título (ej. Historia)" className="w-full border rounded px-2 py-1" />
-              <input name="slug" required pattern="[a-z0-9][a-z0-9\-]*" placeholder="slug (ej. historia)" className="w-full border rounded px-2 py-1 font-mono text-xs" />
-              <input name="orden" type="number" defaultValue="0" placeholder="Orden" className="w-full border rounded px-2 py-1" />
+              <input name="titulo" required placeholder="Título (ej. Historia)" className="w-full border rounded-sm px-2 py-1" />
+              <input name="slug" required pattern="[a-z0-9][a-z0-9\-]*" placeholder="slug (ej. historia)" className="w-full border rounded-sm px-2 py-1 font-mono text-xs" />
+              <input name="orden" type="number" defaultValue="0" placeholder="Orden" className="w-full border rounded-sm px-2 py-1" />
               <label className="flex items-center gap-2 text-xs">
                 <input type="checkbox" name="publicada" defaultChecked /> Publicada
               </label>
-              <button type="submit" className="w-full bg-verde text-white rounded px-3 py-1 hover:bg-verde-medio text-xs">
+              <button type="submit" className="w-full bg-verde text-white rounded-sm px-3 py-1 hover:bg-verde-medio text-xs">
                 Crear y editar
               </button>
             </form>
@@ -43,7 +46,7 @@ export default async function AdminPaginas() {
         </details>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xs overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-xs uppercase text-gray-600 border-b">
             <tr>

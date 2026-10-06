@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
-export default async function PublicoAlbumDetalle({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
+export default async function PublicoAlbumDetalle(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+  const supabase = (await createClient());
   const { data: album } = await supabase
     .from('albumes')
     .select('*, album_fotos(id, foto_url, caption, orden)')
@@ -37,7 +38,7 @@ export default async function PublicoAlbumDetalle({ params }: { params: { slug: 
               href={f.foto_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group block relative overflow-hidden rounded bg-verde/10"
+              className="group block relative overflow-hidden rounded-sm bg-verde/10"
             >
               <img
                 src={f.foto_url}
@@ -46,7 +47,7 @@ export default async function PublicoAlbumDetalle({ params }: { params: { slug: 
                 loading="lazy"
               />
               {f.caption && (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition">
+                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition">
                   {f.caption}
                 </div>
               )}

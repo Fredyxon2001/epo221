@@ -1,3 +1,5 @@
+import { requireIdentity } from "@/lib/security/access";
+import { scopedClient } from '@/lib/security/resources';
 // Dashboard premium del profesor: plazos activos, solicitudes abiertas y mis grupos.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -7,11 +9,13 @@ import { DashboardHero } from '@/components/privado/DashboardHero';
 import { codigoGrupo } from '@/lib/grupos';
 
 export default async function ProfesorDashboard() {
-  const auth = createClient();
-  const supabase = adminClient();
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const auth = (await createClient());
+  const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
   // Usa adminClient para evitar fallos RLS (mismo bug que en otros lados)
-  const admin = adminClient();
+  const admin = (await scopedClient());
 
   const { data: perfil } = await admin.from('perfiles').select('nombre').eq('id', user!.id).maybeSingle();
   const { data: profesor } = await admin.from('profesores').select('id').eq('perfil_id', user!.id).maybeSingle();
@@ -151,7 +155,7 @@ export default async function ProfesorDashboard() {
 
       {/* Plazo actual destacado */}
       {activoP && activoP.cierra_captura && (
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-verde-oscuro via-verde to-verde-medio text-white p-6 shadow-xl shadow-verde/20">
+        <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-verde-oscuro via-verde to-verde-medio text-white p-6 shadow-xl shadow-verde/20">
           <div className="aurora absolute inset-0 opacity-40" aria-hidden />
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
@@ -223,7 +227,7 @@ export default async function ProfesorDashboard() {
                   <Link
                     key={a.id}
                     href={`/profesor/grupo/${a.id}`}
-                    className="group relative block rounded-xl border border-gray-200 hover:border-verde hover:shadow-lg hover:shadow-verde/10 transition p-4 bg-gradient-to-br from-white to-crema/50 overflow-hidden"
+                    className="group relative block rounded-xl border border-gray-200 hover:border-verde hover:shadow-lg hover:shadow-verde/10 transition p-4 bg-linear-to-br from-white to-crema/50 overflow-hidden"
                   >
                     <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full bg-verde-claro/20 blur-2xl group-hover:bg-dorado/30 transition" aria-hidden />
                     <div className="relative">

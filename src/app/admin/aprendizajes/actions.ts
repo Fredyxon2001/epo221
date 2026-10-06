@@ -1,10 +1,16 @@
 'use server';
+import { requireAccess } from '@/lib/security/access';
+import { validateFormData } from '@/lib/security/form-data';
+
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export async function crearAprendizaje(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/aprendizajes/actions.ts:crearAprendizaje");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const payload: any = {
     codigo: String(fd.get('codigo') ?? '').trim() || null,
@@ -20,7 +26,10 @@ export async function crearAprendizaje(fd: FormData) {
 }
 
 export async function eliminarAprendizaje(fd: FormData) {
-  const auth = createClient();
+  await requireAccess(["admin","staff","director"], "admin/aprendizajes/actions.ts:eliminarAprendizaje");
+  await validateFormData(fd);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const id = String(fd.get('id') ?? '');
   if (!id) return;

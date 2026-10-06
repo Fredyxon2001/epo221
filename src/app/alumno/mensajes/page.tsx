@@ -1,3 +1,4 @@
+import { requireIdentity } from "@/lib/security/access";
 // Hilos de mensajes del alumno con sus profesores.
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -6,9 +7,8 @@ import { PageHeader, Card, EmptyState, Badge } from '@/components/privado/ui';
 
 function Avatar({ foto, ini, tone }: { foto: string | null; ini: string; tone: 'dorado' | 'verde' }) {
   return (
-    <div className={`w-11 h-11 rounded-full overflow-hidden shrink-0 flex items-center justify-center font-bold shadow ${tone === 'dorado' ? 'bg-gradient-to-br from-dorado to-dorado-claro text-verde-oscuro' : 'bg-gradient-to-br from-verde to-verde-medio text-white'}`}>
+    <div className={`w-11 h-11 rounded-full overflow-hidden shrink-0 flex items-center justify-center font-bold shadow-sm ${tone === 'dorado' ? 'bg-linear-to-br from-dorado to-dorado-claro text-verde-oscuro' : 'bg-linear-to-br from-verde to-verde-medio text-white'}`}>
       {foto ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={foto} alt={ini} className="w-full h-full object-cover" />
       ) : ini}
     </div>
@@ -16,7 +16,9 @@ function Avatar({ foto, ini, tone }: { foto: string | null; ini: string; tone: '
 }
 
 export default async function MensajesAlumno() {
-  const auth = createClient();
+  await requireIdentity(["alumno"]);
+
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: alumno } = await supabase.from('alumnos').select('id').eq('perfil_id', user!.id).maybeSingle();
@@ -99,7 +101,7 @@ export default async function MensajesAlumno() {
               const ini = `${h.profesor?.nombre?.[0] ?? ''}${h.profesor?.apellido_paterno?.[0] ?? ''}`;
               return (
                 <Link key={h.id} href={`/alumno/mensajes/${h.profesor?.id}`}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70 hover:border-verde hover:shadow transition">
+                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70 hover:border-verde hover:shadow-sm transition">
                   <Avatar foto={foto} ini={ini} tone="dorado" />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm truncate">Prof. {h.profesor?.apellido_paterno} {h.profesor?.nombre}</div>
@@ -126,7 +128,7 @@ export default async function MensajesAlumno() {
               const noLeidos = countAl.get(h.id) ?? 0;
               return (
                 <Link key={h.id} href={`/alumno/mensajes/companero/${h.id}`}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70 hover:border-verde hover:shadow transition">
+                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white/70 hover:border-verde hover:shadow-sm transition">
                   <Avatar foto={a?.foto_url ?? null} ini={ini} tone="verde" />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm truncate">{nombre}</div>

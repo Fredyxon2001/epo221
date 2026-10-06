@@ -131,7 +131,7 @@ export function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-start justify-center pt-24 px-4"
+      className="fixed inset-0 z-100 bg-black/40 backdrop-blur-xs flex items-start justify-center pt-24 px-4"
       onClick={() => setOpen(false)}
     >
       <div
@@ -144,7 +144,7 @@ export function CommandPalette() {
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={onKeyInput}
             placeholder="Buscar alumno, profesor, grupo, materia, página…  (↑↓ Enter)"
-            className="w-full px-4 py-3 text-sm outline-none border-b border-gray-100 dark:border-gray-800 bg-transparent dark:text-white pr-10"
+            className="w-full px-4 py-3 text-sm outline-hidden border-b border-gray-100 dark:border-gray-800 bg-transparent dark:text-white pr-10"
           />
           {loading && (
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 animate-pulse">…</span>

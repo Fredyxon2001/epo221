@@ -1,5 +1,7 @@
+import { requireIdentity } from "@/lib/security/access";
 // Hilo de conversación profesor → alumno. Al entrar, marca como leídos los mensajes del alumno.
 import Link from 'next/link';
+import { requireStudent } from '@/lib/security/resources';
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { PageHeader, Card, EmptyState } from '@/components/privado/ui';
@@ -7,8 +9,12 @@ import { enviarMensajeProfesor, marcarHiloLeido } from '../actions';
 import { MessageComposer } from '@/components/mensajes/MessageComposer';
 import { Adjunto } from '@/components/mensajes/Adjunto';
 
-export default async function HiloProfesor({ params }: { params: { alumnoId: string } }) {
-  const auth = createClient();
+export default async function HiloProfesor(props: { params: Promise<{ alumnoId: string }> }) {
+  await requireIdentity(["profesor","admin","staff","director"]);
+
+  const params = await props.params;
+  await requireStudent(params.alumnoId);
+  const auth = (await createClient());
   const supabase = adminClient();
   const { data: { user } } = await auth.auth.getUser();
   const { data: profesor } = await supabase.from('profesores').select('id').eq('perfil_id', user!.id).single();
@@ -44,10 +50,9 @@ export default async function HiloProfesor({ params }: { params: { alumnoId: str
 
   return (
     <div className="max-w-3xl space-y-4">
-      <div className="flex items-center gap-3 bg-white rounded-2xl shadow-sm p-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-verde to-verde-medio flex items-center justify-center text-white font-bold shadow">
+      <div className="flex items-center gap-3 bg-white rounded-2xl shadow-xs p-4">
+        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 bg-linear-to-br from-verde to-verde-medio flex items-center justify-center text-white font-bold shadow-sm">
           {(alumno as any).foto_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img src={(alumno as any).foto_url} alt={iniAlu} className="w-full h-full object-cover" />
           ) : iniAlu}
         </div>
@@ -68,7 +73,7 @@ export default async function HiloProfesor({ params }: { params: { alumnoId: str
               const url = m.adjunto_url ? signedMap[m.adjunto_url] : null;
               return (
                 <div key={m.id} className={`flex ${esMio ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[75%] rounded-2xl px-4 py-2 shadow ${esMio ? 'bg-gradient-to-br from-verde to-verde-medio text-white' : 'bg-white border border-gray-200'}`}>
+                  <div className={`max-w-[75%] rounded-2xl px-4 py-2 shadow-sm ${esMio ? 'bg-linear-to-br from-verde to-verde-medio text-white' : 'bg-white border border-gray-200'}`}>
                     {m.solicitud_id && (
                       <a href="/profesor/solicitudes" className={`inline-flex items-center gap-1 text-[10px] font-bold mb-1 px-2 py-0.5 rounded-full ${esMio ? 'bg-white/25 text-white' : 'bg-dorado/30 text-verde-oscuro'}`}>
                         📋 Solicitud de revisión

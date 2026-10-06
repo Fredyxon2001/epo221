@@ -3,7 +3,7 @@
 ## Reglas de continuidad
 
 - Documentar aquí cada cambio de código solicitado por el usuario: alcance, motivo, comprobaciones y limitaciones. Claude importa este archivo mediante `CLAUDE.md`.
-- Next.js **14.2.15**, React 18, TypeScript, Supabase SSR **0.5.x**. No trasladar APIs de Next 15/16 o Supabase SSR recientes sin comprobar compatibilidad con las versiones instaladas.
+- Stack actual: Next.js **16.3.8**, React **19.3.0**, Tailwind **4.3.3**, TypeScript y Supabase SSR **0.12.7**. APIs de `cookies`, `headers`, `params` y `searchParams` son asíncronas. El middleware actual es `src/proxy.ts`.
 - Nunca imprimir ni guardar credenciales, cookies de sesión, archivos `.env.local` o datos personales de alumnos en documentación o artefactos.
 - Mantener los créditos institucionales y de desarrollo existentes.
 
@@ -55,3 +55,55 @@
 - Se repitieron `node scripts/verify-cookie-security.cjs` y `git diff --check`: ambas verificaciones pasaron. Continúan documentados los errores globales previos de TypeScript.
 - Commit previsto: `feat(security): proteger cookies y agregar preferencias de consentimiento`. Consultar `git log` y `origin/main` para obtener el hash definitivo.
 - El push puede activar la integración de despliegue del proveedor; su finalización no se confirma únicamente por el éxito de Git.
+
+## 2026-10-05 — Revisión preliminar posterior a la publicación
+
+- A petición del usuario, se revisaron pendientes de seguridad y cumplimiento sin modificar la lógica de la aplicación. Diagnóstico en `security_best_practices_report.md`.
+- Se identificaron acciones de convocatorias y conceptos que usan `adminClient()` sin comprobar identidad/rol dentro de la acción; importaciones con contraseña temporal compartida y cambio no obligatorio; Next 14.2.15 pendiente de parches; login con destino sin restringir; errores de tipos/build y vistas SQL que requieren verificar grants/seguridad real.
+- Priorizar autorización por operación y claves individuales. No reproducir contraseñas ni probar operaciones de escritura contra datos reales durante la revisión.
+- Se consultaron fuentes oficiales Next/Vercel, Supabase y la ley general mexicana vigente. Vercel no estaba afectado por el bypass específico CVE-2025-29927; no inferir exposición de esta instalación por ese CVE solo por su versión.
+- Verificación pública: `/cookies` en `https://epo221.edu.mx` responde 200 y muestra política/preferencias con DENY y CSP esperada. Esos elementos sí están disponibles en producción; la petición no demuestra el hash de despliegue ni valida todas las rutas.
+- No se comprobaron políticas efectivas de Supabase, MFA, rate limits, respaldos o documentos institucionales externos. Distinguir ausencia en el código revisado de ausencia efectiva en infraestructura/institución.
+- El reporte y esta actualización son documentación local de revisión; no incluyen correcciones nuevas ni un nuevo commit/push.
+
+## 2026-10-05 — Implementación de todos los pendientes técnicos de la revisión
+
+Esta sección sustituye los pendientes técnicos y las versiones de las notas históricas anteriores. El usuario autorizó implementar todas las recomendaciones y mantuvo la autorización de commit/push.
+
+### Código y compatibilidad
+
+- Actualización mantenida de Next/React/Supabase SSR, migración de APIs asíncronas y codemods oficiales de Next y Tailwind. Fuentes empaquetadas localmente; QR de descarga/MFA generado en servidor o navegador sin un proveedor de imágenes externo. Se conservaron créditos institucionales/de desarrollo.
+- Se retiraron las opciones que ignoraban fallos de tipos y build. Se resolvieron los errores previos de formularios, PDFs, directivas obsoletas y la referencia `auth` inexistente. ESLint flat y workflow GitHub ejecutan verificaciones y auditoría de dependencias.
+- `src/lib/security/access.ts`, `policy.ts`, `api-access.ts` y `resources.ts`: guardas por identidad activa, rol, contraseña inicial, MFA y pertenencia al registro/grupo. 142 acciones exportadas autorizan antes de operar; 115 páginas privadas de servidor también verifican antes de consultar datos. El layout o proxy no sustituyen la autorización dentro de una acción/página.
+- Las lecturas de alumnos/docentes usan JWT y RLS; el cliente `service_role` contiene `server-only` y se reserva para operaciones comprobadas. No permitir que un identificador en URL/FormData seleccione otro expediente. Se eliminó la vinculación automática por coincidencia de nombres/correo.
+- Alumnos, profesores, orientadores, finanzas y administración tienen alcances distintos. Un orientador puede consultar sus grupos; una modificación de clase exige ser su docente asignado. Validación de listas de alumnos, puntuaciones y pertenencia de pregunta/intento antes de escribir.
+- Login con destinos locales permitidos, límites por IP/cuenta y recuperación por correo sin enumeración. CURP/RFC/matrícula no autorizan un restablecimiento público. Claves nuevas aleatorias de 18 caracteres y cambio obligatorio; reimportaciones conservan cuentas existentes.
+- Credenciales iniciales cifradas AES-GCM, expiración 24 h, descarga única y limpieza. Se comprobó internamente que ninguna clave de la entrega antigua en claro coincidía con un hash actual; se elimina esa entrega sin reset masivo ni documentación de claves/datos personales.
+- MFA TOTP obligatorio para admin/staff/director/finanzas. Factores ya registrados se verifican también para docentes/alumnos. Recuperación MFA solo por otro administrador con AAL2 y folio institucional; no sustituye la comprobación de identidad. `security_session_alive` verifica sesión Auth existente y época de restablecimiento. Reset de contraseña/MFA revoca sesiones; perfil inactivo impide acceso.
+- Route Handlers privados y calendario ICS verifican sesión/rol/MFA; mutaciones verifican origen. Cron y webhook comparan secretos en tiempo constante y fallan si falta configuración. Límites distribuidos por RPC transaccional con cierre ante error.
+- Validación de tamaño, extensión y firma de archivos PDF/imágenes/Office; límites y MIME de buckets. Estas comprobaciones no son un antivirus. Exámenes comprueban alumno, intento, plazo y preguntas; las claves correctas y columnas de calificación no son legibles/escribibles directamente por alumnos.
+- `proxy.ts`: CSP con nonce por petición para scripts, fuentes propias y conexión acotada a Supabase; cookies renovadas preservadas, no-store privado y HSTS de un año solo para el host, sin includeSubDomains/preload. `HttpOnly` continúa false por la arquitectura SSR/browser; no cambiar aisladamente.
+
+### Base de datos y operación
+
+- Migraciones versionadas en `supabase/migrations/`: límites y eventos; revocación de RPC inseguras y grants de vistas; search_path fijo; RLS de alcance/sesión; bloqueo de escritura directa en columnas de examen/propuestas/entregas; directorio de docentes sin RFC/contactos privados; extensiones fuera de public; auditoría sin campos de secretos; retiro de credenciales antiguas.
+- Helpers SECURITY DEFINER que devuelven exclusivamente pertenencia/estado propio requieren revisar sus grants y políticas dependientes antes de revocar EXECUTE. La alerta informativa de RLS sin políticas para `security_rate_limits` es intencional: solo servicio accede.
+- Respaldos AES-256-GCM de tablas públicas de aplicación y bytes Storage en bucket privado. Cron diario autenticado 05:00 UTC, manifiestos siete días, eventos de seguridad 90 días y entregas 24 h. La retención escolar permanece sujeta al catálogo institucional; no se borraron expedientes.
+- Primera verificación: 63 tablas, 4,845 registros y 8 archivos; descifrado/carga en tablas temporales con tipos/restricciones y comprobación de bytes. Copia cifrada local `security-backups/` excluida de Git. No demuestra una restauración nativa completa, claves foráneas, usuarios Auth ni sincronización OneDrive finalizada. Detalles/custodia/simulacro en `docs/security-operations.md`.
+- Vercel configuró `CRON_SECRET`, `CREDENTIALS_ENCRYPTION_KEY` y `BACKUP_ENCRYPTION_KEY` como variables sensibles en producción/previews. No registrar valores. No rotar claves de cifrado sin migración de material pendiente. La configuración local de servicio queda en `.env.local`, excluido de Git.
+
+### Privacidad y límites institucionales
+
+- `/privacidad`, enlaces permanentes del sitio/banner y `docs/privacy-institutional-draft.md`: información del tratamiento, inventario y borrador para responsables institucionales. `PRIVACY_NOTICE_URL` admite un aviso aprobado HTTPS. No se inventó contacto de la Unidad de Transparencia, fundamento, plazos ARCO ni autorización de fotografías de menores.
+- Pendientes institucionales/proveedor: aviso aprobado y contacto ARCO, documento de seguridad/riesgos con responsables, autorización de fotografías, contratos/ubicaciones/retención, medios de recuperación verificados, protección de contraseñas filtradas y mínimo nativo Auth, alertas, separación de Supabase de pruebas, custodia de claves, respaldo nativo y simulacro integral, renovación TLS confirmada y protección de rama. No se contrató ni alteró un plan de pago.
+- La aplicación móvil React Native y el HTML histórico fuera de este repo no se migraron. Probar compatibilidad de cualquier cliente externo con el nuevo MFA/RLS antes de volver a publicarlo.
+
+### Validaciones y entrega
+
+- `npm run test:security`: 142 guardas por acción, roles/MFA/API/origen/rate limit, claves distintas, manipulación de cifrado, firmas de archivos, redirecciones/CSP y pruebas previas de cookies/PWA. Datos/tokens sintéticos.
+- Navegador local con build de producción: login/contacto cargan, 15 scripts con nonce, cero scripts externos y cero iframes antes de consentimiento; solo favicon 404 preexistente. Repetir el recorrido tras publicación y distinguir estos checks de pruebas autenticadas de cada módulo.
+- Las seis migraciones de este cambio se aplicaron y sus nombres/versiones locales coinciden con el registro remoto. Fixtures Auth temporales comprobaron lectura propia/ajena, escalamiento denegado, columnas protegidas, AAL1/AAL2, cambio inicial y revocación inmediata; limpieza confirmada sin cuentas/perfiles sintéticos restantes.
+- Primera publicación READY promovida a `epo221.edu.mx`: login/privacidad/cookies 200, admin 307 y APIs/cron sin sesión/secreto 401. Navegador de producción: nonce en scripts, cero scripts externos, aviso de clave individual y rechazo de mapa persistente al recargar. No se detectaron secretos privados en los bundles de navegador.
+- `.vercelignore` excluye variables locales, respaldos, logs y artefactos de pruebas del despliegue. Se retiró una definición duplicada de CRON_SECRET en Vercel; la publicación definitiva debe comprobar además la ejecución autorizada del respaldo.
+- Lint, TypeScript, auditoría y build deben pasar antes de commit. La auditoría de dependencias actual devolvió cero vulnerabilidades. Consultar Git para el hash definitivo y Vercel para READY/alias del despliegue; un push no acredita despliegue.
+- Skills aplicadas: security-best-practices, Supabase, Next upgrade/Next.js, React best practices, variables/API y despliegues Vercel, Playwright. `security_best_practices_report.md` registra el estado final y las limitaciones.

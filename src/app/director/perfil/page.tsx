@@ -1,10 +1,13 @@
+import { requireIdentity } from "@/lib/security/access";
 // Perfil editable del director
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { PerfilEditor } from '@/components/perfil/PerfilEditor';
 
 export default async function PerfilDirector() {
-  const supabase = createClient();
+  await requireIdentity(["director","admin"]);
+
+  const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
