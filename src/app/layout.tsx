@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   description: 'Sistema escolar de la Escuela Preparatoria Oficial No. 221',
   manifest: '/manifest.json',
   applicationName: 'EPO 221',
+  icons: {
+    icon: { url: '/img/logo-epo221.png', type: 'image/png', sizes: '512x512' },
+    apple: '/img/logo-epo221.png',
+  },
   appleWebApp: { capable: true, title: 'EPO 221', statusBarStyle: 'default' },
   verification: {
     google: 'fYptKllgGmJ32LgtSykXN_tzSMxuyFj2LDxAGIef51o',
@@ -33,9 +37,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await headers();
   return (
     <html lang="es">
-      <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-      </head>
       <body className="font-sans">
         <PWARegister />
         <UploadNotice />

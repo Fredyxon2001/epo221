@@ -164,3 +164,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Verificación móvil y publicación vigente — 2026-10-06
+
+- GitHub autenticado: push de main completado hasta e248791 (incluye contraseña/tareas bearer, avisos y migraciones). Las notas históricas que dicen push pendiente describen intentos anteriores.
+- Vercel dpl_2n5udfvvBSEfhQe3XmBbzpAnyVRc está READY y sirve epo221.edu.mx/www/epo221.vercel.app. Backend móvil probado sobre https://epo221.edu.mx: PASS de audiencias de calendario/horarios/avisos, adjuntos privados, directorio/lecturas, tareas/fechas/calificación y contraseña/revocación. Limpieza de fixtures PASS.
+- Navegador público comprobó contenido institucional; el único error observado era favicon inexistente. Metadata/apple/manifest ahora usan el logo PNG 512 existente y no rutas /icons ausentes; purpose any evita afirmar que el logo es maskable.
+- El código móvil correcto está en ../epo221-mobile-github; ver su AGENTS.md para resultados y límites nativos. No reemplazar APK público sin instalación/almacenamiento/reanudación en dispositivo.

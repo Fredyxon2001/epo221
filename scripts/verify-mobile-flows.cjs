@@ -10,6 +10,17 @@ async function main(){try{
   for(const student of [own,peer])await f.row('inscripciones',{alumno_id:student.studentId,grupo_id:group,ciclo_id:cycle,estatus:'activa'});
   const subject=await f.row('materias',{nombre:'Mobile fixture',clave:`FLOW-MOBILE-${Date.now()}`,semestre:1,tipo:'obligatoria',activo:false});
   const assignment=await f.row('asignaciones',{ciclo_id:cycle,grupo_id:group,materia_id:subject,profesor_id:teacher.professorId});
+  const events={};
+  for(const [key,extra] of Object.entries({general:{alcance:'todos'},students:{alcance:'alumnos'},group:{alcance:'grupos',grupo_ids:[group]},teachers:{alcance:'profesores'}}))
+    events[key]=await f.row('eventos_calendario',{titulo:'Synthetic mobile calendar '+key,tipo:'evento',fecha_inicio:new Date().toISOString(),creado_por:admin.id,...extra});
+  const visibleEvents=async account=>{const r=await account.client.from('eventos_calendario').select('id').in('id',Object.values(events));assert.equal(r.error,null);return new Set(r.data.map(row=>row.id));};
+  assert.deepEqual(await visibleEvents(own),new Set([events.general,events.students,events.group]));
+  assert.deepEqual(await visibleEvents(foreign),new Set([events.general,events.students]));
+  assert.deepEqual(await visibleEvents(teacher),new Set([events.general,events.group,events.teachers]));
+  assert.equal((await visibleEvents(admin)).size,4);
+  const schedule=await f.row('horarios',{asignacion_id:assignment,dia:1,hora_inicio:'09:00',hora_fin:'10:00'});
+  for(const account of [own,teacher]){const r=await account.client.from('horarios').select('id').eq('id',schedule);assert.equal(r.error,null);assert.equal(r.data.length,1);}
+  const foreignSchedule=await foreign.client.from('horarios').select('id').eq('id',schedule);assert.equal(foreignSchedule.error,null);assert.deepEqual(foreignSchedule.data,[]);
   const notices={};for(const [key,extra] of Object.entries({general:{alcance:'todos'},individual:{alcance:'alumno',alumno_id:own.studentId},group:{alcance:'grupos',grupo_ids:[group]},teachers:{alcance:'profesores'}}))notices[key]=await f.row('avisos',{autor_id:admin.id,autor_tipo:'admin',titulo:'Mobile synthetic '+key,cuerpo:'Synthetic notice body',...extra});
   const visible=async account=>{const r=await account.client.from('avisos').select('id').in('id',Object.values(notices));assert.equal(r.error,null);return new Set(r.data.map(row=>row.id));};
   assert.deepEqual(await visible(own),new Set([notices.general,notices.individual,notices.group]));
@@ -53,6 +64,6 @@ async function main(){try{
   assert.equal((await own.client.auth.signInWithPassword({email:own.email,password:next})).error,null);
   assert.equal((await own.client.rpc('security_session_valid')).data,true);
   await f.admin.from('perfiles').update({activo:false}).eq('id',own.id);assert.equal((await post(own,'tasks',body)).status,403);
-  console.log('PASS mobile backend: notice audiences/private attachment; minimal class directory; received-message acknowledgment; task caller binding, resubmission/file preservation, deadlines, grade lock; password bootstrap/session revocation; inactive/MFA/role boundaries.');
+  console.log('PASS mobile backend: calendar/schedule/notice audiences/private attachment; minimal class directory; received-message acknowledgment; task caller binding, resubmission/file preservation, deadlines, grade lock; password bootstrap/session revocation; inactive/MFA/role boundaries.');
 }finally{await f.cleanup();}}
 main().catch(error=>{console.error(error.message);console.error(error.stack?.split('\n').find(line=>line.includes('verify-mobile-flows.cjs'))??'');process.exitCode=1;});

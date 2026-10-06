@@ -38,4 +38,6 @@ Los recorridos comprobados no equivalen a probar todas las pantallas, navegadore
 
 ## Compatibilidad móvil — 2026-10-06
 
+Backend real contra https://epo221.edu.mx: PASS, incluyendo audiencias de eventos/horarios además de avisos, y limpieza de datos desechables. El despliegue funcional dpl_2n5udfvvBSEfhQe3XmBbzpAnyVRc está READY con aliases institucionales; main ya fue enviado a GitHub hasta e248791. Iconos del sitio/PWA apuntan al logo 512 existente para evitar 404.
+
 El repo móvil vigente es epo221-mobile-github, SDK 55; el scaffold antiguo no corresponde al APK. Backend: `node scripts/verify-mobile-flows.cjs --live` desde sistema (FLOW_BASE_URL configurable). Comprueba audiencias/adjuntos, directorio mínimo/recibos, identidad de tareas y fechas/calificación, contraseña/revocación/MFA/inactividad; datos desechables y limpieza garantizada. RN Web: `node scripts/serve-verification.cjs --local` y `node scripts/verify-browser.cjs --live` desde el repo móvil, con web local 3002. Registrar resultado antes de afirmar éxito. Estos checks no sustituyen teléfono/emulador ni prueba nativa de almacenamiento/instalación.
