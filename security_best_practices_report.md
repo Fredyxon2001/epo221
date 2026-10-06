@@ -21,6 +21,7 @@ Fecha: 2026-10-05. Alcance: repositorio sistema, Supabase de EPO 221 y Vercel. N
 - Respaldo inicial: 63 tablas, 4,845 registros y ocho archivos; segundo después de migraciones: 63 tablas, 4,853 registros y ocho archivos. Cifrado, validación en tablas temporales y archivos descifrados comprobados. Copia cifrada local; no demuestra recuperación nativa completa ni sincronización OneDrive finalizada.
 - Primera versión READY y promovida al dominio: login/privacidad/cookies 200; admin sin sesión 307; API privada y cron sin autorización 401. CSP con nonce, HSTS y no-store. Navegador: login con clave individual, cero scripts externos, contacto sin iframe antes del consentimiento. Favicon 404 preexistente.
 - Consultar Git/Vercel para el commit y despliegue definitivos; push no acredita despliegue.
+- Entrega funcional verificada: f503ec3, Vercel dpl_49ZFyE4aim4vnVa2ULg6Eqg81W7N READY con el commit en metadata y aliases del dominio. Cron autorizado respondió 200/ok y verificó 63 tablas/4,853 registros/8 archivos. Push pendiente de autenticación GitHub; origin/main todavía conservaba el commit anterior al comprobarlo.
 
 ## Pendientes y avisos reales
 
