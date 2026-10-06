@@ -1,3 +1,4 @@
+import { UploadForm } from '@/components/UploadForm';
 import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -65,7 +66,7 @@ export default async function EditarAlbum(props: { params: Promise<{ id: string 
       {/* Subir fotos */}
       <div className="bg-white rounded-lg shadow-xs p-5">
         <h2 className="font-serif text-lg text-verde mb-3">Subir fotos</h2>
-        <form action={subirFotos} encType="multipart/form-data" className="space-y-3">
+        <UploadForm action={subirFotos} encType="multipart/form-data" className="space-y-3">
           <input type="hidden" name="album_id" value={a.id} />
           <input
             type="file"
@@ -79,7 +80,7 @@ export default async function EditarAlbum(props: { params: Promise<{ id: string 
           <button type="submit" className="bg-verde text-white px-6 py-2 rounded-sm hover:bg-verde-medio text-sm font-medium">
             Subir fotos
           </button>
-        </form>
+        </UploadForm>
       </div>
 
       {/* Grid de fotos */}

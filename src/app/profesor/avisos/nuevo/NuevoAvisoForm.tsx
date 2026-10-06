@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { crearAviso } from '@/app/avisos/actions';
@@ -24,7 +25,7 @@ export function NuevoAvisoForm({ grupos }: { grupos: any[] }) {
         if (alcance === 'grupos') fd.set('grupo_ids', gruposSel.join(','));
         if (file) fd.set('adjunto', file);
         start(async () => {
-          const r = await crearAviso(fd);
+          const r = await submitWithUploads(crearAviso, fd);
           if (r?.error) setErr(r.error);
           else router.push('/profesor/avisos');
         });

@@ -1,3 +1,4 @@
+import { UploadForm } from '@/components/UploadForm';
 import { requireIdentity } from "@/lib/security/access";
 // Estado de cuenta: cargos pendientes, subir comprobantes, historial.
 import { getAlumnoActual, getEstadoCuenta } from '@/lib/queries';
@@ -75,7 +76,7 @@ export default async function EstadoCuenta() {
                 <div className="text-right">
                   <div className="text-lg font-semibold">${Number(c.monto).toFixed(2)}</div>
                   {puedeSubir && (
-                    <form action={subirComprobante} className="mt-2 flex flex-col gap-1">
+                    <UploadForm action={subirComprobante} className="mt-2 flex flex-col gap-1">
                       <input type="hidden" name="cargo_id" value={c.cargo_id} />
                       <select name="metodo" required className="text-xs border rounded-sm px-2 py-1">
                         <option value="transferencia">Transferencia</option>
@@ -87,7 +88,7 @@ export default async function EstadoCuenta() {
                       <button className="text-xs bg-verde text-white rounded-sm px-2 py-1 hover:bg-verde-medio">
                         Subir comprobante
                       </button>
-                    </form>
+                    </UploadForm>
                   )}
                 </div>
               </div>

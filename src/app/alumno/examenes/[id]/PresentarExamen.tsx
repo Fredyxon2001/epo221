@@ -1,29 +1,37 @@
 'use client';
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useEffectEvent, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { guardarRespuesta, entregarIntento } from '../actions';
 
-export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, duracionMin }: {
+export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, remainingSeconds }: {
   intentoId: string;
   preguntas: any[];
   respuestasIniciales: Record<string, string>;
-  duracionMin: number;
+  remainingSeconds: number;
 }) {
   const router = useRouter();
   const [respuestas, setRespuestas] = useState<Record<string, string>>(respuestasIniciales);
   const [savingId, setSavingId] = useState<string | null>(null);
-  const [segundos, setSegundos] = useState(duracionMin * 60);
+  const [segundos, setSegundos] = useState(remainingSeconds);
+  const [error, setError] = useState('');
+  const saves = useRef(new Map<string, Promise<void>>());
+  const submitting = useRef(false);
+  const autoSubmitted = useRef(false);
   const [pending, start] = useTransition();
   const [ok, setOk] = useState(false);
 
   useEffect(() => {
-    const t = setInterval(() => setSegundos((s) => s - 1), 1000);
+    const deadline = Date.now() + remainingSeconds * 1000;
+    const t = setInterval(() => setSegundos(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))), 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [remainingSeconds]);
 
+  const autoSubmit = useEffectEvent(() => submit());
   useEffect(() => {
-    if (segundos <= 0) submit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (segundos <= 0 && !autoSubmitted.current) {
+      autoSubmitted.current = true;
+      autoSubmit();
+    }
   }, [segundos]);
 
   async function saveOne(pregunta_id: string, valor: string) {
@@ -33,17 +41,34 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, dur
     fd.set('intento_id', intentoId);
     fd.set('pregunta_id', pregunta_id);
     fd.set('respuesta', valor);
-    await guardarRespuesta(fd);
-    setSavingId(null);
+    const previous = saves.current.get(pregunta_id) ?? Promise.resolve();
+    const save = previous.then(async () => {
+      try {
+        const result = await guardarRespuesta(fd);
+        if (result.error) setError(result.error);
+      } catch { setError('No se pudo guardar la respuesta. Tu borrador sigue en esta pantalla; vuelve a enviar.'); }
+    });
+    saves.current.set(pregunta_id, save);
+    await save;
+    if (saves.current.get(pregunta_id) === save) setSavingId(null);
   }
 
   function submit() {
+    if (submitting.current) return;
+    submitting.current = true;
+    setError('');
     start(async () => {
-      const r = await entregarIntento(intentoId);
-      if (!r?.error) {
-        setOk(true);
-        setTimeout(() => router.push('/alumno/examenes'), 1500);
-      }
+      try {
+        await Promise.all(saves.current.values());
+        const r = await entregarIntento(intentoId, respuestas);
+        if (r.error) setError(r.error);
+        else {
+          setOk(true);
+          router.replace('/alumno/examenes');
+          router.refresh();
+        }
+      } catch { setError('No se pudo entregar el examen. Intenta nuevamente.'); }
+      finally { submitting.current = false; }
     });
   }
 
@@ -63,6 +88,8 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, dur
       <div className={`sticky top-0 z-10 rounded-xl p-3 text-center font-mono text-sm font-bold ${segundos < 300 ? 'bg-rose-100 text-rose-700' : 'bg-white border border-gray-200 text-verde-oscuro'}`}>
         ⏱️ {String(m).padStart(2, '0')}:{String(s).padStart(2, '0')}
       </div>
+      {error && <p role="alert" className="text-sm text-rose-700">{error}</p>}
+      {segundos === 0 && <p className="text-sm text-gray-600">El tiempo terminó. Se entregan las respuestas guardadas dentro del tiempo permitido.</p>}
 
       {preguntas.map((p, idx) => (
         <div key={p.id} className="bg-white border border-gray-200 rounded-xl p-4">
@@ -73,7 +100,7 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, dur
             <span className="text-xs text-gray-500 shrink-0">{p.puntos} pts</span>
           </div>
 
-          <div className="mt-3 space-y-2">
+          <fieldset disabled={pending || segundos === 0} className="mt-3 space-y-2">
             {p.tipo === 'opcion_multiple' && (p.opciones as any[]).map((o) => (
               <label key={o.clave} className="flex items-center gap-2 text-sm cursor-pointer p-2 border rounded-lg hover:bg-gray-50">
                 <input type="radio" name={`p-${p.id}`} value={o.clave} checked={respuestas[p.id] === o.clave}
@@ -94,7 +121,7 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, dur
                 onBlur={(e) => saveOne(p.id, e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-sm" />
             )}
-          </div>
+          </fieldset>
           {savingId === p.id && <div className="text-[10px] text-gray-400 mt-1">Guardando…</div>}
         </div>
       ))}

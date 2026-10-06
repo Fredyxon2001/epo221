@@ -5,11 +5,18 @@ import { calificarRespuestaAbierta } from '../actions';
 export function CalificarAbiertaForm({ id, puntosMax }: { id: string; puntosMax: number }) {
   const [pending, start] = useTransition();
   const [ok, setOk] = useState(false);
+  const [error, setError] = useState('');
   return (
     <form
       action={(fd) => {
         fd.set('id', id);
-        start(async () => { const r = await calificarRespuestaAbierta(fd); if (!r?.error) setOk(true); });
+        setOk(false); setError('');
+        start(async () => {
+          try {
+            const r = await calificarRespuestaAbierta(fd);
+            if (r.error) setError(r.error); else setOk(true);
+          } catch { setError('No se pudo guardar la calificación. Intenta nuevamente.'); }
+        });
       }}
       className="flex gap-2 items-center mt-1"
     >
@@ -19,6 +26,7 @@ export function CalificarAbiertaForm({ id, puntosMax }: { id: string; puntosMax:
       <button type="submit" disabled={pending} className="text-xs px-2 py-1 rounded-sm bg-verde text-white font-semibold">
         {pending ? '…' : ok ? '✓' : 'Guardar'}
       </button>
+      {error && <span role="alert" className="text-xs text-rose-700">{error}</span>}
     </form>
   );
 }

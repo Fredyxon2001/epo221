@@ -1,13 +1,14 @@
 import { requireIdentity } from "@/lib/security/access";
 // Validación de comprobantes de pago.
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { validarPago, rechazarPago } from './actions';
 
 export default async function AdminPagos() {
   await requireIdentity(["admin","staff","director","finanzas"]);
 
-  const supabase = (await createClient());
-  const { data: pendientes } = await supabase
+  const supabase = adminClient();
+  const { data: pendientes, error } = await supabase
     .from('pagos')
     .select(`
       id, monto_pagado, metodo, referencia, fecha_pago,
@@ -16,7 +17,9 @@ export default async function AdminPagos() {
       alumno:alumnos(curp, matricula, nombre, apellido_paterno, apellido_materno)
     `)
     .is('validado_en', null)
+    .is('rechazado_motivo', null)
     .order('subido_en', { ascending: false });
+  if (error) throw new Error('No se pudieron cargar los comprobantes pendientes.');
 
   return (
     <div className="max-w-6xl space-y-4">

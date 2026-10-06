@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useRef, useState, useTransition } from 'react';
 import { enviarMensajeChat } from '@/app/chat-grupal/actions';
 import { EmojiFilePicker } from '@/components/EmojiFilePicker';
@@ -30,7 +31,7 @@ export function ChatGrupalForm({ asignacionId }: { asignacionId: string }) {
         fd.set('texto', texto);
         if (file) fd.set('archivo', file);
         start(async () => {
-          const r = await enviarMensajeChat(fd);
+          const r = await submitWithUploads(enviarMensajeChat, fd);
           if (r?.error) setErr(r.error);
           else { setTexto(''); setFile(null); formRef.current?.reset(); }
         });

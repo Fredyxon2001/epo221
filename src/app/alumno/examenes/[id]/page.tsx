@@ -6,6 +6,7 @@ import { getAlumnoActual } from '@/lib/queries';
 import { PageHeader, Card } from '@/components/privado/ui';
 import { PresentarExamen } from './PresentarExamen';
 import { iniciarIntento } from '../actions';
+import { createHash } from 'node:crypto';
 
 export default async function PresentarExamenPage(props: { params: Promise<{ id: string }> }) {
   await requireIdentity(["alumno"]);
@@ -28,11 +29,17 @@ export default async function PresentarExamenPage(props: { params: Promise<{ id:
   const { data: preguntas } = await supabase.from('examen_preguntas')
     .select('id, tipo, enunciado, puntos, opciones, orden').eq('examen_id', params.id).order('orden');
 
-  // Si aleatorizar, shuffle en servidor (determinista por intento: aquí random simple)
+  // El orden se conserva al recargar el mismo intento.
   let preguntasFinal = preguntas ?? [];
   if (examen.aleatorizar) {
-    preguntasFinal = [...preguntasFinal].sort(() => Math.random() - 0.5);
+    const order = (id: string) => createHash('sha256').update(`${res.id}:${id}`).digest('hex');
+    preguntasFinal = [...preguntasFinal].sort((a, b) => order(a.id).localeCompare(order(b.id)));
   }
+  const { data: attempt, error: attemptError } = await supabase.from('examen_intentos')
+    .select('inicio').eq('id', res.id!).single();
+  if (attemptError || !attempt?.inicio) return <div role="alert">No se pudo recuperar el tiempo del intento.</div>;
+  const deadline = Math.min(Date.parse(examen.fecha_cierre), Date.parse(attempt.inicio) + Number(examen.duracion_min ?? 60) * 60_000);
+  const remainingSeconds = Math.max(0, Math.floor((deadline - Date.now()) / 1000));
 
   const { data: respuestas } = await supabase.from('examen_respuestas')
     .select('pregunta_id, respuesta').eq('intento_id', res.id!);
@@ -57,7 +64,7 @@ export default async function PresentarExamenPage(props: { params: Promise<{ id:
         intentoId={res.id!}
         preguntas={preguntasFinal}
         respuestasIniciales={respMap}
-        duracionMin={examen.duracion_min}
+        remainingSeconds={remainingSeconds}
       />
     </div>
   );

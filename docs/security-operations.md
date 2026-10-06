@@ -40,6 +40,10 @@ La retención técnica de eventos (90 días), manifiestos (7 días) y entregas (
 
 ## Comprobaciones antes de cada publicación
 
+Desde la reparación de flujos, las cargas pasan por `security-uploads`, bucket privado temporal, URL firmada y ticket HMAC ligado al usuario/tamaño con validez 15 minutos. El endpoint exige sesión/MFA/origen y limita a 30 cargas por usuario cada diez minutos; las acciones recuperan y validan los bytes antes de persistir. Se mantiene máximo agregado 50 MB y los límites particulares del módulo. No abrir Storage ni aumentar aisladamente Server Actions: Vercel también limita el cuerpo de funciones. Los objetos consumidos se eliminan; el cron limpia abandonados mayores de tres horas. Este bucket se excluye de copias y manifiestos del respaldo. Una carga fallida debe mostrar error, nunca confirmar un registro inexistente.
+
+Las RPC de examen y pagos solo las ejecuta servicio tras autorización de la acción, con bloqueos transaccionales. Pagos/cargos no admiten DML directo autenticado; no restaurar ese grant para resolver una interfaz. Finanzas usa su panel/directorio mínimo, sin acceso a recuperación de claves ni expediente académico. Revisar `flow-verification.md` antes de cambiar estas fronteras.
+
 `npm ci`, `npm run lint`, `npm run test:security`, `npm audit --audit-level=moderate`, `npm run build` y `npm run typecheck`. El workflow de GitHub utiliza claves sintéticas para compilar; nunca secretos de producción. Configurar en GitHub protección de rama y requerir ese check si el plan/permisos lo permiten; el workflow por sí solo no impide un push autorizado a main.
 
 Comprobar login, recuperación, cookies, MFA, páginas por rol, descargas privadas y cabeceras. El CSP de scripts usa un nonce por petición; fuentes y QR se generan localmente. Revisar cada nuevo tercero antes de autorizarlo. HTTPS y HSTS se aplican al host; no se activó `includeSubDomains` ni preload.

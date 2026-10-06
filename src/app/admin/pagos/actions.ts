@@ -7,11 +7,6 @@ import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
-function generarFolio() {
-  const y = new Date().getFullYear();
-  return `R-${y}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-}
-
 export async function validarPago(formData: FormData) {
   await requireAccess(["admin","staff","director","finanzas"], "admin/pagos/actions.ts:validarPago");
   await validateFormData(formData);
@@ -24,13 +19,10 @@ export async function validarPago(formData: FormData) {
   const pagoId = String(formData.get('pago_id'));
   const cargoId = String(formData.get('cargo_id'));
 
-  await supabase.from('pagos').update({
-    validado_por: user.id,
-    validado_en: new Date().toISOString(),
-    folio_recibo: generarFolio(),
-  }).eq('id', pagoId);
-
-  await supabase.from('cargos').update({ estatus: 'pagado' }).eq('id', cargoId);
+  const { error } = await supabase.rpc('security_payment_review', {
+    p_actor_id:user.id, p_pago_id:pagoId, p_cargo_id:cargoId, p_approve:true,
+  });
+  if (error) throw new Error('No se pudo validar el pago. Revisa su estado y el cargo asociado.');
 
   revalidatePath('/admin/pagos');
 }
@@ -45,8 +37,12 @@ export async function rechazarPago(formData: FormData) {
   const cargoId = String(formData.get('cargo_id'));
   const motivo = String(formData.get('motivo'));
 
-  await supabase.from('pagos').update({ rechazado_motivo: motivo }).eq('id', pagoId);
-  await supabase.from('cargos').update({ estatus: 'pendiente' }).eq('id', cargoId);
+  const { data:{ user } } = await auth.auth.getUser();
+  if (!user) throw new Error('Sesión expirada.');
+  const { error } = await supabase.rpc('security_payment_review', {
+    p_actor_id:user.id, p_pago_id:pagoId, p_cargo_id:cargoId, p_approve:false, p_reason:motivo,
+  });
+  if (error) throw new Error('No se pudo rechazar el pago. Revisa el motivo y el cargo asociado.');
 
   revalidatePath('/admin/pagos');
 }

@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useRef, useState, useTransition } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { crearSolicitudRevision } from '@/app/alumno/solicitudes/actions';
@@ -97,7 +98,7 @@ export function SolicitudRevisionButton({
                     fd.set('motivo', motivo);
                     if (file) fd.set('adjunto', file);
                     start(async () => {
-                      const res = await crearSolicitudRevision(fd);
+                      const res = await submitWithUploads(crearSolicitudRevision, fd);
                       if (res?.error) setErr(res.error);
                       else setOk(true);
                     });

@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useTransition } from 'react';
 import { subirEvidencia } from './actions';
 
@@ -12,7 +13,7 @@ export function SubirEvidenciaForm({ asignaciones }: { asignaciones: any[] }) {
       action={(fd) => {
         setErr(null); setOk(false);
         start(async () => {
-          const r = await subirEvidencia(fd);
+          const r = await submitWithUploads(subirEvidencia, fd);
           if (r?.error) setErr(r.error);
           else setOk(true);
         });

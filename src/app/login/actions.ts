@@ -34,7 +34,11 @@ export async function loginAction(formData: FormData) {
   let rol: string | null = null;
   try {
     const admin = adminClient();
-    const { data: perfil } = await admin.from('perfiles').select('rol').eq('id', data.user.id).maybeSingle();
+    const { data: perfil } = await admin.from('perfiles').select('rol,activo').eq('id', data.user.id).maybeSingle();
+    if (!perfil?.activo) {
+      await supabase.auth.signOut();
+      return { error: 'Tu cuenta requiere revisión de Control Escolar.' };
+    }
     rol = (perfil as any)?.rol ?? null;
   } catch {
     // Fallback: client normal
@@ -48,10 +52,11 @@ export async function loginAction(formData: FormData) {
     return { error: 'Tu cuenta requiere revisión de Control Escolar.' };
   }
   if (flags?.debe_cambiar_password) redirect('/cambiar-password');
-  if (hasRole(rol, PRIVILEGED_ROLES)) redirect('/seguridad');
+  const destination = safeRedirect(redirectTo, panelForRole(rol));
+  if (hasRole(rol, PRIVILEGED_ROLES)) redirect(`/seguridad?next=${encodeURIComponent(destination)}`);
   const { data: assurance } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (assurance?.nextLevel === 'aal2' && assurance.currentLevel !== 'aal2') redirect('/seguridad');
-  redirect(safeRedirect(redirectTo, panelForRole(rol)));
+  if (assurance?.nextLevel === 'aal2' && assurance.currentLevel !== 'aal2') redirect(`/seguridad?next=${encodeURIComponent(destination)}`);
+  redirect(destination);
 }
 
 export async function logoutAction() {

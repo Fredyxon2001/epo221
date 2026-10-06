@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
+import { prepareFormUploads } from '@/lib/form-uploads';
 
 // Compositor reutilizable para mensajes: textarea + emoji picker + adjunto.
 // Recibe el `action` del server action y los hidden fields (`hidden`).
@@ -15,6 +16,7 @@ export function MessageComposer({
   const [file, setFile] = useState<File | null>(null);
   const [showEmojis, setShowEmojis] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   const EMOJIS = [
     '😀','😁','😂','🤣','😊','😍','🥰','😎','🤓','🤔',
@@ -40,14 +42,19 @@ export function MessageComposer({
   return (
     <form
       ref={formRef}
-      action={action}
-      onSubmit={() => setSending(true)}
+      action={async data => {
+        setSending(true); setError('');
+        try { await action(await prepareFormUploads(data)); }
+        catch { setError('No se pudo enviar el mensaje. Revisa el archivo e intenta nuevamente.'); }
+        finally { setSending(false); }
+      }}
       className="mt-4 border-t border-gray-200 pt-4 space-y-2"
       encType="multipart/form-data"
     >
       {Object.entries(hidden).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
+      {error && <p role="alert" className="text-sm text-rose-700">{error}</p>}
 
       {file && (
         <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs">

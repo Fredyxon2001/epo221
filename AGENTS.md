@@ -109,3 +109,42 @@ Esta sección sustituye los pendientes técnicos y las versiones de las notas hi
 - El push de esta entrega quedó esperando autenticación de Git Credential Manager. La prueba no interactiva confirmó falta de credenciales; no afirmar que está en origin/main hasta comprobar el remoto. Se solicitó al usuario completar el inicio de sesión, sin pedir contraseña/token. La protección de rama y validación de CI remoto también requieren ese acceso.
 - Lint, TypeScript, auditoría y build deben pasar antes de commit. La auditoría de dependencias actual devolvió cero vulnerabilidades. Consultar Git para el hash definitivo y Vercel para READY/alias del despliegue; un push no acredita despliegue.
 - Skills aplicadas: security-best-practices, Supabase, Next upgrade/Next.js, React best practices, variables/API y despliegues Vercel, Playwright. `security_best_practices_report.md` registra el estado final y las limitaciones.
+
+## 2026-10-05 — Reparación de flujos después del endurecimiento
+
+El usuario pidió comprobar efectos, reparar los recorridos y construir mejoras. Esta revisión encontró regresiones reales; no asumir que agregar guardas preserva automáticamente cada pantalla. Se mantiene la autorización previa de commit/push/publicación. Git Credential Manager ya se autenticó y se verificó `origin/main` en `1507e7d`; la nota anterior de push pendiente es histórica.
+
+### Cambios y motivo
+
+- Administración/docentes: las consultas `SELECT *` fallaban después de revocar columnas de RFC/contacto. El listado administrativo usa servicio solo después de autorizar ADMIN; la constancia obtiene únicamente el profesor del usuario autenticado. Contadores seleccionan `id`. La descarga propia de PDF funciona y una constancia ajena devuelve 403.
+- Finanzas: panel propio, perfil y consultas de alumnos/pagos/conceptos autorizadas por FINANCE antes del servicio. El directorio financiero muestra los campos mínimos y oculta CURP, herramientas de recuperación/importación y expediente académico. No ampliar RLS académico ni conceder administración de usuarios a Finanzas.
+- Acceso: perfil inactivo no entra; MFA conserva el destino local validado y el cambio inicial de contraseña tiene prioridad. Navegador comprobó MFA real y cambio obligatorio seguido de sesión renovada.
+- Exámenes: nuevas RPC de inicio/respuesta/calificación ejecutables solo por servicio, con bloqueo transaccional, alumno/asignación/ciclo, pregunta/intento, ventanas y puntuaciones. Inicio concurrente reusa intento; entrega atómica guarda también el borrador sin blur; respuestas fuera de tiempo no sustituyen las guardadas. Corrección manual mantiene `enviado` hasta calificar todas las respuestas abiertas contestadas. No exponer claves ni columnas de puntuación a alumnos.
+- Presentación: orden aleatorio estable por intento, temporizador basado en el inicio persistido y cierre, guardados serializados, entrega sin duplicados y errores visibles. Enlaces de iniciar examen sin prefetch para evitar iniciar el reloj por precarga. Listado considera el intento más reciente y `mostrar_resultados`.
+- Tareas: entrega/calificación comprobadas con propietario real; nota finita 0–10; no modificar una entrega ya calificada; UPDATE condicionado a calificación nula evita carreras. Reenvío de texto conserva archivo y los reemplazos limpian objetos cuando corresponde. Preguntas, respuestas y entregas comprueban la asignación del docente antes de modificar.
+- Archivos: la carga directa anterior excedía 1 MB de Server Actions; elevar ese límite tampoco supera el límite de funciones Vercel. `/api/uploads/prepare` comprueba sesión/MFA/origen y límite 30/10 min/usuario. Navegador carga a bucket privado `security-uploads` mediante URL firmada; la acción recibe ticket HMAC ligado al usuario, tamaño y caducidad 15 min, recupera bytes y aplica validación original. Máximo agregado 50 MB por formulario y límites específicos del módulo; admitidos ODT/ODS/ODP. Campos repetidos conservan orden. La carga temporal se consume y se elimina; abandonadas >3 h se limpian por cron y se excluyen del manifiesto/copia de respaldo. Sigue existiendo un tránsito adicional de archivos para validar en servidor; firmas/extensiones no son un antivirus.
+- Integración de carga: perfil/avatar, chat/mensajes, tareas, portafolio, revisiones, avisos, planeación, importaciones/calificaciones, fotos/logo y comprobantes. `UploadForm`, helper cliente y aviso global muestran errores; fallos no devuelven éxito aparente. Se eliminaron formularios anidados de logo/hero. No permitir SVG ejecutable.
+- Pagos: RPC atómicas para comprobante/revisión, dueño del cargo, relación pago/cargo, evidencia privada, estados y rol financiero; folio aleatorio criptográfico. Revocado DML directo autenticado en pagos/cargos para impedir falsificar un pago validado. Fallos de comprobante no registran pagos y limpian archivos.
+- Storage: alumno ve solo su entrega; docente solo tareas de su asignación. Portafolio/chat verifican relación académica. No abrir buckets privados para resolver pantallas.
+- Fixtures E2E ya no incluyen contraseñas compartidas. Los scripts nuevos requieren `--live`, crean cuentas/datos desechables, generan credenciales/TOTP en memoria, limpian al finalizar y no guardan cookies, trazas, capturas o expedientes reales.
+
+### Migraciones aplicadas y comprobaciones
+
+- Registro remoto/local alineado: `20261006024530_repair_academic_flow_boundaries`, `20261006024807_fix_exam_answer_alias`, `20261006025851_repair_payment_and_storage_scope`. La segunda corrige una ambigüedad de variable SQL descubierta por la prueba real de guardado; no reescribir una migración ya aplicada.
+- `npm run lint`, `npm run typecheck`, `npm run test:security` y `npm audit --audit-level=low`: satisfactorios, cero vulnerabilidades conocidas. Las pruebas aisladas incluyen HMAC alterado/usuario ajeno y nombres de archivos repetidos. Build y publicación deben comprobarse además antes de la entrega.
+- Pruebas de acciones reales + Supabase con fixtures: crear/entregar/calificar tarea, lectura propia/docente y rechazo ajeno; intento concurrente, vencimiento, guardado/entrega idempotente, respuesta correcta oculta; comprobante/rechazo/nueva entrega/validación y denegación de cargo ajeno, pago/cargo discordante y escritura directa fraudulenta. Limpieza satisfactoria.
+- Navegador: login profesor/alumno; admin/Finanzas con MFA y destino solicitado; constancia PDF propia/ajena; recarga de examen conserva orden/tiempo; borrador sin blur, entrega y dos calificaciones manuales producen 10; cambio obligatorio de contraseña vuelve al panel. Carga HTTP autenticada de PNG 1.2 MB superó el límite original y persistió el avatar. Los scripts permiten repetir en `FLOW_BASE_URL`; usar navegador para despliegues remotos, cuyos IDs de acciones no deben inferirse del build local.
+- Evidencia y comandos repetibles: `docs/flow-verification.md`. Registrar el commit definitivo y comprobar READY/aliases antes de afirmar publicación; un push por sí solo no acredita deploy.
+- Skills utilizadas: security-best-practices, Supabase, Next.js, React best practices, Playwright, verificación y despliegues Vercel. Se leyeron también las guías locales de Next para formularios/Server Actions.
+- Alcance comprobado: aplicación web. React Native y clientes externos necesitan su propia adaptación a MFA/RLS; continúan los pendientes institucionales/proveedor del aviso aprobado, recuperación nativa, custodia, alertas y protección de rama. Las mejoras no acreditan cumplimiento legal integral.
+- Verificación final local: build de producción satisfactorio; navegador confirmó además panel/perfil de Finanzas y carga de avatar 1.2 MB. Limpieza remota posterior: cero usuarios/ciclos sintéticos y cero objetos en cuarentena. No repetir la afirmación histórica de TypeScript fallido: lint, tipos, build y seguridad ahora pasan.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

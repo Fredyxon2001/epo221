@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useRef, useState, useTransition } from 'react';
 import { responderSolicitud } from './actions';
 import { EmojiFilePicker } from '@/components/EmojiFilePicker';
@@ -31,7 +32,7 @@ export function ResponderForm({ id }: { id: string }) {
         fd.set('decision', decision);
         if (file) fd.set('adjunto', file);
         start(async () => {
-          const res = await responderSolicitud(fd);
+          const res = await submitWithUploads(responderSolicitud, fd);
           if (res?.error) setErr(res.error);
         });
       }}

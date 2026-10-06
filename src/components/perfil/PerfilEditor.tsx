@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useTransition, useRef } from 'react';
 import { actualizarMiPerfil, subirMiAvatar, eliminarMiAvatar } from '@/app/perfil/actions';
 
@@ -31,7 +32,7 @@ export function PerfilEditor({ data, esProfesor = false }: { data: PerfilData; e
     setErrMsg(null); setOkMsg(null);
     const fd = new FormData(); fd.set('avatar', f);
     startAvatarUpload(async () => {
-      const r = await subirMiAvatar(fd);
+      const r = await submitWithUploads(subirMiAvatar, fd);
       if (r?.error) setErrMsg(r.error);
       else { setAvatarUrl(r?.url ?? null); setOkMsg('✅ Foto actualizada'); }
       if (fileRef.current) fileRef.current.value = '';

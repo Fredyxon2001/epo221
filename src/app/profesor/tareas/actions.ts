@@ -87,7 +87,7 @@ export async function calificarEntrega(fd: FormData): Promise<{ error?: string; 
   const calificacion = Number(fd.get('calificacion') ?? 0);
   const retroalimentacion = String(fd.get('retroalimentacion') ?? '').trim() || null;
   if (!id) return { error: 'Entrega inválida' };
-  if (isNaN(calificacion)) return { error: 'Calificación inválida' };
+  if (!Number.isFinite(calificacion) || calificacion < 0 || calificacion > 10) return { error: 'La calificación debe estar entre 0 y 10.' };
 
   const { error } = await supabase.from('entregas_tarea').update({
     calificacion, retroalimentacion,

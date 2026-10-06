@@ -23,7 +23,7 @@ export default async function DirectorHome() {
     { count: anunciosVig },
   ] = await Promise.all([
     supabase.from('alumnos').select('*', { count: 'exact', head: true }).eq('estatus', 'activo'),
-    supabase.from('profesores').select('*', { count: 'exact', head: true }).eq('activo', true),
+    supabase.from('profesores').select('id', { count: 'exact', head: true }).eq('activo', true),
     ciclo ? supabase.from('grupos').select('*', { count: 'exact', head: true }).eq('ciclo_id', ciclo.id) : Promise.resolve({ count: 0 } as any),
     supabase.from('solicitudes_revision').select('*', { count: 'exact', head: true }).eq('estado', 'abierta'),
     supabase.from('solicitudes_revision').select('*', { count: 'exact', head: true }),

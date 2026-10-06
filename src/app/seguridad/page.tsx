@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { sessionIdentity } from '@/lib/security/access';
-import { panelForRole } from '@/lib/security/policy';
+import { panelForRole, safeRedirect } from '@/lib/security/policy';
 import { MFAForm } from './MFAForm';
 import { logoutAction } from '@/app/login/actions';
 
@@ -9,7 +9,8 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
   const identity = await sessionIdentity();
   if (!identity) redirect('/login');
   const params = await searchParams;
-  const destination = identity.profile.debe_cambiar_password || params.next === 'cambiar-password' ? '/cambiar-password' : panelForRole(identity.profile.rol);
+  const destination = identity.profile.debe_cambiar_password || params.next === 'cambiar-password' ? '/cambiar-password'
+    : safeRedirect(params.next ?? '', panelForRole(identity.profile.rol));
   if (identity.aal === 'aal2') redirect(destination);
   const { data, error } = await identity.client.auth.mfa.listFactors();
   if (error) throw new Error('No se pudo comprobar la verificación en dos pasos.');

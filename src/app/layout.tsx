@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { PWARegister } from '@/components/PWARegister';
 import { CookieConsentProvider } from '@/components/CookieConsentProvider';
+import { UploadNotice } from '@/components/UploadNotice';
 import { headers } from 'next/headers';
 import '@fontsource/dm-sans/latin-400.css';
 import '@fontsource/dm-sans/latin-300.css';
@@ -37,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="font-sans">
         <PWARegister />
+        <UploadNotice />
         <CookieConsentProvider>{children}</CookieConsentProvider>
       </body>
     </html>

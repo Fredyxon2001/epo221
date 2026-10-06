@@ -1,6 +1,7 @@
 import { requireIdentity } from "@/lib/security/access";
 // CRUD de conceptos de pago. Editable 100% por admin (edición inline por fila).
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { crearConcepto, toggleConcepto, asignarMasivo, actualizarConcepto, eliminarConcepto } from './actions';
 
 const TIPOS = [
@@ -11,9 +12,10 @@ const TIPOS = [
 export default async function AdminConceptos() {
   await requireIdentity(["admin","staff","director","finanzas"]);
 
-  const supabase = (await createClient());
-  const { data: conceptos } = await supabase
+  const supabase = adminClient();
+  const { data: conceptos, error } = await supabase
     .from('conceptos_pago').select('*').order('tipo').order('nombre');
+  if (error) throw new Error('No se pudieron cargar los conceptos de pago.');
 
   return (
     <div className="max-w-6xl space-y-6">

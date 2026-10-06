@@ -5,7 +5,7 @@ import { PageHeader, Card } from '@/components/privado/ui';
 import { PerfilEditor } from '@/components/perfil/PerfilEditor';
 
 export default async function PerfilAdmin() {
-  await requireIdentity(["admin","staff","director"]);
+  await requireIdentity(["admin","staff","director","finanzas"]);
 
   const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();

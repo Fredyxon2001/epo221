@@ -1,16 +1,16 @@
 // Credenciales de prueba (datos reales del entorno limpio mayo 2026).
 // Override via env vars en CI.
 export const USERS = {
-  admin:    { email: process.env.E2E_ADMIN_EMAIL ?? 'admin@epo221.edu.mx', password: process.env.E2E_ADMIN_PASSWORD ?? 'TEMPORALEPO221!' },
-  profesor: { email: 'pablo.profesor@epo221.edu.mx', password: 'TEMPORALEPO221!' },
-  orientadora: { email: 'patricia.najera@epo221.edu.mx', password: 'TEMPORALEPO221!' },
-  alumno:   { email: 'raul.flores@epo221.edu.mx', password: 'TEMPORALEPO221!' },
+  admin: { email: process.env.E2E_ADMIN_EMAIL ?? '', password: process.env.E2E_ADMIN_PASSWORD ?? '' },
+  profesor: { email: process.env.E2E_PROFESOR_EMAIL ?? '', password: process.env.E2E_PROFESOR_PASSWORD ?? '' },
+  alumno: { email: process.env.E2E_ALUMNO_EMAIL ?? '', password: process.env.E2E_ALUMNO_PASSWORD ?? '' },
 };
 
 import { Page, expect } from '@playwright/test';
 
 export async function login(page: Page, who: keyof typeof USERS) {
   const u = USERS[who];
+  if (!u.email || !u.password) throw new Error('Configura las credenciales E2E de una cuenta de pruebas aislada.');
   await page.goto('/login');
   await page.locator('input[name="curp"]').fill(u.email);
   await page.locator('input[name="password"]').fill(u.password);

@@ -8,9 +8,11 @@ import { DataTable } from '@/components/privado/DataTable';
 import { DashboardHero } from '@/components/privado/DashboardHero';
 import { AnimatedStat } from '@/components/privado/AnimatedStat';
 import { codigoGrupo } from '@/lib/grupos';
+import { FinanceDashboard } from '@/components/privado/FinanceDashboard';
 
 export default async function AdminDashboard() {
-  await requireIdentity(["admin","staff","director"]);
+  const identity = await requireIdentity(["admin","staff","director","finanzas"]);
+  if (identity.profile.rol === 'finanzas') return <FinanceDashboard />;
 
   const auth = (await createClient());
   const supabase = adminClient();
@@ -30,7 +32,7 @@ export default async function AdminDashboard() {
     { count: solicAbiertas },
   ] = await Promise.all([
     supabase.from('alumnos').select('*', { count: 'exact', head: true }).eq('estatus', 'activo'),
-    supabase.from('profesores').select('*', { count: 'exact', head: true }).eq('activo', true),
+    supabase.from('profesores').select('id', { count: 'exact', head: true }).eq('activo', true),
     cicloId ? supabase.from('grupos').select('*', { count: 'exact', head: true }).eq('ciclo_id', cicloId) : Promise.resolve({ count: 0 } as any),
     cicloId ? supabase.from('asignaciones').select('*', { count: 'exact', head: true }).eq('ciclo_id', cicloId) : Promise.resolve({ count: 0 } as any),
     cicloId ? supabase.from('asignaciones').select('*', { count: 'exact', head: true }).eq('ciclo_id', cicloId).is('profesor_id', null) : Promise.resolve({ count: 0 } as any),

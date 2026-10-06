@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useTransition, useRef } from 'react';
 import { enviarMensajeSolicitud, cerrarSolicitudThread, reabrirSolicitudThread } from '@/app/solicitudes/thread-actions';
 import { EmojiFilePicker } from '@/components/EmojiFilePicker';
@@ -105,7 +106,7 @@ export function ConversacionSolicitud({
             fd.set('texto', texto);
             if (file) fd.set('adjunto', file);
             start(async () => {
-              const r = await enviarMensajeSolicitud(fd);
+              const r = await submitWithUploads(enviarMensajeSolicitud, fd);
               if (r?.error) setErr(r.error);
               else { setTexto(''); setFile(null); formRef.current?.reset(); }
             });

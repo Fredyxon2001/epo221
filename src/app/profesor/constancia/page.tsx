@@ -10,7 +10,10 @@ export default async function ConstanciaPage() {
   const auth = (await createClient());
   const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
-  const { data: prof } = await supabase.from('profesores').select('id, nombre, apellido_paterno, rfc').eq('perfil_id', user!.id).maybeSingle();
+  // RFC solo se consulta en servidor y para el titular de esta sesión verificada.
+  const { data: prof, error } = await adminClient().from('profesores')
+    .select('id, nombre, apellido_paterno, rfc').eq('perfil_id', user!.id).maybeSingle();
+  if (error) throw new Error('No se pudo cargar tu constancia. Intenta nuevamente.');
 
   if (!prof) return <div className="p-5">No eres docente.</div>;
 

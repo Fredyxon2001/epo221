@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useTransition, useRef } from 'react';
 import { enviarPropuestasCalificaciones, importarCalificacionesXLSX } from './actions';
 
@@ -71,7 +72,7 @@ export function ProponerCalificacionesForm({
                 fd.set('parcial', String(parcial));
                 fd.set('archivo', archivo);
                 start(async () => {
-                  const r = await importarCalificacionesXLSX(fd);
+                  const r = await submitWithUploads(importarCalificacionesXLSX, fd);
                   if (r?.error && !r?.ok) setErr(r.error);
                   else setOk(`✅ Importado: ${r?.total ?? 0} enviadas · ${r?.saltados ?? 0} saltadas`);
                   setArchivo(null);

@@ -31,15 +31,18 @@ export async function entregarTarea(fd: FormData): Promise<{ error?: string; ok?
   const { data: tarea } = await supabase.from('tareas')
     .select('id, fecha_entrega, cierra_estricto, permite_archivos').eq('id', tarea_id).maybeSingle();
   if (!tarea) return { error: 'Tarea no existe' };
+  const { data: previous } = await supabase.from('entregas_tarea')
+    .select('id,calificacion,archivo_url,archivo_nombre,archivo_tipo,archivo_tamano').eq('tarea_id', tarea_id).eq('alumno_id', al.id).maybeSingle();
+  if (previous?.calificacion != null) return { error: 'La entrega ya fue calificada y no puede modificarse.' };
 
   if (tarea.cierra_estricto && new Date(tarea.fecha_entrega) < new Date()) {
     return { error: 'La tarea ya cerró y no acepta entregas tardías' };
   }
 
-  let archivo_url: string | null = null;
-  let archivo_nombre: string | null = null;
-  let archivo_tipo: string | null = null;
-  let archivo_tamano: number | null = null;
+  let archivo_url: string | null = previous?.archivo_url ?? null;
+  let archivo_nombre: string | null = previous?.archivo_nombre ?? null;
+  let archivo_tipo: string | null = previous?.archivo_tipo ?? null;
+  let archivo_tamano: number | null = previous?.archivo_tamano ?? null;
 
   if (archivo && archivo.size > 0) {
     if (!tarea.permite_archivos) return { error: 'Esta tarea no permite archivos' };
@@ -57,13 +60,21 @@ export async function entregarTarea(fd: FormData): Promise<{ error?: string; ok?
     archivo_tamano = archivo.size;
   }
 
-  const { error } = await supabase.from('entregas_tarea').upsert({
+  const payload = {
     tarea_id, alumno_id: al.id,
     comentario, archivo_url, archivo_nombre, archivo_tipo, archivo_tamano,
     entregado_at: new Date().toISOString(),
     estado: 'entregada',
-  }, { onConflict: 'tarea_id,alumno_id' });
-  if (error) return { error: error.message };
+  };
+  // A conditional UPDATE prevents a simultaneous grade from being overwritten.
+  const { error } = previous
+    ? await supabase.from('entregas_tarea').update(payload).eq('id', previous.id).is('calificacion', null).select('id').single()
+    : await supabase.from('entregas_tarea').insert(payload).select('id').single();
+  if (error) {
+    if (archivo_url && archivo_url !== previous?.archivo_url) await supabase.storage.from('tareas').remove([archivo_url]);
+    return { error: 'No se pudo registrar la entrega. Intenta nuevamente.' };
+  }
+  if (previous?.archivo_url && previous.archivo_url !== archivo_url) await supabase.storage.from('tareas').remove([previous.archivo_url]);
 
   revalidatePath(`/alumno/tareas/${tarea_id}`);
   revalidatePath('/alumno/tareas');

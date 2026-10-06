@@ -13,6 +13,18 @@ export async function requireResource(table: string, id: unknown, owned = false)
   requireUuid(id);
   const identity = await requireIdentity(null);
   if (hasRole(identity.profile.rol, ADMIN_ROLES)) return;
+  if (identity.profile.rol === 'profesor' && ['examen_preguntas','examen_respuestas','entregas_tarea'].includes(table)) {
+    const parentColumn = table === 'examen_preguntas' ? 'examen_id' : table === 'examen_respuestas' ? 'intento_id' : 'tarea_id';
+    const { data: resource } = await identity.client.from(table).select(parentColumn).eq('id', id).maybeSingle();
+    const parentId = resource && (resource as unknown as Record<string,string>)[parentColumn];
+    if (!parentId) throw new Error('Registro no disponible.');
+    if (table === 'examen_respuestas') {
+      const { data: attempt } = await identity.client.from('examen_intentos').select('examen_id').eq('id', parentId).maybeSingle();
+      if (!attempt) throw new Error('Intento no disponible.');
+      await requireResource('examenes', attempt.examen_id);
+    } else await requireResource(table === 'entregas_tarea' ? 'tareas' : 'examenes', parentId);
+    return;
+  }
   if (identity.profile.rol === 'profesor' && ['asignaciones','tareas','examenes','planeaciones'].includes(table)) {
     const { data: resource } = await identity.client.from(table).select(table === 'asignaciones' ? 'id' : 'asignacion_id').eq('id',id).maybeSingle();
     if (!resource) throw new Error('Registro no disponible.');

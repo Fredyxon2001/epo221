@@ -1,14 +1,17 @@
 import { requireIdentity } from "@/lib/security/access";
 import { createClient } from '@/lib/supabase/server';
+import { adminClient } from '@/lib/supabase/admin';
 import { crearProfesor, toggleProfesor } from './actions';
 import { AdminResetPasswordButton } from '@/components/AdminResetPasswordButton';
 
 export default async function AdminProfesores() {
   await requireIdentity(["admin","staff","director"]);
 
-  const supabase = (await createClient());
-  const { data: profes } = await supabase
+  // La lista contiene contacto y RFC; el acceso administrativo se verifica arriba.
+  const supabase = adminClient();
+  const { data: profes, error } = await supabase
     .from('profesores').select('*').order('apellido_paterno');
+  if (error) throw new Error('No se pudo cargar el listado de profesores. Intenta nuevamente.');
 
   return (
     <div className="max-w-5xl space-y-6">

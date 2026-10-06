@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useRef, useTransition } from 'react';
 import { importarAlumnosExcel } from './actions';
 
@@ -41,7 +42,7 @@ export function ImportadorMasivo() {
           if (!archivo) return;
           fd.set('archivo', archivo);
           start(async () => {
-            await importarAlumnosExcel(fd);
+            await submitWithUploads(importarAlumnosExcel, fd);
           });
         }}
       >

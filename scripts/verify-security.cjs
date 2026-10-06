@@ -26,6 +26,19 @@ async function main(){
   const bad=new FormData();bad.set('file',new Blob(['<script>'],{type:'application/pdf'}),'fake.pdf');await assert.rejects(()=>validateFormData(bad));
   const svg=new FormData();svg.set('file',new Blob(['<svg/>'],{type:'image/svg+xml'}),'image.svg');await assert.rejects(()=>validateFormData(svg));
   const pdf=new FormData();pdf.set('file',new Blob(['%PDF-1.7'],{type:'application/pdf'}),'sample.pdf');await validateFormData(pdf);
+  const album=new FormData();album.append('photos',new File(['%PDF-1.7'],'one.pdf'));album.append('photos',new File(['%PDF-1.7'],'two.pdf'));await validateFormData(album);assert.equal(album.getAll('photos').length,2);
+  let uploadActor='fixture-owner',downloads=0,removals=0;
+  const stagedFile=new File(['%PDF-1.7'],'fixture.pdf',{type:'application/pdf'});
+  const tickets=load('src/lib/security/upload-tickets.ts',{
+    './access':{sessionIdentity:async()=>({user:{id:uploadActor}})},
+    '@/lib/supabase/admin':{adminClient:()=>({storage:{from:()=>({
+      info:async()=>({data:{size:stagedFile.size}}),download:async()=>{downloads++;return {data:stagedFile};},remove:async()=>{removals++;return {};}
+    })}})}
+  },{SUPABASE_SERVICE_ROLE_KEY:'synthetic-upload-key'});
+  const ticket=tickets.createUploadTicket(uploadActor,'fixture.pdf','application/pdf',stagedFile.size).ticket;
+  await assert.rejects(()=>tickets.receiveUploadTicket(ticket.slice(0,-1)+(ticket.endsWith('A')?'B':'A')));
+  uploadActor='fixture-outsider';await assert.rejects(()=>tickets.receiveUploadTicket(ticket));assert.equal(downloads,0);
+  uploadActor='fixture-owner';assert.equal((await tickets.receiveUploadTicket(ticket)).size,stagedFile.size);assert.equal(removals,1);
   let identity=null,limit=true;
   const {apiAccess}=load('src/lib/security/api-access.ts',{'./access':{sessionIdentity:async()=>identity},'./rate-limit':{rateLimit:async()=>{if(limit instanceof Error)throw limit;return limit;}}});
   const request=new Request('https://school.test/api',{method:'POST',headers:{origin:'https://school.test'}});

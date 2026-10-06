@@ -11,6 +11,6 @@ exports.load=function load(file,modules={},env={},cache=new Map()) {
     return require(name);
   };
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(absolute,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,
-    {exports:result,require:requireModule,process:{env},Buffer,URL,Request,Response,Headers,FormData,Uint8Array,console,setTimeout,clearTimeout});
+    {exports:result,require:requireModule,process:{env},Buffer,URL,Request,Response,Headers,FormData,File,Uint8Array,crypto:globalThis.crypto,console,setTimeout,clearTimeout});
   return result;
 };

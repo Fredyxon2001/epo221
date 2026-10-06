@@ -29,7 +29,7 @@ export default async function ExamenesAlumno() {
 
   const { data: intentos } = examenes?.length
     ? await supabase.from('examen_intentos').select('examen_id, estado, calificacion, numero')
-        .eq('alumno_id', alumno.id).in('examen_id', examenes.map((e: any) => e.id))
+        .eq('alumno_id', alumno.id).in('examen_id', examenes.map((e: any) => e.id)).order('numero', { ascending: false })
     : { data: [] as any[] };
   const intMap = new Map<string, any[]>();
   for (const it of intentos ?? []) {
@@ -61,13 +61,14 @@ export default async function ExamenesAlumno() {
                     <div className="text-xs text-gray-600 mt-0.5">Cierra: {new Date(e.fecha_cierre).toLocaleString('es-MX')}</div>
                   </div>
                   <div className="text-right">
-                    {ultimo?.estado === 'calificado' && (
+                    {ultimo?.estado === 'calificado' && e.mostrar_resultados && (
                       <div className="text-2xl font-bold text-verde-oscuro tabular-nums">{ultimo.calificacion}</div>
                     )}
+                    {ultimo?.estado === 'calificado' && !e.mostrar_resultados && <span className="text-xs text-verde">Entregado</span>}
                     {ultimo?.estado === 'enviado' && <span className="text-xs text-dorado font-semibold">En revisión</span>}
-                    {abierto && (!ultimo || ultimo.estado === 'en_curso') && (
-                      <Link href={`/alumno/examenes/${e.id}`} className="inline-block bg-verde hover:bg-verde-oscuro text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
-                        {ultimo?.estado === 'en_curso' ? 'Continuar' : 'Presentar'}
+                    {(ultimo?.estado === 'en_curso' || (abierto && its.length < (e.intentos_max ?? 1))) && (
+                      <Link prefetch={false} href={`/alumno/examenes/${e.id}`} className="inline-block bg-verde hover:bg-verde-oscuro text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
+                        {ultimo?.estado === 'en_curso' ? (abierto ? 'Continuar' : 'Finalizar intento') : ultimo ? 'Nuevo intento' : 'Presentar'}
                       </Link>
                     )}
                     {!abierto && !ultimo && (

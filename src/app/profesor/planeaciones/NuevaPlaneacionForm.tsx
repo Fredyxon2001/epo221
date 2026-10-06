@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useTransition } from 'react';
 import { guardarPlaneacion } from '@/app/planeaciones/actions';
 
@@ -12,7 +13,7 @@ export function NuevaPlaneacionForm({ asignaciones }: { asignaciones: any[] }) {
       action={(fd) => {
         setErr(null); setOk(false);
         start(async () => {
-          const r = await guardarPlaneacion(fd);
+          const r = await submitWithUploads(guardarPlaneacion, fd);
           if (r?.error) setErr(r.error);
           else setOk(true);
         });

@@ -1,3 +1,4 @@
+import { UploadForm } from '@/components/UploadForm';
 import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -21,7 +22,7 @@ export default async function AdminInicio() {
         <p className="text-sm text-gray-500 mt-1">Edita el hero principal de <code className="text-xs bg-gray-100 px-1 rounded-sm">/publico</code>.</p>
       </div>
 
-      <form action={guardarInicio} encType="multipart/form-data" className="bg-white rounded-lg shadow-xs p-5 space-y-5">
+      <UploadForm action={guardarInicio} encType="multipart/form-data" className="bg-white rounded-lg shadow-xs p-5 space-y-5">
         {/* Logo institucional */}
         <fieldset className="border rounded-lg p-4 border-dorado/30 bg-dorado/5">
           <legend className="px-2 text-sm font-semibold text-verde">🛡️ Logo institucional</legend>
@@ -37,18 +38,16 @@ export default async function AdminInicio() {
               </div>
               <div className="text-xs">
                 <div className="text-gray-600 mb-1">Vista previa sobre fondo verde institucional.</div>
-                <form action={quitarLogo}>
-                  <ConfirmButton message="¿Quitar el logo y volver al escudo dorado por defecto?" className="text-xs text-red-600 hover:underline">
+                  <ConfirmButton form="quitar-logo" message="¿Quitar el logo y volver al escudo dorado por defecto?" className="text-xs text-red-600 hover:underline">
                     Quitar logo
                   </ConfirmButton>
-                </form>
               </div>
             </div>
           )}
           <input
             type="file"
             name="logo_imagen"
-            accept="image/png,image/svg+xml,image/webp"
+            accept="image/png,image/jpeg,image/webp"
             className="w-full text-sm"
           />
         </fieldset>
@@ -91,17 +90,17 @@ export default async function AdminInicio() {
 
         <div className="flex justify-between items-center pt-3 border-t">
           {cfg?.hero_imagen_url ? (
-            <form action={quitarHeroImagen}>
-              <ConfirmButton message="¿Quitar la imagen del hero?" className="text-xs text-red-600 hover:underline">
+              <ConfirmButton form="quitar-hero" message="¿Quitar la imagen del hero?" className="text-xs text-red-600 hover:underline">
                 Quitar imagen del hero
               </ConfirmButton>
-            </form>
           ) : <span />}
           <button type="submit" className="bg-verde text-white px-6 py-2 rounded-sm hover:bg-verde-medio text-sm font-medium">
             Guardar cambios
           </button>
         </div>
-      </form>
+      </UploadForm>
+      <form id="quitar-logo" action={quitarLogo} />
+      <form id="quitar-hero" action={quitarHeroImagen} />
     </div>
   );
 }

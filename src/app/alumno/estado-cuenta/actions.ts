@@ -27,11 +27,14 @@ export async function subirComprobante(formData: FormData) {
   const metodo = String(formData.get('metodo'));
   const referencia = String(formData.get('referencia') ?? '');
   const archivo = formData.get('comprobante') as File;
+  if (!archivo || typeof archivo === 'string' || archivo.size < 1 || archivo.size > 10 * 1024 * 1024 ||
+    !['application/pdf','image/png','image/jpeg','image/webp'].includes(archivo.type)) throw new Error('Selecciona una imagen o PDF de hasta 10 MB.');
+  if (!['transferencia','ventanilla','efectivo'].includes(metodo) || referencia.length > 200) throw new Error('Datos del pago inválidos.');
 
   // Validar cargo pertenece al alumno + obtener monto
   const { data: cargo } = await supabase
     .from('cargos').select('id, monto').eq('id', cargoId).eq('alumno_id', alumno.id).single();
-  if (!cargo) return;
+  if (!cargo) throw new Error('Cargo no disponible.');
 
   // Subir archivo a Storage (bucket "comprobantes", privado)
   let comprobanteUrl: string | null = null;
@@ -41,23 +44,19 @@ export async function subirComprobante(formData: FormData) {
     const { error: upErr } = await supabase.storage
       .from('comprobantes')
       .upload(path, archivo, { contentType: archivo.type });
-    if (!upErr) comprobanteUrl = path;
+    if (upErr) throw new Error('No se pudo cargar el comprobante. Intenta nuevamente.');
+    comprobanteUrl = path;
   }
 
   // Registrar intento de pago
-  await supabase.from('pagos').insert({
-    cargo_id: cargoId,
-    alumno_id: alumno.id,
-    monto_pagado: cargo.monto,
-    metodo,
-    referencia: referencia || null,
-    fecha_pago: new Date().toISOString().slice(0, 10),
-    comprobante_url: comprobanteUrl,
-    subido_por: user.id,
+  const { error } = await supabase.rpc('security_payment_submit', {
+    p_actor_id: user.id, p_cargo_id: cargoId, p_method: metodo,
+    p_reference: referencia, p_path: comprobanteUrl,
   });
-
-  // Cargo pasa a "en_revision" hasta que admin valide
-  await supabase.from('cargos').update({ estatus: 'en_revision' }).eq('id', cargoId);
+  if (error) {
+    if (comprobanteUrl) await supabase.storage.from('comprobantes').remove([comprobanteUrl]);
+    throw new Error('No se pudo registrar el comprobante. Comprueba el estado del cargo e intenta nuevamente.');
+  }
 
   revalidatePath('/alumno/estado-cuenta');
 }

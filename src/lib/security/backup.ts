@@ -22,6 +22,7 @@ export async function createSecurityBackup() {
   const client = adminClient();
   const { data: snapshot, error } = await client.rpc('security_backup_snapshot');
   if (error || !snapshot) throw new Error('No se pudo generar el respaldo de datos.');
+  snapshot.storage = (snapshot.storage ?? []).filter((file: { bucket_id: string }) => file.bucket_id !== 'security-uploads');
   const manifest = { version: 1, createdAt: new Date().toISOString(), snapshot, files: [] as { bucket: string; name: string; object: string; sha256: string; size: number }[] };
   for (const file of snapshot.storage ?? []) {
     const { data, error: downloadError } = await client.storage.from(file.bucket_id).download(file.name);

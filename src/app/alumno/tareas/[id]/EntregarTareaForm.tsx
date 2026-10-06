@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useState, useTransition } from 'react';
 import { entregarTarea } from '../actions';
 
@@ -13,7 +14,7 @@ export function EntregarTareaForm({ tareaId, permiteArchivos }: { tareaId: strin
         setErr(null); setOk(false);
         fd.set('tarea_id', tareaId);
         start(async () => {
-          const r = await entregarTarea(fd);
+          const r = await submitWithUploads(entregarTarea, fd);
           if (r?.error) setErr(r.error);
           else setOk(true);
         });

@@ -1,4 +1,5 @@
 'use client';
+import { submitWithUploads } from '@/lib/form-uploads';
 import { useRef, useState, useTransition } from 'react';
 import { subirAvatar } from '@/app/perfil/avatar-actions';
 import { AvatarCropper } from './AvatarCropper';
@@ -29,7 +30,7 @@ export function AvatarUploader({
     const fd = new FormData();
     fd.set('avatar', file);
     start(async () => {
-      const res = await subirAvatar(fd);
+      const res = await submitWithUploads(subirAvatar, fd);
       if (res?.error) { setErr(res.error); setPreview(fotoActual ?? null); }
       else { setOk(true); if (res?.url) setPreview(res.url); }
       setCropSrc(null);

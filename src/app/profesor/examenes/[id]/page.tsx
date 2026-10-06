@@ -86,7 +86,7 @@ export default async function ExamenDetalle(props: { params: Promise<{ id: strin
               const { data: resp } = await supabase.from('examen_respuestas')
                 .select('*, pregunta:examen_preguntas(enunciado, tipo, puntos, respuesta_correcta)')
                 .eq('intento_id', it.id);
-              const abiertas = (resp ?? []).filter((r: any) => r.pregunta?.tipo === 'abierta' && r.puntos_obtenidos == null);
+              const abiertas = it.estado === 'en_curso' ? [] : (resp ?? []).filter((r: any) => r.pregunta?.tipo === 'abierta' && r.respuesta?.trim() && r.puntos_obtenidos == null);
               return (
                 <div key={it.id} className="py-3">
                   <div className="flex justify-between items-start">

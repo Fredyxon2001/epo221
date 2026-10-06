@@ -1,3 +1,4 @@
+import { UploadForm } from '@/components/UploadForm';
 import { requireIdentity } from "@/lib/security/access";
 // Importar CSV oficial de calificaciones (formato SEIEM).
 import { importarCalificacionesCSV } from './actions';
@@ -21,12 +22,12 @@ export default async function AdminCalificaciones() {
           <li>Si la asignación no existe, se crea automáticamente.</li>
           <li>Las calificaciones previas se sobreescriben.</li>
         </ul>
-        <form action={async (data) => { 'use server'; const result = await importarCalificacionesCSV(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }} className="flex gap-3 items-center">
+        <UploadForm action={async (data) => { 'use server'; const result = await importarCalificacionesCSV(data); if (result && 'error' in result && result.error) throw new Error(String(result.error)); }} className="flex gap-3 items-center">
           <input name="archivo" type="file" accept=".csv" required className="text-sm" />
           <button className="bg-verde text-white px-4 py-2 rounded-sm text-sm hover:bg-verde-medio">
             Importar
           </button>
-        </form>
+        </UploadForm>
       </section>
     </div>
   );
