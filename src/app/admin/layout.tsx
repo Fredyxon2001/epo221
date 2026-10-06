@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { data: sitioCfg } = await supabase.from('sitio_config').select('logo_url').maybeSingle();
 
   // Para FINANZAS: solo ven módulos administrativos/financieros
-  const groupsFinanzas = [
+  const groupsFinanzas = [{items:[{href:'/admin/pendientes',label:'Pendientes',icon:'📋'}]},
     {
       title: 'Resumen',
       items: [{ href: '/admin', label: 'Panel', icon: '🏠' }],
@@ -53,7 +53,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     },
   ];
 
-  const groupsCompleto = [
+  const groupsCompleto = [{items:[{href:'/admin/pendientes',label:'Pendientes',icon:'📋'}]},
     {
       title: 'Resumen',
       items: [{ href: '/admin', label: 'Panel', icon: '🏠' }],

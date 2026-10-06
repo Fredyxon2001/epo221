@@ -17,13 +17,18 @@ export default async function AdminRiesgoPage(props: { searchParams?: Promise<{ 
   const supabase = (await createClient());
   const filtro = searchParams?.nivel ?? 'critico';
 
-  // Último snapshot por alumno
-  const { data: snaps } = await supabase
-    .from('riesgo_snapshots')
-    .select('*, alumno:alumnos(id, nombre, apellido_paterno, apellido_materno, matricula, tutor_email, tutor_nombre)')
-    .order('created_at', { ascending: false })
-    .limit(2000);
-
+  const {data:ciclo,error:cicloError}=await supabase.from('ciclos_escolares').select('id').eq('activo',true).maybeSingle();
+  if(cicloError)throw new Error('No se pudo consultar el ciclo.');
+  // Último snapshot por alumno del ciclo activo
+  const snaps: any[] = [];
+  for(let offset=0;;offset+=500) {
+    const result=await supabase.rpc('security_latest_risk',{p_cycle:ciclo?.id??'00000000-0000-0000-0000-000000000000'})
+      .select('*, alumno:alumnos(id, nombre, apellido_paterno, apellido_materno, matricula, tutor_email, tutor_nombre)')
+      .order('alumno_id').range(offset,offset+499);
+    if(result.error)throw new Error('No se pudo consultar el riesgo.');
+    snaps.push(...(result.data??[]));
+    if(!result.data || result.data.length<500)break;
+  }
   const ultimoPorAlumno = new Map<string, any>();
   for (const s of snaps ?? []) {
     if (!ultimoPorAlumno.has(s.alumno_id)) ultimoPorAlumno.set(s.alumno_id, s);
@@ -43,7 +48,7 @@ export default async function AdminRiesgoPage(props: { searchParams?: Promise<{ 
       <PageHeader
         eyebrow="Detección temprana"
         title="🚨 Alumnos en riesgo"
-        description="Snapshots calculados automáticamente combinando promedios, faltas, conducta, tareas y adeudos."
+        description="Snapshots calculados automáticamente combinando promedios, faltas, conducta, tareas vencidas del grupo. Los adeudos se atienden por separado."
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

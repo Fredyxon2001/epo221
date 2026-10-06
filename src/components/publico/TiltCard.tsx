@@ -7,6 +7,7 @@ export function TiltCard({ children, className = '' }: { children: ReactNode; cl
   const ref = useRef<HTMLDivElement>(null);
 
   const onMove = (e: React.MouseEvent) => {
+    if(window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches)return;
     const el = ref.current; if (!el) return;
     const r = el.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width;

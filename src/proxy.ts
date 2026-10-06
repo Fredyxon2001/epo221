@@ -61,7 +61,7 @@ export async function proxy(req: NextRequest) {
     if (!profile.debe_cambiar_password && needsMfa && assurance?.currentLevel !== 'aal2' && !['/seguridad','/cambiar-password'].includes(path)) return go(mfaDestination);
     const allowed = path.startsWith('/admin') ? ['admin','staff','director','finanzas'] : path.startsWith('/director') ? ['director','admin'] : path.startsWith('/profesor') ? ['profesor','admin','staff','director'] : path.startsWith('/alumno') ? ['alumno'] : null;
     if (allowed && !hasRole(profile.rol, allowed)) return go(panelForRole(profile.rol));
-    if (profile.rol === 'finanzas' && path.startsWith('/admin') && !/^\/admin(?:$|\/(pagos|conceptos|extraordinarios|perfil)(\/|$)|\/alumnos$)/.test(path)) return go('/admin');
+    if (profile.rol === 'finanzas' && path.startsWith('/admin') && !/^\/admin(?:$|\/(pagos|conceptos|extraordinarios|perfil|pendientes)(\/|$)|\/alumnos$)/.test(path)) return go('/admin');
     if (path === '/login') return go(panelForRole(profile.rol));
   }
   return finish(res);

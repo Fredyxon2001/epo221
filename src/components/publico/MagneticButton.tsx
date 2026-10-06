@@ -31,6 +31,7 @@ export function MagneticButton({
   const ty = useTransform(sy, (v) => v / 4);
 
   const onMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if(window.matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches)return;
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();

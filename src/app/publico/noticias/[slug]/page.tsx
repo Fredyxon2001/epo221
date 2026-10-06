@@ -1,12 +1,12 @@
-import { createClient } from '@/lib/supabase/server';
+import { publicArticle,articleMetadata } from '@/lib/public-metadata';
 import { notFound } from 'next/navigation';
 import { ArticuloMarkdown } from '@/components/publico/ArticuloMarkdown';
 
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}) {const {slug}=await params;return articleMetadata(await publicArticle('noticias',slug),'/publico/noticias/'+encodeURIComponent(slug));}
+
 export default async function NoticiaDetalle(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
-  const supabase = (await createClient());
-  const { data: n } = await supabase
-    .from('noticias').select('*').eq('slug', params.slug).eq('publicada', true).single();
+  const n=await publicArticle('noticias',params.slug);
   if (!n) notFound();
 
   return (

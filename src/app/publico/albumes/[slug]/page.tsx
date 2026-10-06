@@ -1,6 +1,9 @@
+import { publicArticle,articleMetadata } from '@/lib/public-metadata';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}) {const {slug}=await params;return articleMetadata(await publicArticle('albumes',slug),'/publico/albumes/'+encodeURIComponent(slug));}
 
 export default async function PublicoAlbumDetalle(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;

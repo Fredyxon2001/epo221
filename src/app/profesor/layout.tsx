@@ -79,7 +79,7 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
     solOrient = so ?? 0;
   }
 
-  const groups = [
+  const groups = [{items:[{href:'/'+"profesor"+'/pendientes',label:'Pendientes',icon:'📋'}]},
     {
       title: 'Docencia',
       items: [

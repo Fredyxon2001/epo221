@@ -1,3 +1,4 @@
+import { PublicMotion } from '@/components/publico/PublicMotion';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { FloatingSocial } from '@/components/FloatingSocial';
@@ -27,13 +28,14 @@ export default async function PublicoLayout({ children }: { children: React.Reac
   const extras = (paginasMenu ?? []).map((p: any) => ({ href: `/publico/p/${p.slug}`, label: p.titulo }));
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col relative overflow-x-clip">
+    <PublicMotion><div className="public-site min-h-screen bg-transparent flex flex-col relative overflow-x-clip">
+      <a href="#contenido-publico" className="skip-link">Saltar al contenido</a>
       <PageBackdrop />
       <ScrollProgress />
       <CustomCursor />
       <Navbar extras={extras} escuela={cfg?.nombre_escuela ?? 'EPO 221'} logoUrl={cfg?.logo_url} cct={cfg?.cct} />
 
-      <main className="flex-1 pt-0">{children}</main>
+      <main id="contenido-publico" tabIndex={-1} className="flex-1 pt-0">{children}</main>
 
       <FloatingSocial
         facebook={cfg?.facebook_url}
@@ -155,6 +157,6 @@ export default async function PublicoLayout({ children }: { children: React.Reac
           <div>Asesorados por la maestra Patricia Nájera Hurtado</div>
         </div>
       </footer>
-    </div>
+    </div></PublicMotion>
   );
 }

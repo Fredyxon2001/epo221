@@ -18,7 +18,7 @@ export default async function AdminPublicoHub() {
     supabase.from('paginas_publicas').select('id', { count: 'exact', head: true }),
   ]);
 
-  const cards: Card[] = [
+  const cards: Card[] = [{href:'/admin/publico/guias',icon:'ℹ️',title:'Guía por ciclo',desc:'Requisitos, fechas, admisión y preguntas frecuentes para web y app.'},
     {
       href: '/admin/publico/inicio',
       icon: '🏠',

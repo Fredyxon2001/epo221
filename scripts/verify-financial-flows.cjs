@@ -27,6 +27,10 @@ async function main(){try{
   await assert.rejects(()=>submit.subirComprobante(form({cargo_id:cargo,metodo:'transferencia'})));
   await submit.subirComprobante(receipt());
   const payment=await f.admin.from('pagos').select('id').eq('cargo_id',cargo).single();assert.ok(payment.data);
+  const financeRead=await finance.client.from('pagos').select('id').eq('id',payment.data.id);assert.ok(!financeRead.error && financeRead.data.length===1,'Finance RLS read failed');
+  const inbox=load('src/lib/pendientes.ts');assert.ok((await inbox.pendingInbox(finance.client,finance.id,'finanzas')).items.some(i=>i.id==='pagos'),'Finance pending missing');
+  const financeDirect=await finance.client.from('pagos').update({validado_en:new Date().toISOString()}).eq('id',payment.data.id);assert.equal(financeDirect.error?.code,'42501','Finance direct payment write allowed');
+  const hidden=await other.client.from('pagos').select('id').eq('id',payment.data.id);assert.equal(hidden.data?.length,0,'Foreign student payment visible');
   let charge=await f.admin.from('cargos').select('estatus').eq('id',cargo).single();assert.equal(charge.data.estatus,'en_revision');
   actor=other;await assert.rejects(()=>submit.subirComprobante(receipt()));
   actor=finance;const review=actions('src/app/admin/pagos/actions.ts');

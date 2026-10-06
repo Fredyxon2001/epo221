@@ -1,7 +1,8 @@
 'use client';
+import { useModalFocus } from '@/lib/use-modal-focus';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogoEPO } from './LogoEPO';
 import { GobiernoBanner } from './GobiernoBanner';
@@ -14,6 +15,9 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  const root=useRef<HTMLElement>(null);
+  const close=useCallback(()=>setOpen(false),[]);
+  useModalFocus(open,root,close);
 
   useEffect(() => {
     // Se leen ambas fuentes: algunos navegadores reportan el desplazamiento en
@@ -31,7 +35,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
 
   useEffect(() => { setOpen(false); }, [path]);
 
-  const base: NavItem[] = [
+  const base: NavItem[] = [{href:'/publico/guia',label:'Guía escolar',icon:'ℹ'},
     { href: '/publico',                label: 'Inicio',        icon: '✦' },
     { href: '/publico/oferta',         label: 'Oferta',        icon: '◈' },
     { href: '/publico/noticias',       label: 'Noticias',      icon: '❖' },
@@ -49,7 +53,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
   // invisible mientras no se ejecute (pestaña en segundo plano, hidratación
   // lenta, animaciones diferidas), y entonces no se ve ni se puede pulsar.
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
+    <nav ref={root} role={open?'dialog':undefined} aria-modal={open||undefined} aria-label="Menú principal" className="fixed top-0 left-0 right-0 z-50">
       {/* ────── Franja institucional superior ────── */}
       <div
         className={`transition-all duration-500 border-b border-gray-200 backdrop-blur-xl bg-white/95 ${
@@ -145,7 +149,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
             </motion.div>
             <button
               className="xl:hidden text-white p-2"
-              aria-label="Menú"
+              aria-label="Menú" aria-expanded={open} aria-controls="menu-publico-movil"
               onClick={() => setOpen((v) => !v)}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
@@ -163,7 +167,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
       {/* Mobile menu */}
       <AnimatePresence>
         {open && (
-          <motion.div
+          <motion.div id="menu-publico-movil"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

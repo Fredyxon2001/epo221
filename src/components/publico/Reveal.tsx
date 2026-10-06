@@ -1,5 +1,5 @@
 'use client';
-import { motion, type Variants } from 'framer-motion';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { type ReactNode } from 'react';
 
 const variants: Variants = {
@@ -22,14 +22,15 @@ export function Reveal({
   as?: any;
   once?: boolean;
 }) {
-  const MotionTag = motion(Tag);
+  const reduced = useReducedMotion();
+  const MotionTag = motion.create(Tag);
   return (
     <MotionTag
       className={className}
-      initial={{ opacity: 0, y }}
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once, margin: '-60px' }}
-      transition={{ duration: 0.85, delay, ease: [0.2, 0.85, 0.2, 1] }}
+      transition={{ duration: reduced ? 0 : 0.85, delay: reduced ? 0 : delay, ease: [0.2, 0.85, 0.2, 1] }}
     >
       {children}
     </MotionTag>
@@ -50,7 +51,7 @@ export function Stagger({
   return (
     <motion.div
       className={className}
-      initial="hidden"
+      initial={false}
       whileInView="visible"
       viewport={{ once: true, margin: '-60px' }}
       variants={{

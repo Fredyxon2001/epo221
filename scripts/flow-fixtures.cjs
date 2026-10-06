@@ -34,6 +34,9 @@ function createFixtures() {
         }
       }
       await admin.from('notificaciones').delete().eq('user_id', id);
+      if(!/^flow-fixture-[0-9a-f-]{36}@example\.invalid$/.test(email))throw Error('Unsafe fixture cleanup');
+      const audit=await admin.from('audit_log').delete().eq('actor_id',id);if(audit.error)throw Error('Cleanup synthetic audit failed');
+      const history=await admin.from('auditoria').delete().eq('usuario_id',id);if(history.error)throw Error('Cleanup synthetic history failed');
       const r = await admin.auth.admin.deleteUser(id); if (r.error) throw Error('Cleanup auth failed');
     });
     const profile = await admin.from('perfiles').upsert({ id, email, nombre: 'Flow Fixture', rol: role, activo: true, debe_cambiar_password: false });

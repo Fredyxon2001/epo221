@@ -26,6 +26,11 @@ export default async function AlumnosEnRiesgo() {
 
   const activas = ((asigs ?? []) as any[]).filter((a) => a.ciclo?.activo);
 
+  const {data:cycle,error:cycleError}=await auth.from('ciclos_escolares').select('id').eq('activo',true).maybeSingle();
+  if(cycleError)throw new Error('No se pudo consultar el ciclo.');
+  const snapshotResult=cycle?await auth.rpc('security_latest_risk',{p_cycle:cycle.id}).select('alumno_id,score,nivel,recomendacion,alumno:alumnos(nombre,apellido_paterno,apellido_materno)'):{data:[],error:null};
+  if(snapshotResult.error)throw new Error('No se pudo consultar el seguimiento de orientación.');
+  const orientation=((snapshotResult.data??[]) as any[]).filter((r:any)=>r.nivel==='critico'||r.nivel==='alto');
   const filas: any[] = [];
   for (const a of activas) {
     const { data: califs } = await supabase
@@ -72,6 +77,10 @@ export default async function AlumnosEnRiesgo() {
         description="Detección automática por bajo promedio o faltas acumuladas en tus materias del ciclo activo."
       />
 
+      <Card title="Seguimiento de orientación">
+        <p className="mb-3">Último cálculo del ciclo activo para alumnos de tus grupos de orientación. Los adeudos se atienden por separado.</p>
+        {!orientation.length?<p>Sin alertas altas o críticas disponibles.</p>:<ul className="space-y-3">{orientation.map((r:any)=><li key={r.alumno_id} className="rounded border p-3"><strong>{r.alumno?.nombre} {r.alumno?.apellido_paterno} {r.alumno?.apellido_materno}</strong><p>{r.nivel} · {r.score} puntos</p><p>{r.recomendacion}</p></li>)}</ul>}
+      </Card>
       <div className="grid grid-cols-3 gap-3">
         <StatCard label="Total en riesgo" value={filas.length} icon="⚠️" tone="rosa" />
         <StatCard label="Críticos" value={criticos} icon="🚨" tone="rosa" hint="Promedio < 6 o > 15 faltas" />

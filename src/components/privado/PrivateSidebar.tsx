@@ -1,8 +1,9 @@
 'use client';
+import { useModalFocus } from '@/lib/use-modal-focus';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { logoutAction } from '@/app/login/actions';
 import { LogoEPO } from '@/components/publico/LogoEPO';
 
@@ -38,6 +39,11 @@ export function PrivateSidebar({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const meta = rolMeta[role];
+  const root=useRef<HTMLElement>(null);
+  const close=useCallback(()=>setMobileOpen(false),[]);
+  const [isMobile,setIsMobile]=useState(false);
+  useEffect(()=>{const media=matchMedia('(max-width:1023px)');const update=()=>{setIsMobile(media.matches);if(!media.matches)setMobileOpen(false);};update();media.addEventListener('change',update);return()=>media.removeEventListener('change',update);},[]);
+  useModalFocus(mobileOpen,root,close);
 
   useEffect(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('priv-sidebar-collapsed') : null;
@@ -61,7 +67,7 @@ export function PrivateSidebar({
       {/* Botón hamburguesa mobile */}
       <button
         onClick={() => setMobileOpen(true)}
-        aria-label="Abrir menú"
+        aria-label="Abrir menú" aria-expanded={mobileOpen}
         className="lg:hidden fixed top-4 left-4 z-40 w-11 h-11 rounded-xl bg-white shadow-lg border border-gray-200 flex items-center justify-center text-verde-oscuro"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -80,7 +86,7 @@ export function PrivateSidebar({
         )}
       </AnimatePresence>
 
-      <aside
+      <aside ref={root} inert={isMobile&&!mobileOpen} role={mobileOpen?'dialog':undefined} aria-modal={mobileOpen||undefined} aria-label="Menú del portal"
         className={`
           group/side fixed lg:sticky top-0 left-0 h-screen z-50
           transition-[width,transform] duration-300 ease-out

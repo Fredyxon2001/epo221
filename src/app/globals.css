@@ -400,3 +400,20 @@ body { background: #ffffff; color: #0f2e2b; }
 @media print {
   .no-print, nav, footer, .custom-cursor, .scroll-progress { display: none !important; }
 }
+
+/* Keyboard visibility, reduced motion and readable public content at text zoom. */
+:focus-visible { outline: 3px solid #b45309; outline-offset: 4px; }
+.skip-link { position: fixed; left: 1rem; top: 1rem; z-index: 100; padding: .75rem 1rem; background: white; color: #115e59; transform: translateY(-200%); }
+.skip-link:focus { transform: none; }
+#contenido-publico { scroll-margin-top: 8rem; }
+.public-site { overflow-wrap: anywhere; }
+.public-site .text-gray-400 { color: #64748b; }
+@media (pointer: coarse) { .custom-cursor { display: none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .public-site *, .public-site *::before, .public-site *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .custom-cursor, .public-particles { display: none !important; }
+  .public-site .lift:hover { transform: none; }
+}
+
+.public-site a.text-verde { color: #115e59; }

@@ -66,7 +66,7 @@ export default async function AlumnoLayout({ children }: { children: React.React
   const { items: notiItems, noLeidas } = await getNotificaciones(user!.id, 10);
   const { data: sitioCfg } = await supabase.from('sitio_config').select('logo_url').maybeSingle();
 
-  const groups = [
+  const groups = [{items:[{href:'/'+"alumno"+'/pendientes',label:'Pendientes',icon:'📋'}]},
     {
       title: 'Académico',
       items: [

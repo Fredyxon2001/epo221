@@ -10,6 +10,7 @@ export function Particles({ count = 18 }: { count?: number }) {
   const [items, setItems] = useState<P[]>([]);
 
   useEffect(() => {
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
     setItems(
       Array.from({ length: count }).map(() => ({
         left: Math.random() * 100,
@@ -22,7 +23,7 @@ export function Particles({ count = 18 }: { count?: number }) {
   }, [count]);
 
   return (
-    <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div aria-hidden className="public-particles absolute inset-0 overflow-hidden pointer-events-none">
       {items.map((p, i) => (
         <span
           key={i}

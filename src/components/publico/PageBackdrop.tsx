@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 
 /**
@@ -24,8 +25,10 @@ export async function PageBackdrop() {
 
       {/* Logo gigante difuminado centrado */}
       {logo && (
-        <img
+        <Image
           src={logo}
+          width={512} height={512} sizes="(max-width:768px) 100vw, 512px"
+          unoptimized={!logo.startsWith('/img/') && !/^https:\/\/[^/]+\.supabase\.co\//.test(logo)}
           alt=""
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[110vmin] h-[110vmin] object-contain opacity-[0.07] select-none"
           style={{ filter: 'blur(1.5px)' }}

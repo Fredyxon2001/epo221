@@ -28,7 +28,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
     .select('id', { count: 'exact', head: true })
     .eq('estado', 'abierta');
 
-  const groups = [
+  const groups = [{items:[{href:'/'+"director"+'/pendientes',label:'Pendientes',icon:'📋'}]},
     {
       title: 'Dirección',
       items: [
