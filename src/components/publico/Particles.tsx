@@ -10,7 +10,7 @@ export function Particles({ count = 18 }: { count?: number }) {
   const [items, setItems] = useState<P[]>([]);
 
   useEffect(() => {
-    if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+    if(matchMedia("(prefers-reduced-motion: reduce), (pointer: coarse)").matches)return;
     setItems(
       Array.from({ length: count }).map(() => ({
         left: Math.random() * 100,

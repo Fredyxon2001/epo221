@@ -46,7 +46,7 @@ async function main(){try{
   console.log('PASS shared mobile API: own pending tasks; foreign group excluded; cycles role/MFA and explicit confirmation.');
   for(const grade of grades)await checked(f.admin.from('calificaciones').update({p2:0,p3:0}).eq('id',grade),'complete grade');
   await checked(f.admin.from('calificaciones').update({faltas_p1:21}).eq('id',grades[0]),'absence fixture');
-  for(let i=0;i<3;i++)await f.row('reportes_conducta',{alumno_id:pupil.studentId,profesor_id:teacher.professorId,tipo:'negativo',categoria:'Synthetic verification',descripcion:'Synthetic verification report',fecha:new Date().toISOString().slice(0,10)});
+  for(let i=0;i<3;i++)await f.row('reportes_conducta',{alumno_id:pupil.studentId,profesor_id:teacher.professorId,tipo:'negativo',categoria:'Synthetic verification',descripcion:'Synthetic verification report',fecha:new Date().toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'})});
   const {calcularRiesgoCiclo}=load('src/lib/riesgo/score.ts');
   const scores=await calcularRiesgoCiclo(f.admin,cycle);
   assert.equal(scores.find(r=>r.alumno_id===pupil.studentId).score,95);
@@ -69,6 +69,9 @@ async function main(){try{
   await checked(f.admin.from('guias_escolares').update({publicada:false}).eq('id',guide),'unpublish fixture');
   assert.ok((await anon.from('guias_escolares').update({titulo:'Forbidden'}).eq('id',guide)).error);
   console.log('PASS guide: drafts hidden, published public API, anonymous editing denied.');
+  await checked(f.admin.from('ciclos_escolares').update({fecha_fin:new Date(Date.now()+86400000).toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'})}).eq('id',cycle),'future school date');
+  d=await checked(administrator.client.rpc('security_cycle_diagnostic',{p_cycle:cycle}),'future diagnostic');assert.equal(d.fechas_validas,false);assert.equal(d.puede_cerrar,false);
+  await checked(f.admin.from('ciclos_escolares').update({fecha_fin:'2020-12-31'}).eq('id',cycle),'restore synthetic dates');
   d=await checked(administrator.client.rpc('security_cycle_diagnostic',{p_cycle:cycle}),'complete diagnostic');assert.equal(d.puede_cerrar,true);
   const closed=await mobile(administrator,'cycles','POST',{id:cycle,action:'cerrar',reason:'Synthetic verification closure',confirmed:true});assert.equal(closed.response.status,200);
   assert.ok((await f.admin.from('calificaciones').update({p1:7}).eq('id',grades[0])).error,'Closed grade was mutable');

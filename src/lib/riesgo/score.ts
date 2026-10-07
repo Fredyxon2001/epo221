@@ -24,10 +24,10 @@ export async function calcularRiesgoCiclo(supabase:SupabaseClient,cicloId:string
   const insc=await allRows(supabase.from('inscripciones').select('alumno_id,grupo_id').eq('ciclo_id',cicloId).eq('estatus','activa').order('id'));
   const alumnoIds=Array.from(new Set<string>(insc.map(i=>i.alumno_id)));
   if(!alumnoIds.length)return [];
-  const desde=new Date(Date.now()-60*24*60*60*1000).toISOString().slice(0,10);
+  const desde=new Date(Date.now()-60*24*60*60*1000).toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'});
   const [califsCiclo,conductas,tareas]=await Promise.all([
     batches(alumnoIds,ids=>supabase.from('calificaciones').select('alumno_id,asignacion_id,p1,p2,p3,faltas_p1,faltas_p2,faltas_p3,promedio_final,asignacion:asignaciones!inner(ciclo_id,grupo_id)').in('alumno_id',ids).eq('asignacion.ciclo_id',cicloId).order('id')),
-    batches(alumnoIds,ids=>supabase.from('reportes_conducta').select('alumno_id,tipo,fecha').in('alumno_id',ids).gte('fecha',desde).lte('fecha',new Date().toISOString().slice(0,10)).order('id')),
+    batches(alumnoIds,ids=>supabase.from('reportes_conducta').select('alumno_id,tipo,fecha').in('alumno_id',ids).gte('fecha',desde).lte('fecha',new Date().toLocaleDateString('en-CA',{timeZone:'America/Mexico_City'})).order('id')),
     allRows(supabase.from('tareas').select('id,asignacion:asignaciones!inner(ciclo_id,grupo_id)').eq('asignacion.ciclo_id',cicloId).lte('fecha_apertura',new Date().toISOString()).lt('fecha_entrega',new Date().toISOString()).order('id')),
   ]);
   const tareaIds=tareas.map(t=>t.id);
