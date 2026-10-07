@@ -11,7 +11,7 @@ export default async function AppMovilPage() {
         <div className="text-6xl mb-3">📱</div>
         <h1 className="font-serif text-4xl text-verde mb-2">App móvil EPO 221</h1>
         <p className="text-gray-600">
-          Versión <strong>{APP_MOVIL.version}</strong> · {APP_MOVIL.fechaPublicacion} · {APP_MOVIL.tamano}
+          Versión <strong>{APP_MOVIL.version}</strong> · compilación {APP_MOVIL.compilacion} · {APP_MOVIL.fechaPublicacion} · {APP_MOVIL.tamano}
         </p>
       </div>
 
@@ -47,7 +47,7 @@ export default async function AppMovilPage() {
             href={APP_MOVIL.apkUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full text-center bg-verde hover:bg-verde-oscuro text-white font-semibold py-3 rounded-xl shadow-md shadow-verde/30 transition"
+            className="block w-full text-center bg-verde-oscuro hover:bg-verde-oscuro/90 text-white font-semibold py-3 rounded-xl shadow-md shadow-verde/30 transition"
           >
             📥 Descargar app Android
           </a>
@@ -72,11 +72,15 @@ export default async function AppMovilPage() {
           <li>• Consultar tu horario diario (L-V)</li>
           <li>• Entregar tareas y consultar la bandeja de pendientes</li>
           <li>• Leer avisos y la guía escolar publicada</li>
+          <li>• Usar una guía interactiva adaptada a tu rol y ayuda para cada pantalla</li>
           <li>• Recibir notificaciones</li>
           <li>• Acceder a tu perfil</li>
         </ul>
         <p className="text-xs text-verde-oscuro/70 mt-2">
           Las funciones disponibles dependen de tu rol. El personal autorizado puede revisar ciclos con verificación de seguridad y registrar su cierre o reapertura.
+        </p>
+        <p className="text-sm text-verde-oscuro mt-3">
+          Después de entrar, toca <strong>Ayuda de esta pantalla</strong> o abre <strong>Guía interactiva</strong> en Más o en el portal de tu rol. Puedes avanzar, volver, reiniciar y abrir la sección que quieras aprender a usar.
         </p>
       </div>
 
