@@ -17,7 +17,7 @@ export default async function Noticias() {
   return (
     <AuroraBg className="pt-32 pb-28 px-6">
       <div className="relative max-w-6xl mx-auto">
-        <SectionHeader
+        <SectionHeader headingLevel={1}
           eyebrow="Al día"
           ghost="N"
           title="Últimas noticias"

@@ -4,6 +4,8 @@
 // contextual de notificaciones y título sin prop drilling.
 import { ReactNode } from 'react';
 import { PrivateSidebar, NavGroup } from './PrivateSidebar';
+import { InteractiveGuide } from '@/components/help/InteractiveGuide';
+import type { Role as AccountRole } from '@/lib/security/policy';
 
 type Role = 'alumno' | 'profesor' | 'admin' | 'director' | 'staff';
 
@@ -28,6 +30,7 @@ const blobTones: Record<Role, { a: string; b: string; c: string }> = {
 
 export function PrivateShell({
   role,
+  guideRole = role,
   groups,
   userName,
   userSub,
@@ -36,6 +39,7 @@ export function PrivateShell({
   children,
 }: {
   role: Role;
+  guideRole?: AccountRole;
   groups: NavGroup[];
   userName: string;
   userSub?: string;
@@ -45,10 +49,16 @@ export function PrivateShell({
 }) {
   const bg = bgByRole[role];
   const blob = blobTones[role];
+  const helpLinks = groups.flatMap(group => group.items.map(({href,label}) => ({href,label})));
+  if (helpLinks.some(link => link.href === '/admin/publico')) helpLinks.push(
+    {href:'/admin/publico/guias',label:'Guías escolares publicadas'},
+    {href:'/admin/publico/descargas',label:'Formatos públicos por ciclo'},
+  );
 
   return (
     <div className={`min-h-screen text-verde-oscuro flex bg-linear-to-br ${bg}`}>
       <PrivateSidebar role={role} groups={groups} userName={userName} userSub={userSub} logoUrl={logoUrl} avatarUrl={avatarUrl} />
+      <InteractiveGuide role={guideRole} links={helpLinks} orientador={guideRole === 'profesor' && groups.some(group => group.items.some(item => item.href.startsWith('/profesor/orientacion')))} />
 
       <div className="flex-1 min-w-0 flex flex-col relative overflow-hidden">
         {/* ───── Capa decorativa animada (aurora + blobs + grid sutil + logo watermark) ───── */}

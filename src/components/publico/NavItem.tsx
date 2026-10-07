@@ -1,7 +1,4 @@
-'use client';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
 
 type Props = {
   href: string;
@@ -11,72 +8,46 @@ type Props = {
 };
 
 /**
- * Item de navegación con micro-interacciones (versión nítida, sin filtros sobre el texto):
- *  - Píldora blanca compartida entre items (layoutId) que se desliza al activo
- *  - Underline degradado que se dibuja desde el centro al hacer hover
- *  - Icono glífico que hace "pop" al hover
- *  - Punto pulsante decorativo cuando está activo
+ * Navegación visible desde SSR, con estado activo semántico y feedback CSS.
+ * No necesita animaciones de layout, timers ni renders al mover el puntero.
  */
 export function NavItem({ href, label, icon, active }: Props) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <Link
       href={href}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className={`group relative px-2.5 2xl:px-4 py-2 text-[13px] 2xl:text-sm font-medium whitespace-nowrap rounded-full transition-colors duration-200 ${
-        active ? 'text-verde-oscuro' : 'text-white/85 hover:text-white'
+      aria-current={active ? 'page' : undefined}
+      className={`group relative px-2.5 2xl:px-3 py-2 text-[13px] 2xl:text-sm font-medium whitespace-nowrap rounded-full transition-colors duration-200 ${
+        active ? 'bg-white text-verde-oscuro shadow-sm' : 'text-white/85 hover:text-white hover:bg-white/10'
       }`}
       style={{ WebkitFontSmoothing: 'antialiased' }}
     >
-      {/* Píldora blanca compartida cuando está activo */}
-      {active && (
-        <motion.span
-          layoutId="nav-pill"
-          className="absolute inset-0 rounded-full bg-white shadow-lg shadow-black/10"
-          transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-          aria-hidden
-        />
-      )}
-
       {/* Contenido */}
       <span className="relative z-10 inline-flex items-center gap-1.5">
         {icon && (
-          <motion.span
+          <span
             aria-hidden
-            /* El glifo se oculta entre xl y 2xl para ganar ancho y que quepan los 8 items */
+            /* Los glifos se reservan para pantallas anchas. */
             className={`hidden 2xl:inline-block text-[11px] ${active ? 'text-verde' : 'opacity-70'}`}
-            animate={{
-              rotate: hovered && !active ? [0, -10, 10, 0] : 0,
-              scale: hovered ? 1.15 : 1,
-            }}
-            transition={{ duration: 0.45 }}
           >
             {icon}
-          </motion.span>
+          </span>
         )}
         <span>{label}</span>
       </span>
 
       {/* Subrayado animado al hover (solo cuando NO está activo) */}
       {!active && (
-        <motion.span
+        <span
           aria-hidden
-          className="absolute left-2.5 right-2.5 2xl:left-4 2xl:right-4 -bottom-0.5 h-[2px] rounded-full origin-center bg-linear-to-r from-verde-claro via-white to-verde-claro"
-          initial={false}
-          animate={{ scaleX: hovered ? 1 : 0, opacity: hovered ? 1 : 0 }}
-          transition={{ duration: 0.35, ease: [0.2, 0.85, 0.2, 1] }}
+          className="absolute left-2.5 right-2.5 -bottom-0.5 h-[2px] rounded-full origin-center bg-verde-claro scale-x-0 group-hover:scale-x-100 motion-safe:transition-transform"
         />
       )}
 
-      {/* Puntito pulsante arriba cuando activo */}
+      {/* Distintivo decorativo cuando está activo */}
       {active && (
-        <motion.span
+        <span
           aria-hidden
           className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-verde-claro"
-          animate={{ scale: [1, 1.6, 1], opacity: [1, 0.5, 1] }}
-          transition={{ duration: 1.6, repeat: Infinity }}
         />
       )}
     </Link>

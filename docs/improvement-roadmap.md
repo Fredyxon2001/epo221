@@ -25,3 +25,21 @@ Las reglas de cierre son operativas: fechas concluidas, inscripción/materias/ca
 Heartbeat revisi-n-diaria-epo-221 ACTIVE, 09:00 America/Mexico_City. Lectura/metadatos y hallazgos materiales documentados; avisar solo cambios importantes. Sin fixtures de escritura en producción ni reparación/despliegue automático.
 
 Detalles y comandos en AGENTS.md, docs/security-operations.md y ../epo221-mobile-github/docs/native-verification.md.
+
+## Revisión pública adicional — 2026-10-06
+
+Hallazgos de la revisión inicial; implementados en la entrega siguiente (véase estado más abajo):
+
+- Guía escolar: cero guías publicadas. El editor y API existen, pero faltan requisitos, fechas y preguntas aprobadas/publicadas para que sean útiles en web y móvil.
+- Portada anuncia «Ciclo 2026-A abierto» e «Inscripciones en curso» con texto fijo; ciclo activo registrado 2025-2026. Confirmar calendario/admisión y sustituir anuncios fijos por información administrable, sin modificar el ciclo académico real para hacer coincidir una leyenda.
+- Descargas conserva títulos/requisitos fijos 2025-2026-2. Revisar vigencia institucional; administrar versiones por ciclo y ofrecer PDF accesible además del DOCX editable.
+- Menú de escritorio usa items.slice(0,8), ocultando Contacto y páginas CMS adicionales al agregar Guía escolar. El botón alternativo se oculta desde xl. Mantener acceso visible a todas las secciones mediante distribución o menú adicional.
+- Convocatorias usa fecha UTC y compara una fecha SQL a medianoche con el instante actual para el distintivo, y no comprueba vigente_desde. Puede concluir antes del fin del día local o anunciar apertura futura. Usar días del calendario de México, límite final inclusivo, validación de rango y estados coherentes en admin/público.
+- Sin JavaScript, los encabezados de Oferta, Convocatorias, Descargas y Contacto tienen opacity:0; todas esas páginas carecen de h1. Corregir SectionHeader sin ocultar contenido inicial y permitir nivel semántico de encabezado.
+- No interpretar el PASS anterior de portada sin JavaScript ni Lighthouse100 accesibilidad/SEO como cobertura de todas las subpáginas. Ampliar la prueba a cada plantilla y usar lector de pantalla. Rendimiento móvil73/LCP2.98s pertenece al ensayo anterior; falta LCP/INP/CLS real por dispositivo.
+
+## Implementación de las seis mejoras y recorridos — 2026-10-06
+
+Navegación completa, calendario mexicano inclusivo, h1 visibles sin JavaScript, portada basada en ciclo registrado, guía escolar publicada y catálogo de documentos por ciclo implementados. El catálogo distingue históricos; nuevos archivos quedan privados hasta publicación, con previsualización MFA, URLs propias y versiones inmutables al publicar. Guía de uso web por seis roles/orientación y guía nativa por rol/pantalla implementadas, sin ejecutar operaciones durante el recorrido. Se retiró Framer del modo público y se carga ayuda pública bajo demanda.
+
+Tipos/unidades/exportes móvil, RN Web, seguridad/calendario web y recorrido web seis roles pasan. Nuevo APK code7 en QA antes de distribuir; medición de rendimiento y despliegue final se registrarán después de build. Pendientes institucionales reales: actualizar/confirmar calendario, requisitos y formatos vigentes; aviso/retención/fotografías/custodia. Pendientes técnicos con alcance separado: percentiles de campo, lector de pantalla, dispositivo ARM/upgrade físico e iOS nativo, recuperación integral de Auth/infraestructura. No se certifica ausencia absoluta de bugs.

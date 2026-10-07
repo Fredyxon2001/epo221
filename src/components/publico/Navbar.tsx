@@ -3,7 +3,6 @@ import { useModalFocus } from '@/lib/use-modal-focus';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { LogoEPO } from './LogoEPO';
 import { GobiernoBanner } from './GobiernoBanner';
 import { Reloj } from './Reloj';
@@ -16,6 +15,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
   const [open, setOpen] = useState(false);
   const path = usePathname();
   const root=useRef<HTMLElement>(null);
+  const desktopMenu = useRef<HTMLDetailsElement>(null);
   const close=useCallback(()=>setOpen(false),[]);
   useModalFocus(open,root,close);
 
@@ -33,7 +33,21 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
     };
   }, []);
 
-  useEffect(() => { setOpen(false); }, [path]);
+  useEffect(() => { setOpen(false); if (desktopMenu.current) desktopMenu.current.open = false; }, [path]);
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && desktopMenu.current?.open) {
+        desktopMenu.current.open = false;
+        desktopMenu.current.querySelector('summary')?.focus();
+      }
+    };
+    const onOutside = (event: PointerEvent) => {
+      if (desktopMenu.current?.open && event.target instanceof Node && !desktopMenu.current.contains(event.target)) desktopMenu.current.open = false;
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onOutside);
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', onOutside); };
+  }, []);
 
   const base: NavItem[] = [{href:'/publico/guia',label:'Guía escolar',icon:'ℹ'},
     { href: '/publico',                label: 'Inicio',        icon: '✦' },
@@ -46,6 +60,10 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
     { href: '/publico/contacto',       label: 'Contacto',      icon: '✉' },
   ];
   const items = [...base, ...extras];
+  // Contact stays in the main desktop row; every other section remains reachable
+  // in a native details menu, even before JavaScript is available.
+  const primary = base.filter(item => !['/publico/guia', '/publico/conoce', '/publico/albumes'].includes(item.href));
+  const more = items.filter(item => !primary.some(main => main.href === item.href));
 
   // Sin animación de entrada a propósito. La barra de navegación es el acceso
   // principal del sitio y debe estar visible desde el primer fotograma:
@@ -89,13 +107,9 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
       >
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-6">
           <Link href="/publico" className="flex items-center gap-2 sm:gap-3 group shrink-0 min-w-0">
-            <motion.div
-              whileHover={{ rotate: logoUrl ? 0 : 360, scale: 1.1 }}
-              transition={{ duration: 0.8 }}
-              className="flex items-center justify-center shrink-0"
-            >
+            <div className="flex items-center justify-center shrink-0 motion-safe:transition-transform motion-safe:group-hover:scale-105">
               <LogoEPO url={logoUrl} size={scrolled ? 40 : 48} />
-            </motion.div>
+            </div>
             <div className="text-white leading-tight min-w-0">
               <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] sm:tracking-[0.3em] opacity-80">EPO 221</div>
               <div className="font-serif text-white text-base sm:text-lg truncate">Nicolás Bravo</div>
@@ -105,10 +119,9 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
             </div>
           </Link>
 
-          {/* El menú completo solo aparece desde xl: por debajo de ~1280px los 8 items
-              + logo + botón de acceso no caben y empujaban "Acceso" fuera de pantalla. */}
+          {/* Six primary links fit from xl; the remaining sections use an accessible native menu. */}
           <div className="hidden xl:flex items-center gap-0.5 2xl:gap-1 flex-1 justify-center min-w-0">
-            {items.slice(0, 8).map((it) => (
+            {primary.map((it) => (
               <NavLink
                 key={it.href}
                 href={it.href}
@@ -117,25 +130,24 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
                 active={path === it.href}
               />
             ))}
+            <details ref={desktopMenu} className="relative shrink-0">
+              <summary className={`cursor-pointer list-none rounded-full px-3 py-2 text-[13px] font-medium ${more.some(it => path === it.href) ? 'bg-white text-verde-oscuro' : 'text-white hover:bg-white/10'}`}>Más secciones <span aria-hidden>▾</span></summary>
+              <div className="absolute right-0 top-full mt-3 w-72 max-h-[65vh] overflow-y-auto rounded-2xl border border-verde/15 bg-white p-2 shadow-xl">
+                {more.map(it => <Link key={it.href} href={it.href} aria-current={path === it.href ? 'page' : undefined} className={`block rounded-xl px-4 py-3 text-sm hover:bg-verde/10 focus-visible:bg-verde/10 ${path === it.href ? 'bg-verde/10 font-semibold text-verde-oscuro' : 'text-verde-oscuro'}`}>{it.label}</Link>)}
+              </div>
+            </details>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-              className="hidden sm:inline-flex"
-            >
+            <div className="hidden sm:inline-flex">
               <Link
                 href="/login"
                 className="group relative overflow-hidden bg-white text-verde font-semibold px-5 py-2 rounded-full transition items-center gap-2 shadow-lg inline-flex"
               >
                 <span className="relative z-10 inline-flex items-center gap-2">
-                  <motion.span
+                  <span
                     aria-hidden
                     className="w-1.5 h-1.5 rounded-full bg-verde"
-                    animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
-                    transition={{ duration: 1.8, repeat: Infinity }}
                   />
                   Acceso
                   <span className="transition-transform group-hover:translate-x-0.5">→</span>
@@ -146,7 +158,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
                   className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-verde-claro/40 to-transparent"
                 />
               </Link>
-            </motion.div>
+            </div>
             <button
               className="xl:hidden text-white p-2"
               aria-label="Menú" aria-expanded={open} aria-controls="menu-publico-movil"
@@ -165,53 +177,49 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
       </div>
 
       {/* Mobile menu */}
-      <AnimatePresence>
         {open && (
-          <motion.div id="menu-publico-movil"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+          <div id="menu-publico-movil"
             className="xl:hidden overflow-hidden bg-verde/95 backdrop-blur-xl border-t border-white/20 max-h-[80vh] overflow-y-auto"
           >
             <div className="px-5 sm:px-6 py-4 flex flex-col gap-1">
               <Link
                 href="/login"
+                onClick={close}
                 className="mb-2 bg-white text-verde font-bold text-center py-3 rounded-xl shadow-lg"
               >
                 🔐 Acceso al portal
               </Link>
-              {items.map((it, i) => {
+              {items.map((it) => {
                 const active = path === it.href;
                 return (
-                  <motion.div
+                  <div
                     key={it.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05, duration: 0.35 }}
                   >
                     <Link
                       href={it.href}
+                      onClick={close}
+                      aria-current={active ? 'page' : undefined}
                       className={`group flex items-center gap-3 py-3 border-b border-white/10 last:border-0 transition ${
                         active ? 'text-white' : 'text-white/85 hover:text-white'
                       }`}
                     >
                       {it.icon && (
-                        <span className="w-7 h-7 inline-flex items-center justify-center rounded-full bg-white/10 text-xs group-hover:bg-white/20 group-hover:scale-110 transition">
+                        <span aria-hidden className="w-7 h-7 inline-flex items-center justify-center rounded-full bg-white/10 text-xs group-hover:bg-white/20 group-hover:scale-110 transition">
                           {it.icon}
                         </span>
                       )}
                       <span className="flex-1">{it.label}</span>
-                      <span className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition">
+                      <span aria-hidden className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition">
                         →
                       </span>
                     </Link>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      <noscript><details className="xl:hidden border-t border-white/20 bg-verde text-white"><summary className="cursor-pointer px-5 py-3">Ver todas las secciones</summary><div className="max-h-[60vh] overflow-y-auto px-5 pb-4">{items.map(it => <Link key={it.href} href={it.href} className="block py-2">{it.label}</Link>)}<Link href="/login" className="block py-2">Acceso al portal</Link></div></details></noscript>
     </nav>
   );
 }

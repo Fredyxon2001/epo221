@@ -19,6 +19,7 @@ export default async function AdminPublicoHub() {
   ]);
 
   const cards: Card[] = [{href:'/admin/publico/guias',icon:'ℹ️',title:'Guía por ciclo',desc:'Requisitos, fechas, admisión y preguntas frecuentes para web y app.'},
+    {href:'/admin/publico/descargas',icon:'📥',title:'Documentos públicos',desc:'Formatos PDF/DOCX por ciclo, versión y vigencia.'},
     {
       href: '/admin/publico/inicio',
       icon: '🏠',

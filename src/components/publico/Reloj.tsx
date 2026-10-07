@@ -1,8 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const CLOCK = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+const DAY = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', weekday: 'long' });
+const DATE = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' });
+const SHORT_DATE = new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short' });
 
 type Props = {
   variant?: 'light' | 'dark';
@@ -16,10 +18,11 @@ export function Reloj({ variant = 'light', size = 'card', tone = 'onDark' }: Pro
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    const tick = () => setNow(new Date());
+    const tick = () => { if (!document.hidden) setNow(new Date()); };
     tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
+    const id = setInterval(tick, 60_000);
+    document.addEventListener('visibilitychange', tick);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', tick); };
   }, []);
 
   if (size === 'compact') {
@@ -27,11 +30,9 @@ export function Reloj({ variant = 'light', size = 'card', tone = 'onDark' }: Pro
     if (!now) {
       return <div className="hidden md:flex items-center w-[120px] h-9" aria-hidden />;
     }
-    const hh = String(now.getHours()).padStart(2, '0');
-    const mm = String(now.getMinutes()).padStart(2, '0');
-    const ss = String(now.getSeconds()).padStart(2, '0');
-    const diaCorto = DIAS[now.getDay()].slice(0, 3);
-    const fechaCorta = `${String(now.getDate()).padStart(2,'0')} ${MESES[now.getMonth()].slice(0,3)}`;
+    const hora = CLOCK.format(now);
+    const diaCorto = DAY.format(now).slice(0, 3);
+    const fechaCorta = SHORT_DATE.format(now);
 
     const light = tone === 'light';
     return (
@@ -47,8 +48,7 @@ export function Reloj({ variant = 'light', size = 'card', tone = 'onDark' }: Pro
         </span>
         <span className={`w-px h-4 ${light ? 'bg-verde/30' : 'bg-white/30'}`} aria-hidden />
         <span className="font-mono font-bold text-sm tabular-nums leading-none">
-          {hh}:{mm}
-          <span className={`text-[10px] align-top ml-0.5 ${light ? 'text-verde/70' : 'opacity-70'}`}>{ss}</span>
+          {hora}
         </span>
       </div>
     );
@@ -58,11 +58,9 @@ export function Reloj({ variant = 'light', size = 'card', tone = 'onDark' }: Pro
     return <div className="h-[110px] rounded-2xl bg-white/10 animate-pulse" aria-hidden />;
   }
 
-  const dia = DIAS[now.getDay()];
-  const fecha = `${now.getDate()} de ${MESES[now.getMonth()]} de ${now.getFullYear()}`;
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mm = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
+  const dia = DAY.format(now);
+  const fecha = DATE.format(now);
+  const hora = CLOCK.format(now);
 
   const isDark = variant === 'dark';
 
@@ -92,13 +90,10 @@ export function Reloj({ variant = 'light', size = 'card', tone = 'onDark' }: Pro
         </div>
         <div className="text-right">
           <div className="font-mono font-black text-3xl md:text-4xl tracking-tight tabular-nums">
-            {hh}:{mm}
-            <span className={`text-lg align-top ml-0.5 ${isDark ? 'text-verde-claro' : 'text-verde'}`}>
-              {ss}
-            </span>
+            {hora}
           </div>
           <div className={`text-[10px] uppercase tracking-widest mt-0.5 ${isDark ? 'text-white/60' : 'text-gray-400'}`}>
-            Zona horaria MX · GMT−6
+            Ciudad de México
           </div>
         </div>
       </div>

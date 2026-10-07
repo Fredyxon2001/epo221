@@ -19,7 +19,7 @@ export default async function PublicoAlbumes() {
   return (
     <AuroraBg className="pt-32 pb-28 px-6">
       <div className="relative max-w-6xl mx-auto">
-        <SectionHeader
+        <SectionHeader headingLevel={1}
           eyebrow="Momentos"
           ghost="◐"
           title="Galería institucional"

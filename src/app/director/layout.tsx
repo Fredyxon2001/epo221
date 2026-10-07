@@ -9,7 +9,7 @@ import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
 export default async function DirectorLayout({ children }: { children: React.ReactNode }) {
-  await requireAccess(['director', 'admin'], 'director:page');
+  const identity = await requireAccess(['director', 'admin'], 'director:page');
   const supabase = (await createClient());
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -63,6 +63,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
   return (
     <PrivateShell
       role="director"
+      guideRole={identity.profile.rol}
       groups={groups}
       userName={perfil.nombre ?? 'Dirección'}
       userSub={perfil.email ?? 'EPO 221'}

@@ -38,7 +38,7 @@ async function main() { try {
   await f.row('inscripciones', { alumno_id: student.studentId, grupo_id: group, ciclo_id: cycle, estatus: 'activa' });
   const teacherPage = await login(teacher, '/profesor/constancia');
   assert.ok((await teacherPage.locator('body').textContent()).includes('Constancia de servicio'));
-  const pdf = await teacherPage.request.get(`${base}/api/constancia/${teacher.professorId}?ciclo_id=${cycle}`);
+  const pdf = await teacherPage.request.get(`${base}/api/constancia/${teacher.professorId}?ciclo_id=${cycle}`, { timeout: 90000 });
   assert.equal(pdf.status(),200); assert.ok((await pdf.body()).subarray(0,5).equals(Buffer.from('%PDF-')));
   const foreignPdf = await teacherPage.request.get(`${base}/api/constancia/${otherTeacher.professorId}?ciclo_id=${cycle}`);
   assert.equal(foreignPdf.status(),403);

@@ -1,24 +1,29 @@
 import { createClient } from '@/lib/supabase/server';
-import { Reveal, Stagger, staggerItem } from '@/components/publico/Reveal';
+import { Stagger, staggerItem } from '@/components/publico/Reveal';
 import { MotionItem } from '@/components/publico/MotionItem';
 import { SectionHeader } from '@/components/publico/SectionHeader';
 import { AuroraBg } from '@/components/publico/AuroraBg';
 import { ArticuloMarkdown } from '@/components/publico/ArticuloMarkdown';
+import { convocatoriaStatus, formatSchoolDate, schoolToday } from '@/lib/public-convocatorias';
 
 export const revalidate = 60;
 
 export default async function Convocatorias() {
   const supabase = (await createClient());
-  const hoy = new Date().toISOString().slice(0, 10);
-  const { data: convs } = await supabase
+  const hoy = schoolToday();
+  const { data, error } = await supabase
     .from('convocatorias').select('*')
+    .or(`vigente_desde.is.null,vigente_desde.lte.${hoy}`)
     .or(`vigente_hasta.is.null,vigente_hasta.gte.${hoy}`)
     .order('vigente_desde', { ascending: false });
+  // A second check excludes malformed legacy ranges as well as future dates.
+  const convs = (data ?? []).filter(c => convocatoriaStatus(c.vigente_desde, c.vigente_hasta, hoy) === 'Vigente');
 
   return (
     <AuroraBg className="pt-32 pb-28 px-6">
       <div className="relative max-w-5xl mx-auto">
         <SectionHeader
+          headingLevel={1}
           eyebrow="Admisión y trámites"
           ghost="C"
           title="Convocatorias vigentes"
@@ -26,15 +31,15 @@ export default async function Convocatorias() {
           subtitle="Procesos abiertos de ingreso, reinscripción y trámites oficiales de la EPO 221."
         />
 
-        {(convs ?? []).length === 0 ? (
+        {error ? <div role="alert" className="rounded-2xl border border-red-200 bg-white p-8 text-center text-red-800"><p>No pudimos cargar las convocatorias en este momento.</p><a href="/publico/convocatorias" className="mt-3 inline-block underline">Volver a intentar</a></div> : convs.length === 0 ? (
           <div className="text-center py-20">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-verde/10 text-verde text-4xl mb-4">📭</div>
             <p className="text-gray-500">No hay convocatorias vigentes en este momento.</p>
           </div>
         ) : (
           <Stagger className="space-y-5" stagger={0.08}>
-            {(convs ?? []).map((c: any, i: number) => {
-              const activa = !c.vigente_hasta || new Date(c.vigente_hasta) >= new Date();
+            {convs.map((c: any) => {
+              const activa = convocatoriaStatus(c.vigente_desde, c.vigente_hasta, hoy) === 'Vigente';
               return (
                 <MotionItem key={c.id} variants={staggerItem}>
                   <div className="lift spotlight relative bg-white rounded-3xl shadow-xl shadow-verde/10 border border-verde/10 overflow-hidden group">
@@ -61,11 +66,11 @@ export default async function Convocatorias() {
                           <div className="mt-5 flex flex-wrap gap-3 text-xs">
                             <span className="inline-flex items-center gap-1.5 bg-crema border border-verde/15 rounded-full px-3 py-1.5 text-gray-600">
                               <span className="text-verde">📅</span>
-                              Desde: <span className="font-semibold text-verde-oscuro">{c.vigente_desde ?? '—'}</span>
+                              Desde: <span className="font-semibold text-verde-oscuro">{c.vigente_desde ? formatSchoolDate(c.vigente_desde) : 'Sin fecha inicial'}</span>
                             </span>
                             <span className="inline-flex items-center gap-1.5 bg-crema border border-verde/15 rounded-full px-3 py-1.5 text-gray-600">
                               <span className="text-verde">⏰</span>
-                              Hasta: <span className="font-semibold text-verde-oscuro">{c.vigente_hasta ?? 'Indefinido'}</span>
+                              Hasta: <span className="font-semibold text-verde-oscuro">{c.vigente_hasta ? `${formatSchoolDate(c.vigente_hasta)} (día completo)` : 'Sin fecha límite'}</span>
                             </span>
                           </div>
                         </div>

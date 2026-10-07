@@ -1,47 +1,31 @@
-'use client';
-import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { type ReactNode } from 'react';
-
-const variants: Variants = {
-  hidden:  { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0 },
-};
+import { type ElementType, type ReactNode } from 'react';
 
 export function Reveal({
   children,
-  delay = 0,
-  y = 40,
   className = '',
   as: Tag = 'div',
-  once = true,
 }: {
   children: ReactNode;
   delay?: number;
   y?: number;
   className?: string;
-  as?: any;
+  as?: ElementType;
   once?: boolean;
 }) {
-  const reduced = useReducedMotion();
-  const MotionTag = motion.create(Tag);
+  // Keep the existing API while rendering content on the server. In-view opacity
+  // animations delayed useful text and hydrated a motion tree for every card.
   return (
-    <MotionTag
+    <Tag
       className={className}
-      initial={false}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, margin: '-60px' }}
-      transition={{ duration: reduced ? 0 : 0.85, delay: reduced ? 0 : delay, ease: [0.2, 0.85, 0.2, 1] }}
     >
       {children}
-    </MotionTag>
+    </Tag>
   );
 }
 
 export function Stagger({
   children,
   className = '',
-  delay = 0,
-  stagger = 0.1,
 }: {
   children: ReactNode;
   className?: string;
@@ -49,22 +33,15 @@ export function Stagger({
   stagger?: number;
 }) {
   return (
-    <motion.div
+    <div
       className={className}
-      initial={false}
-      whileInView="visible"
-      viewport={{ once: true, margin: '-60px' }}
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: stagger, delayChildren: delay } },
-      }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-export const staggerItem: Variants = {
+export const staggerItem = {
   hidden:  { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.2, 0.85, 0.2, 1] } },
 };

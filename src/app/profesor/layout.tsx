@@ -10,7 +10,7 @@ import { getNotificaciones } from '@/lib/notificaciones';
 import { saludoPorHora } from '@/lib/saludo';
 
 export default async function ProfesorLayout({ children }: { children: React.ReactNode }) {
-  await requireAccess(['profesor', 'admin', 'staff', 'director'], 'profesor:page');
+  const identity = await requireAccess(['profesor', 'admin', 'staff', 'director'], 'profesor:page');
   const auth = (await createClient());
   const supabase = (await scopedClient());
   const { data: { user } } = await auth.auth.getUser();
@@ -129,6 +129,7 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
   return (
     <PrivateShell
       role="profesor"
+      guideRole={identity.profile.rol}
       groups={groups}
       userName={perfil.nombre ?? 'Docente'}
       userSub={perfil.email ?? undefined}

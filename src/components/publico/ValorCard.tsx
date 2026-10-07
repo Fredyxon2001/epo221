@@ -1,6 +1,3 @@
-'use client';
-import { motion } from 'framer-motion';
-
 const META: Record<string, { icon: string; from: string; to: string; glow: string; tint: string }> = {
   lucha:          { icon: '⚔',  from: '#0f766e', to: '#14b8a6', glow: 'rgba(20,184,166,0.35)',  tint: 'bg-teal-50' },
   transformación: { icon: '✦',  from: '#0891b2', to: '#22d3ee', glow: 'rgba(34,211,238,0.3)',   tint: 'bg-cyan-50' },
@@ -28,9 +25,7 @@ export function ValorCard({ index, label }: { index: number; label: string }) {
   const n = String(index + 1).padStart(2, '0');
 
   return (
-    <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+    <div
       className="group relative lift h-full"
     >
       {/* Glow halo */}
@@ -80,6 +75,6 @@ export function ValorCard({ index, label }: { index: number; label: string }) {
           aria-hidden
         />
       </div>
-    </motion.div>
+    </div>
   );
 }

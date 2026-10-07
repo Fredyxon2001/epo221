@@ -134,6 +134,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <PrivateShell
       role={roleDisplay}
+      guideRole={identity.profile.rol}
       groups={groups}
       userName={perfil.nombre ?? 'Usuario'}
       userSub={perfil.email ?? undefined}

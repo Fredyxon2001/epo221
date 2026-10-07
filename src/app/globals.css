@@ -428,3 +428,16 @@ body { background: #ffffff; color: #0f2e2b; }
  .public-site nav [class*="backdrop-blur"] { backdrop-filter: none; }
  .public-site main > section:first-child [class*="drop-shadow-"] { filter: none; }
 }
+
+/* Public first paint uses static gradients; decoration must not keep rasterizing
+   large blurred layers or repaint text while the school content is loading. */
+.public-site .aurora {
+  inset: 0;
+  filter: none;
+  background: radial-gradient(ellipse at 20% 30%, rgba(94,234,212,.18), transparent 60%), radial-gradient(ellipse at 80% 70%, rgba(13,148,136,.2), transparent 65%);
+}
+.public-site .aurora::before, .public-site .aurora::after { content: none; }
+.public-site .text-shimmer, .public-site .bg-animated-verde, .public-site .blob { animation: none; }
+.public-site .blob { filter: none; opacity: 1; border-radius: 50%; background: radial-gradient(circle, rgba(94,234,212,.16), transparent 70%); }
+.public-site .grain::after { content: none; }
+.public-site .public-marquee { background-color: var(--verde-oscuro); }

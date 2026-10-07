@@ -14,7 +14,7 @@ export default async function Contacto() {
   return (
     <AuroraBg className="pt-32 pb-28 px-6">
       <div className="relative max-w-6xl mx-auto">
-        <SectionHeader
+        <SectionHeader headingLevel={1}
           eyebrow="Estamos para ti"
           ghost="@"
           title="Contáctanos"

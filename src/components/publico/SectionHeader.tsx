@@ -1,6 +1,3 @@
-'use client';
-import { motion } from 'framer-motion';
-
 type Props = {
   eyebrow?: string;
   ghost?: string;          // Huge outlined number/letter behind the title
@@ -9,17 +6,19 @@ type Props = {
   subtitle?: string;
   align?: 'center' | 'left';
   tone?: 'dark' | 'light'; // 'light' for use on dark backgrounds
+  headingLevel?: 1 | 2;
 };
 
 export function SectionHeader({
   eyebrow,
-  ghost,
   title,
   titleAccent,
   subtitle,
   align = 'center',
   tone = 'dark',
+  headingLevel = 2,
 }: Props) {
+  const Heading = headingLevel === 1 ? 'h1' : 'h2';
   const isLight = tone === 'light';
   const isCenter = align === 'center';
 
@@ -40,11 +39,7 @@ export function SectionHeader({
       {/* ghost deshabilitado a petición del cliente */}
       <div className="relative">
         {eyebrow && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.5 }}
+          <div
             className={`inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.5em] mb-4 ${
               isLight ? 'text-verde-claro' : 'text-verde'
             }`}
@@ -52,44 +47,32 @@ export function SectionHeader({
             <span className={`w-6 h-px ${isLight ? 'bg-verde-claro/70' : 'bg-verde/60'}`} />
             {eyebrow}
             <span className={`w-6 h-px ${isLight ? 'bg-verde-claro/70' : 'bg-verde/60'}`} />
-          </motion.div>
+          </div>
         )}
 
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.8, ease: [0.2, 0.85, 0.2, 1] }}
+        <Heading
           className={`font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.08] sm:leading-[1.05] ${
             isLight ? 'text-white' : 'text-verde-oscuro'
           }`}
         >
           {base && <span>{base} </span>}
-          <span className="text-shimmer">{accent}</span>
-        </motion.h2>
+          <span className={isLight ? 'text-shimmer' : 'text-verde'}>{accent}</span>
+        </Heading>
 
-        <motion.div
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.9, delay: 0.2, ease: [0.2, 0.85, 0.2, 1] }}
+        <div
           className={`draw-rule mt-6 ${isCenter ? 'mx-auto' : ''}`}
           style={{ transformOrigin: isCenter ? 'center' : 'left' }}
           aria-hidden
         />
 
         {subtitle && (
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.7, delay: 0.35 }}
+          <p
             className={`mt-5 max-w-2xl ${isCenter ? 'mx-auto' : ''} text-base md:text-lg leading-relaxed ${
               isLight ? 'text-white/80' : 'text-gray-600'
             }`}
           >
             {subtitle}
-          </motion.p>
+          </p>
         )}
       </div>
     </div>

@@ -10,14 +10,14 @@ import { MotionItem } from '@/components/publico/MotionItem';
 import { SectionHeader } from '@/components/publico/SectionHeader';
 import { AuroraBg } from '@/components/publico/AuroraBg';
 import { ValorCard } from '@/components/publico/ValorCard';
-import { MagneticLink, MagneticButton } from '@/components/publico/MagneticButton';
+import { MagneticLink } from '@/components/publico/MagneticButton';
 
 export const revalidate = 60;
 
 export default async function PublicoHome() {
   const supabase = (await createClient());
 
-  const [{ data: noticias }, { data: cfg }, { data: albumes }, { count: materiasCount }] = await Promise.all([
+  const [{ data: noticias }, { data: cfg }, { data: albumes }, { count: materiasCount }, { data: ciclo }] = await Promise.all([
     supabase.from('noticias')
       .select('id, slug, titulo, resumen, fecha_pub, imagen_url')
       .eq('publicada', true)
@@ -33,6 +33,7 @@ export default async function PublicoHome() {
       .limit(6),
     supabase.from('materias').select('id', { count: 'exact', head: true })
       .eq('activo', true).is('deleted_at', null),
+    supabase.from('ciclos_escolares').select('codigo').eq('activo', true).maybeSingle(),
   ]);
 
   const heroTitulo = cfg?.hero_titulo || 'Bachillerato con identidad';
@@ -40,11 +41,11 @@ export default async function PublicoHome() {
     'Preparatoria Oficial 221 "Nicolás Bravo" · Formamos líderes del mañana con la fuerza del Estado de México.';
 
   const stats = [
-    { n: cfg?.total_alumnos ?? 480,      label: 'Alumnos activos',  suffix: '+' },
-    { n: cfg?.total_generaciones ?? 12,  label: 'Generaciones',     suffix: '' },
-    { n: materiasCount ?? 50,             label: 'Asignaturas',      suffix: '' },
-    { n: cfg?.porcentaje_aprobacion ?? 95, label: '% Aprobación',    suffix: '%' },
-  ];
+    { n: cfg?.total_alumnos,      label: 'Alumnos',         suffix: '' },
+    { n: cfg?.total_generaciones,label: 'Generaciones',    suffix: '' },
+    { n: materiasCount,          label: 'Asignaturas',     suffix: '' },
+    { n: cfg?.porcentaje_aprobacion, label: 'Aprobación', suffix: '%' },
+  ].filter((stat): stat is { n: number; label: string; suffix: string } => typeof stat.n === 'number');
 
   const carreras = [
     { icon: '🎓', titulo: 'Bachillerato General', desc: 'Plan SEIEM con tronco común y campos disciplinares de matemáticas, ciencias, humanidades y comunicación.', color: 'from-verde to-verde-medio' },
@@ -56,26 +57,26 @@ export default async function PublicoHome() {
     {
       paso: '01',
       titulo: 'Convocatoria',
-      desc: 'Regístrate en "Mi Derecho, Mi Lugar" del Gobierno del Estado de México.',
-      href: 'https://www.miderechomilugar.gob.mx/',
-      cta: 'Ir al portal oficial',
+      desc: 'Consulta el proceso y las fechas que publique la escuela antes de iniciar un trámite.',
+      href: '/publico/convocatorias',
+      cta: 'Consultar convocatorias',
     },
     {
       paso: '02',
       titulo: 'Entrega de documentación',
-      desc: 'Acude a ventanilla con todos los requisitos de inscripción o reinscripción.',
+      desc: 'Revisa la guía y confirma con Control Escolar los requisitos y los formatos vigentes.',
       href: '/publico/descargas',
       cta: 'Ver documentos a descargar',
     },
     {
       paso: '03',
       titulo: 'Bienvenida',
-      desc: 'Semana de introducción: conoce tu grupo, tutores e instalaciones.',
+      desc: 'Confirma con la escuela la asignación de grupo y las actividades de bienvenida.',
     },
     {
       paso: '04',
       titulo: 'Inicio de clases',
-      desc: 'Arranca tu ciclo escolar como alumno EPO 221.',
+      desc: 'Consulta el calendario y los avisos publicados para tu grupo en el sistema.',
     },
   ];
 
@@ -93,14 +94,12 @@ export default async function PublicoHome() {
       {/* Marquee institucional */}
       <Marquee className="bg-verde text-white border-y border-white/25">
         {[
-          '✦ Ciclo 2026-A abierto',
-          '✦ Inscripciones en curso',
-          '✦ Bachillerato General Estatal',
-          '✦ CCT 15EBH0409B',
-          '✦ Plan SEIEM',
+          ciclo?.codigo ? `✦ Ciclo registrado: ${ciclo.codigo}` : '✦ Consulta la información escolar',
+          '✦ Convocatorias publicadas por la escuela',
+          cfg?.cct ? `✦ CCT ${cfg.cct}` : '✦ EPO 221',
           '✦ Formación integral',
-          '✦ EPO 221 Nicolás Bravo',
-          '✦ 14 años formando líderes',
+          cfg?.nombre_escuela || '✦ Comunidad EPO 221',
+          ...(cfg?.aniversario ? [`✦ ${cfg.aniversario} años de trayectoria`] : []),
         ].map((t, i) => (
           <span key={i} className="text-sm font-semibold tracking-widest whitespace-nowrap">{t}</span>
         ))}
@@ -185,7 +184,7 @@ export default async function PublicoHome() {
               ghost="03"
               title="Nuestros valores"
               titleAccent="valores"
-              subtitle="Nueve principios que guían la vida diaria de la comunidad EPO 221."
+              subtitle="Principios que guían la vida diaria de la comunidad EPO 221."
             />
 
             <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" stagger={0.07}>
@@ -243,9 +242,9 @@ export default async function PublicoHome() {
           <SectionHeader
             eyebrow="Admisión"
             ghost="05"
-            title="4 pasos para ser EPO 221"
+            title="Orientación para tu ingreso"
             titleAccent="EPO 221"
-            subtitle="Tu camino de ingreso en cuatro movimientos claros, simples y oficiales."
+            subtitle="Consulta la información publicada y confirma tu trámite con Control Escolar."
             tone="light"
           />
 
@@ -276,9 +275,9 @@ export default async function PublicoHome() {
           </div>
 
           <Reveal delay={0.5} className="text-center mt-20 flex flex-wrap gap-4 justify-center">
-            <MagneticButton href="https://www.miderechomilugar.gob.mx/" external variant="solid">
-              🎯 Mi Derecho, Mi Lugar
-            </MagneticButton>
+            <MagneticLink href="/publico/guia" variant="solid">
+              ℹ️ Guía escolar
+            </MagneticLink>
             <MagneticLink href="/publico/descargas" variant="glass">
               📥 Descargar documentos
             </MagneticLink>

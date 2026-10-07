@@ -1,6 +1,5 @@
-'use client';
-import { MotionConfig } from 'framer-motion';
 import type { ReactNode } from 'react';
 export function PublicMotion({children}:{children:ReactNode}) {
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+  // Public effects now use native CSS, with reduced motion applied by globals.css.
+  return children;
 }

@@ -1,0 +1,24 @@
+.launcher{position:fixed;right:1rem;bottom:1rem;z-index:65;display:flex;align-items:center;gap:.5rem;border:2px solid white;border-radius:999px;background:var(--help-color);color:white;padding:.75rem 1rem;box-shadow:0 4px 15px #0003;font-size:.875rem;font-weight:700;min-height:44px}
+.publicLauncher{right:auto;left:.75rem;bottom:3.8rem}
+.launcher:focus-visible,.dialog button:focus-visible,.dialog a:focus-visible{outline:3px solid #f59e0b;outline-offset:3px}
+.layer{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;background:#001b1abb;overscroll-behavior:contain}
+.dialog{background:white;color:#163c37;max-width:40rem;width:100%;max-height:calc(100dvh - 2rem);overflow:auto;border-radius:1rem;padding:1.25rem;border-top:6px solid var(--help-color);box-shadow:0 12px 45px #0006}
+.dialog h2{font-size:1.5rem;font-weight:700;line-height:1.3;margin:.5rem 0}
+.dialog h3{font-size:1.2rem;font-weight:700;margin:.65rem 0}
+.dialog p{line-height:1.65;margin:.75rem 0;overflow-wrap:anywhere}
+.header,.actions{display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.badge{background:var(--help-color);color:white;border-radius:999px;padding:.3rem .75rem;font-size:.875rem;font-weight:700}
+.dialog button,.dialog a{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:1px solid #a4bdb7;border-radius:.6rem;padding:.65rem .8rem;min-height:44px;font-size:.9rem;font-weight:600;text-decoration:none}
+.dialog button:disabled{opacity:.5}
+.primary{background:var(--help-color);color:white!important;border-color:var(--help-color)!important}
+.choices{display:flex;gap:.65rem;flex-wrap:wrap;margin:1rem 0}
+.list{display:grid;gap:.6rem;margin:1rem 0;padding:0;list-style:none}
+.list a{width:100%;justify-content:space-between;text-align:left}
+.filter{width:100%;padding:.7rem;border:1px solid #a4bdb7;border-radius:.6rem;min-height:44px;margin:.4rem 0}
+.progress{width:100%;height:.5rem;accent-color:var(--help-color);margin:.5rem 0}
+.walkLayer{align-items:flex-end;justify-content:flex-end;background:#001b1a44}
+.walkLayer .dialog{pointer-events:auto;max-width:31rem}
+.highlight{position:fixed;border:4px solid var(--help-color);box-shadow:0 0 0 3px white;border-radius:.5rem;pointer-events:none;z-index:101}
+.walkLayer .dialog{z-index:102}
+@media(max-width:639px){.walkLayer{padding:.65rem}.walkLayer .dialog{max-height:55dvh;padding:1rem}.dialog h2{font-size:1.3rem}.launcher{padding:.7rem .85rem}}
+@media(prefers-reduced-motion:reduce){.dialog,.highlight{scroll-behavior:auto}}

@@ -1,6 +1,5 @@
 'use client';
 import { useRef, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
 
 /** Tarjeta con efecto 3D que sigue el mouse. */
 export function TiltCard({ children, className = '' }: { children: ReactNode; className?: string }) {
@@ -24,7 +23,7 @@ export function TiltCard({ children, className = '' }: { children: ReactNode; cl
   };
 
   return (
-    <motion.div
+    <div
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
@@ -32,6 +31,6 @@ export function TiltCard({ children, className = '' }: { children: ReactNode; cl
       style={{ transformStyle: 'preserve-3d' }}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
