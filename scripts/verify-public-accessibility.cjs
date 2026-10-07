@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');const{chromium}=require('playwright');
 (async()=>{const browser=await chromium.launch({headless:false});try{
  const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'}),errors=[];
- page.on('pageerror',e=>errors.push(e.message));await page.goto('http://localhost:3002/publico');
+ page.on('pageerror',e=>errors.push(e.message));await page.goto((process.env.FLOW_BASE_URL??'http://localhost:3002')+'/publico');
  const consent=page.getByRole('button',{name:/rechazar opcionales/i});if(await consent.isVisible())await consent.click();await page.reload();
  await page.keyboard.press('Tab');await page.getByRole('link',{name:'Saltar al contenido'}).waitFor({state:'visible'});
  await page.keyboard.press('Enter');assert.equal(await page.evaluate(()=>document.activeElement?.id),'contenido-publico');

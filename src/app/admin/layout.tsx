@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (identity.profile.rol === 'finanzas') {
     const { headers } = await import('next/headers');
     const path = (await headers()).get('x-pathname') ?? '';
-    if (!/^\/admin(?:$|\/(pagos|conceptos|extraordinarios|perfil)(\/|$)|\/alumnos$)/.test(path)) redirect('/admin');
+    if (!/^\/admin(?:$|\/(pagos|conceptos|extraordinarios|perfil|pendientes)(\/|$)|\/alumnos$)/.test(path)) redirect('/admin');
   }
   const auth = (await createClient());
   const supabase = adminClient();
