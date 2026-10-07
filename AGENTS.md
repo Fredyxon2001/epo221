@@ -235,3 +235,8 @@ Commit869d289 desplegado READY en dpl_3WN1cybABftxNxpby5Dqp811cyRZ con aliases e
 Docker local detectado; se usó únicamente una imagen postgres:17-alpine ya instalada, sin crear servicios pagados. scripts/verify-isolated-restore.cjs reconstruyó tipos/columnas/PK/check/unique y cargó el respaldo cifrado de 23:24 UTC en contenedor temporal con network none, sin puertos/volúmenes y PGDATA tmpfs. Resultado PASS: 63 tablas, 5612 filas comparadas completamente, 125 FK validadas, 8 archivos con tamaño/SHA256 comprobados. Se eliminó el contenedor al finalizar. Catálogo local security-backups/restore-catalog.json está ignorado, sin registros escolares; conservarlo con el respaldo antes de una emergencia.
 
 Límite explícito: auth.users contiene solo UUID de referencia como placeholders para comprobar relaciones. No se restauraron contraseñas/identidades/MFA/sesiones de Auth, políticas RLS/RPC/triggers/views, infraestructura ni objetos en un servicio Storage independiente. No llamar a esto recuperación integral Supabase. El ensayo integral sigue pendiente; la rama pagada conserva su confirmación de costo pendiente. Los errores del helper ocultan datos sensibles y limpia incluso en fallo. Primer intento falló por search_path de citext y se corrigió incluyendo extensions; segundo intento PASS.
+
+
+## Secuencias del ensayo de recuperación — 2026-10-06
+
+El helper aislado restaura también cuatro secuencias serial/identity al máximo importado y verifica que nextval produzca un ID superior, evitando conflictos en nuevos registros. Ensayo completo repetido tras esa corrección PASS: 63 tablas/5612 filas/125FK/cuatro secuencias/ocho archivos. Contenedor removido y sin volúmenes/puertos/archivos de registros en claro retenidos. No hubo restauración sobre producción.
