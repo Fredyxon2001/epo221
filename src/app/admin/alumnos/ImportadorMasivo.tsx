@@ -68,7 +68,7 @@ export function ImportadorMasivo() {
             <>
               <div className="text-5xl mb-2">📤</div>
               <div className="font-semibold text-gray-700">Arrastra tu archivo aquí o haz clic para seleccionar</div>
-              <div className="text-xs text-gray-500 mt-1">.xlsx, .xls o .csv · máx 5 MB · ~5,000 alumnos por carga</div>
+              <div className="text-xs text-gray-500 mt-1">.xlsx, .xls o .csv · máx 10 MB · 5,000 filas por carga</div>
             </>
           ) : (
             <>
@@ -103,9 +103,9 @@ export function ImportadorMasivo() {
       <div className="text-[11px] text-gray-600 leading-relaxed bg-sky-50 border border-sky-200 rounded-sm p-2 space-y-1">
         <p>💡 <strong>Cómo funciona la cuenta de login:</strong></p>
         <p>• <strong>Email:</strong> se genera como <code className="bg-white px-1">nombre.apellido@epo221.edu.mx</code></p>
-        <p>• <strong>Password:</strong> <code className="bg-white px-1">TEMPORALEPO221!</code> (igual para todos)</p>
-        <p>• <strong>Vinculación:</strong> si re-importas el mismo CURP, se actualiza email y password sin romper la cuenta.</p>
-        <p>• Al terminar verás un <strong>botón para descargar las credenciales</strong> en XLSX listo para imprimir.</p>
+        <p>• <strong>Contraseña inicial:</strong> aleatoria y exclusiva para cada cuenta nueva. El alumno debe cambiarla al ingresar por primera vez.</p>
+        <p>• <strong>Vinculación:</strong> al reimportar el mismo CURP se actualiza la ficha y se conservan el correo y la contraseña de la cuenta existente.</p>
+        <p>• Para cuentas nuevas, el <strong>botón de descarga de credenciales</strong> entrega un XLSX. El enlace vence a las 24 horas y sólo permite una descarga. Entrégalo de forma privada a cada alumno.</p>
       </div>
     </div>
   );
@@ -149,7 +149,7 @@ export function ResultadoImportacion({ creados, actualizados, errores, detalle, 
         <div className="bg-white rounded-sm p-3 mb-3 border border-verde/30">
           <div className="text-sm font-semibold text-verde-oscuro mb-1">📋 Credenciales generadas</div>
           <p className="text-xs text-gray-600 mb-2">
-            Descarga el XLSX con email y contraseña inicial de cada alumno para imprimirlo y entregarlo.
+            Descarga una sola vez el XLSX con las credenciales de las cuentas nuevas y entrégalas de forma privada. El enlace vence a las 24 horas.
           </p>
           <a
             href={`/api/credenciales-import/${importId}`}
@@ -160,7 +160,7 @@ export function ResultadoImportacion({ creados, actualizados, errores, detalle, 
           </a>
           <p className="text-[10px] text-gray-500 mt-2">
             Patrón de email: <code className="bg-gray-100 px-1">nombre.apellido@epo221.edu.mx</code> ·
-            Password: <code className="bg-gray-100 px-1">TEMPORALEPO221!</code>
+            Contraseñas individuales; cambio obligatorio al primer ingreso.
           </p>
         </div>
       )}
