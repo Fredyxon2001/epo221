@@ -75,7 +75,7 @@ export default async function AppMovilPage() {
           <li>• Consultar tu horario diario (L-V)</li>
           <li>• Entregar tareas y consultar la bandeja de pendientes</li>
           <li>• Leer avisos y la guía escolar publicada</li>
-          <li>• Usar una guía interactiva adaptada a tu rol y ayuda para cada pantalla</li>
+          <li>• Usar una guía con avatar según tu rol y ayuda para cada pantalla</li>
           <li>• Recibir notificaciones</li>
           <li>• Acceder a tu perfil</li>
         </ul>
@@ -83,7 +83,7 @@ export default async function AppMovilPage() {
           Las funciones disponibles dependen de tu rol. El personal autorizado puede revisar ciclos con verificación de seguridad y registrar su cierre o reapertura.
         </p>
         <p className="text-sm text-verde-oscuro mt-3">
-          Después de entrar, toca <strong>Ayuda de esta pantalla</strong> o abre <strong>Guía interactiva</strong> en Más o en el portal de tu rol. Puedes avanzar, volver, reiniciar y abrir la sección que quieras aprender a usar.
+          Después de entrar, toca <strong>Ayuda de esta pantalla</strong> o abre <strong>Guía interactiva</strong> en Más o en el portal de tu rol. Conocerás la introducción de cada módulo y sus controles uno por uno antes de pasar al siguiente. Puedes tocar el avatar para conocer tu alcance, volver, reiniciar y abrir una sección.
         </p>
       </div>
 
