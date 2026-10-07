@@ -240,3 +240,20 @@ Límite explícito: auth.users contiene solo UUID de referencia como placeholder
 ## Secuencias del ensayo de recuperación — 2026-10-06
 
 El helper aislado restaura también cuatro secuencias serial/identity al máximo importado y verifica que nextval produzca un ID superior, evitando conflictos en nuevos registros. Ensayo completo repetido tras esa corrección PASS: 63 tablas/5612 filas/125FK/cuatro secuencias/ocho archivos. Contenedor removido y sin volúmenes/puertos/archivos de registros en claro retenidos. No hubo restauración sobre producción.
+
+
+## Descarga institucional estable — 2026-10-06
+
+Se prepara /app-movil/descargar como redirección307 no-store a APP_MOVIL.artifactUrl; enlace y QR del sitio apuntan a esa dirección institucional para cambiar de proveedor sin rehacer nuevos QR. El destino continúa en APK1.0 mientras termina QA1.2/code6. Instrucciones ya describen descarga directa, Android mínimo7/API24, prueba en emulador10 y acceso web para iPhone; se actualizan funciones por rol. No publicar el candidato antes de terminar flujos nativos. Tipos/lint PASS; redirección local307/no-store PASS.
+
+
+## APK Android1.2.0/code6 y descarga estable — 2026-10-06
+
+QA nativo completo de binario limpio PASS en API29/x86_64: login inválido/válido, sesión Unicode persistente/reanudación, entrega tras UN toque con texto exacto en DB, bandeja/guía/avisos propios-ajenos, cancelación/logout/cuenta, contraseña inicial, TOTP real, roles y cierre/reapertura/historial. Firma original b9a4f41250adaea8dbadffa405cc5c2d2f9455397e6f0b6ed0e9fa80ae31453c; APK SHA256 fa56ac7a4ecfadf2299621f48fad3d964d55d50350a2979c13880781d0c312a6, 69813969bytes. Fuente funcional móvil19b5992, EAS034a28f9-ec68-41f2-8077-e30e17506011. Detalles en repo móvil/docs/native-verification.md. Cero fixtures remotos, un ciclo real activo.
+
+Storage rechazó el upload versionado69.8MB con413; no se cambió plan/límite ni objeto1.0. Release público epo221-mobile-v1.2.0 en repo web contiene instalador firmado; APP_MOVIL actualiza versión/fecha/tamaño/destino, /app-movil/descargar redirige307/no-store y nuevoQR/enlace apuntan a esa ruta. El APK anterior permanece para rollback y respaldos cifrados existentes; QR viejos que apuntan directamente a Storage deben reemplazarse. Custodiar también el nuevo APK externo y su hash para recuperación. Una URL EAS temporal nunca sirve de descarga definitiva. Reservar preview/runtime1.2 para updates aprobados: el binario1.2 utiliza ese canal. No publicar diagnóstico/fixtures allí tras distribuir. Android ARM/upgrade físico/iOS nativo y recuperación integral Auth/infra siguen pendientes; no afirmar ausencia total de bugs.
+
+Pruebas web de esta página: 390px sin desborde/errores, enlace estable, redirección307/no-store, lint/tipos/build132rutas PASS. OneDrive bloqueó una caché .next previa conEPERM; se detuvo únicamente el dev propio, se movió la caché generada a .playwright-cli ignorado, build PASS y dev3002 reiniciado.
+
+
+Descarga pública final verificada: GitHub HTTP200, Content-Length69813969 y nombreepo221-1.2.0.apk; comparación de los bytes descargados completa produce SHA256 fa56ac7a4ecfadf2299621f48fad3d964d55d50350a2979c13880781d0c312a6. El primer helper consultó URL del asset obtenida mientras el release era draft y recibió404 después de publicar; al releer el release público se obtuvo URL canónica válida. No alterar hash/archivo ni repetir build por ese detalle de publicación.

@@ -10,13 +10,13 @@ Las reglas de cierre son operativas: fechas concluidas, inscripción/materias/ca
 - Finanzas comprueba recibo/rechazo/corrección/validación/folio, SELECT de bandeja y DML directo denegado.
 - Navegador visible de 390px comprueba guía administrable, HTML escapado, teclado, menú/Escape, zoom200%, movimiento reducido y cero errores.
 - SEO comprueba noticia/álbum/CMS publicados con fechas/canonical, ocultación de borradores y eliminados.
-- RN Web comprueba login, MFA, cambio obligatorio, calificaciones, entrega de tarea, avisos, navegación y ciclos. Pruebas nativas Android pendientes de completar build EAS 1.2.0/code5.
+- RN Web comprueba login, MFA, cambio obligatorio, calificaciones, entrega de tarea, avisos, navegación y ciclos. APK Android1.2.0/code6 limpio PASS en API29/x86_64: login/Unicode/persistencia/reanudación/entrega con UN toque/avisos/cuenta/contraseña/TOTP/rol/cierre/reapertura/logout; cleanup PASS. Code5 se descartó por consumir el primer toque del formulario; arreglo incorporado en code6.
 - Lighthouse: referencia rendimiento51/accesibilidad96/LCP7.63s/CLS0/TBT618ms. Último ensayo sin emulador tras reducir filtros móviles: rendimiento73/accesibilidad100/buenas prácticas100/SEO100/LCP2.98s/TBT548.5ms/CLS0.00305. Se conservan corridas intermedias y condiciones; no son métricas de campo ni certificación WCAG.
 - PWA: registro activo en producción; portada/título/enlace principal visibles también sin JavaScript.
 
 ## Continuidad operativa pendiente
 1. Ensayo local gratuito PASS: 63 tablas/5612 filas/125 FK/ocho archivos en PostgreSQL aislado sin red ni almacenamiento persistente. Auth solo tiene UUID de referencia; todavía falta simulacro integral de contraseñas/MFA, RLS/RPC/triggers, servicio Storage e infraestructura en Supabase. Se cotizó rama en organización de EPO221: 0.01344 USD/h; confirmación de costo pendiente. Eliminar rama al terminar. Nunca restaurar sobre producción.
-2. QA del APK nativo y actualización de descarga institucional solo después de instalación/login/persistencia/reanudación/logout comprobados. Android oficial ya instalado y emulador arrancó. iOS todavía requiere compilación/dispositivo.
+2. QA del APK nativo PASS, firmado con certificado original; Android físico ARM y actualización desde1.0 siguen sin comprobar. iOS todavía requiere compilación/dispositivo. Descarga1.2.0/code6 mediante release GitHub público detrás de /app-movil/descargar; Supabase devolvió413 por tamaño y no se contrató plan. QR antiguos directos al objeto Supabase todavía descargan1.0: sustituirlos por la ruta institucional.
 3. Actualización PostgreSQL del proveedor: comprobar versión disponible, compatibilidad y recuperación antes de ventana; no actualizar infraestructura sin ese ensayo.
 4. Responsables institucionales: aprobar aviso/contacto/retenciones, fotografías, custodios de MFA/claves y alertas/cuotas; revisar protección de rama según acceso/plan. No inventar aprobación institucional.
 5. Ampliar flujos E2E y auditoría de accesibilidad con lector de pantalla/datos sintéticos en entorno aislado; medir LCP/INP/CLS de campo. QA actual no garantiza ausencia absoluta de bugs ni conformidad WCAG/legal.

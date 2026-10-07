@@ -1,5 +1,4 @@
-// Página pública (dentro de zona privada) para descargar APK Android.
-// Accesible desde sidebar de alumno, profesor y admin.
+// Descarga pública del instalador; el acceso a los datos requiere autenticación.
 import { APP_MOVIL } from '@/lib/app-movil';
 import QRCode from 'qrcode';
 
@@ -35,7 +34,7 @@ export default async function AppMovilPage() {
           <ol className="text-sm space-y-2 list-decimal list-inside text-gray-700">
             <li>Escanea el QR con la cámara de tu celular Android</li>
             <li>Toca el link que aparece</li>
-            <li>Toca <strong>"Descargar"</strong> en la página de Expo</li>
+            <li>Descarga el instalador Android desde el enlace</li>
             <li>Abre el archivo APK descargado</li>
             <li>
               Si Android te pregunta, permite <em>"Instalar apps de fuentes desconocidas"</em> para tu navegador
@@ -50,7 +49,7 @@ export default async function AppMovilPage() {
             rel="noopener noreferrer"
             className="block w-full text-center bg-verde hover:bg-verde-oscuro text-white font-semibold py-3 rounded-xl shadow-md shadow-verde/30 transition"
           >
-            🔗 Abrir link de descarga
+            📥 Descargar app Android
           </a>
           <p className="text-xs text-gray-500 text-center">
             También puedes copiar el link y abrirlo en tu celular directamente
@@ -61,8 +60,8 @@ export default async function AppMovilPage() {
       <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
         <h3 className="font-semibold text-amber-900 mb-2">⚠️ Sobre Android e iPhone</h3>
         <ul className="text-sm text-amber-900 space-y-1">
-          <li>• <strong>Android:</strong> APK directo, instalación sin tienda. Funciona en cualquier celular Android moderno.</li>
-          <li>• <strong>iPhone:</strong> aún no disponible. Las apps iOS deben pasar por App Store (requiere cuenta Apple Developer $99 USD/año). Próximamente.</li>
+          <li>• <strong>Android:</strong> APK directo para Android 7 o posterior. Verificado en emulador Android 10; otros dispositivos pueden requerir ajustes.</li>
+          <li>• <strong>iPhone:</strong> usa el portal escolar desde Safari. Todavía no hay un instalador iOS verificado.</li>
         </ul>
       </div>
 
@@ -71,12 +70,13 @@ export default async function AppMovilPage() {
         <ul className="text-sm text-verde-oscuro space-y-1">
           <li>• Ver tus calificaciones por materia y promedios</li>
           <li>• Consultar tu horario diario (L-V)</li>
-          <li>• Leer avisos institucionales</li>
+          <li>• Entregar tareas y consultar la bandeja de pendientes</li>
+          <li>• Leer avisos y la guía escolar publicada</li>
           <li>• Recibir notificaciones</li>
           <li>• Acceder a tu perfil</li>
         </ul>
         <p className="text-xs text-verde-oscuro/70 mt-2">
-          Más funciones próximamente: chat, ficha editable, reglamento firmado, evidencias.
+          Las funciones disponibles dependen de tu rol. El personal autorizado puede revisar ciclos con verificación de seguridad y registrar su cierre o reapertura.
         </p>
       </div>
 
