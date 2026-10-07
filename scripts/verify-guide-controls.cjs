@@ -71,6 +71,32 @@ function compiled(file) { return ts.transpileModule(fs.readFileSync(file, 'utf8'
       return {unverified,otherAccount,otherRole,verified,notTakenByOther,resumed,once,changedAccountCleared,publicResume,expired};
     });
     assert.ok(Object.values(transitions).every(Boolean),'Shared transitions bypassed identity/role/expiry/one-time validation');
-    console.log('PASS guide controls: local role allowlists/action URL rejection; real DOM below-fold controls; 100-row dedup with distinct actions/forms; hidden/disabled/modal exclusions; private names/field values redacted; no clicks/submits/menu opening; shared transitions require matching viewer identity/role, expire, consume once and reset for another account.');
+    await page.addScriptTag({ content: 'window.__notice=(()=>{const exports={};'+compiled('src/lib/help/notice-reading.ts')+';return exports;})();' });
+    const notices = await page.evaluate(async () => {
+      const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+      let reads = 0;
+      const host = document.querySelector('[data-help-root]');
+      const dialog = document.createElement('section'); dialog.setAttribute('role', 'dialog');
+      host.append(dialog);
+      const stop = window.__notice.deferNoticeReading(() => reads++, 80);
+      await pause(140); const blocked = reads === 0;
+      dialog.remove(); await pause(25); host.append(dialog);
+      await pause(140); const reopened = reads === 0;
+      dialog.remove(); await pause(25); const freshInterval = reads === 0;
+      await pause(140); host.append(dialog); dialog.remove(); await pause(140);
+      const once = reads === 1; stop();
+      const stopUnmounted = window.__notice.deferNoticeReading(() => reads++, 80);
+      stopUnmounted(); await pause(140); const unmounted = reads === 1;
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+      const stopHidden = window.__notice.deferNoticeReading(() => reads++, 80);
+      await pause(140); const hidden = reads === 1;
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
+      document.dispatchEvent(new Event('visibilitychange'));
+      await pause(140); const visible = reads === 2; stopHidden();
+      delete document.visibilityState;
+      return {blocked, reopened, freshInterval, once, unmounted, hidden, visible};
+    });
+    assert.ok(Object.values(notices).every(Boolean), 'Notice acknowledged behind coach, in a hidden tab, after unmount, or more than once');
+    console.log('PASS guide controls: role allowlists and safe URLs; below-fold controls and distinct row/form actions; private values redacted; no clicks/submits; identity-bound transitions; notice reading paused behind coach/hidden tab, fresh interval after closing, once only and unmount cleanup.');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error.message); process.exitCode = 1; });
