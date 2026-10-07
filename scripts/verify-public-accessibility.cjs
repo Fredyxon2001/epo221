@@ -13,5 +13,7 @@ const assert=require('node:assert/strict');const{chromium}=require('playwright')
  assert.ok(heading && hero && heading.y+heading.height<=hero.y+hero.height,'Hero clips enlarged title');
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Page has horizontal overflow');
  assert.equal(await page.locator('.custom-cursor').evaluate(el=>getComputedStyle(el).display),'none');
- assert.deepEqual(errors,[]);console.log('PASS public mobile 390px: keyboard skip/focus; menu Escape; high-priority optimized logo; 200% text without clipping/overflow; reduced motion; no runtime errors.');
+ assert.deepEqual(errors,[]);
+ const plain=await browser.newPage({javaScriptEnabled:false,viewport:{width:1440,height:900}});await plain.goto((process.env.FLOW_BASE_URL??'http://localhost:3002')+'/publico');await plain.getByRole('heading',{level:1}).waitFor();await plain.getByRole('link',{name:/Explora nuestra oferta/}).waitFor();console.log('PASS public desktop 1440px with JavaScript disabled: title and actions rendered.');
+ console.log('PASS public mobile 390px: keyboard skip/focus; menu Escape; high-priority optimized logo; 200% text without clipping/overflow; reduced motion; no runtime errors.');
 }finally{await browser.close();}})().catch(e=>{console.error(e.message);process.exitCode=1;});
