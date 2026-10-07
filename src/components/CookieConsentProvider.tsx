@@ -13,18 +13,20 @@ function readConsent() {
   } catch { return null; }
 }
 
-export function CookieConsentProvider({ children }: { children: React.ReactNode }) {
-  const [consent, setConsent] = useState<CookieConsent | null>(null);
+export function CookieConsentProvider({ children, initialConsent = null }: { children: React.ReactNode; initialConsent?: CookieConsent | null }) {
+  const [consent, setConsent] = useState<CookieConsent | null>(initialConsent);
   const [ready, setReady] = useState(false);
   const [settings, setSettings] = useState(false);
   const [external, setExternal] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const failedSave = useRef(false);
 
   useEffect(() => {
     const sync = () => {
-      const saved = readConsent();
+      // A failed withdrawal must not reactivate an older accepted cookie.
+      const saved = failedSave.current ? null : readConsent();
       setConsent(saved);
       setReady(true);
     };
@@ -46,17 +48,20 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
       document.cookie = `${CONSENT_COOKIE}=${encodeURIComponent(JSON.stringify(next))}; Path=/; Max-Age=${CONSENT_MAX_AGE}; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
     } catch { /* Algunos navegadores bloquean el acceso al almacenamiento. */ }
     const stored = readConsent();
-    setConsent(stored);
-    setStorageError(!stored);
+    const saved = stored?.version === next.version && stored.external === next.external && stored.savedAt === next.savedAt;
+    failedSave.current = !saved;
+    setConsent(saved ? stored : null);
+    setReady(true);
+    setStorageError(!saved);
     setSettings(false);
     trigger.current?.focus();
   };
 
-  const visible = ready && (!consent || settings);
+  const visible = !consent || settings;
   const buttonClass = 'rounded-lg border border-teal-700 bg-white px-4 py-2 text-sm font-semibold text-teal-900 hover:bg-teal-50 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700';
 
   return (
-    <ConsentContext.Provider value={{ external: consent?.external ?? false, openSettings }}>
+    <ConsentContext.Provider value={{ external: ready && consent?.external === true, openSettings }}>
       {children}
       <button ref={trigger} type="button" onClick={openSettings}
         className="fixed bottom-3 left-3 z-80 rounded-full bg-white px-4 py-2 text-xs font-semibold text-teal-900 shadow-lg border border-teal-200">
@@ -68,6 +73,7 @@ export function CookieConsentProvider({ children }: { children: React.ReactNode 
           <div className="mx-auto max-w-5xl space-y-3">
             <h2 ref={heading} tabIndex={-1} id="cookie-heading" className="text-lg font-bold text-teal-900">Tú decides sobre las cookies</h2>
             <p className="text-sm">Usamos cookies necesarias para iniciar sesión y recordar tu elección. El mapa de Google es opcional y solo se carga si lo autorizas. Rechazarlo no impide navegar ni acceder al sistema escolar.</p>
+            <noscript><p className="text-sm">Los servicios opcionales permanecen bloqueados. Activa JavaScript para guardar tus preferencias de cookies.</p></noscript>
             <Link href="/cookies" className="inline-block text-sm text-teal-800 underline">Leer política de cookies</Link>
             <Link href="/privacidad" className="ml-4 inline-block text-sm text-teal-800 underline">Privacidad y datos escolares</Link>
             {settings && (

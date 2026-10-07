@@ -11,7 +11,7 @@
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "e2e:install": "playwright install chromium",
-    "test:security": "node scripts/verify-security.cjs && node scripts/verify-cookie-security.cjs && node scripts/verify-improvements.cjs && node scripts/verify-public-calendar.cjs",
+    "test:security": "node scripts/verify-security.cjs && node scripts/verify-cookie-security.cjs && node scripts/verify-cookie-ssr.cjs && node scripts/verify-improvements.cjs && node scripts/verify-public-calendar.cjs",
     "test:improvements": "node scripts/verify-improvements.cjs"
   },
   "dependencies": {

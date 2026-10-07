@@ -3,7 +3,8 @@ import './globals.css';
 import { PWARegister } from '@/components/PWARegister';
 import { CookieConsentProvider } from '@/components/CookieConsentProvider';
 import { UploadNotice } from '@/components/UploadNotice';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+import { CONSENT_COOKIE, parseConsent } from '@/lib/cookie-consent';
 import '@fontsource/dm-sans/latin-400.css';
 import '@fontsource/dm-sans/latin-300.css';
 import '@fontsource/dm-sans/latin-500.css';
@@ -35,12 +36,13 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Per-request rendering keeps script nonces out of shared HTML caches.
   await headers();
+  const initialConsent = parseConsent((await cookies()).get(CONSENT_COOKIE)?.value);
   return (
     <html lang="es">
       <body className="font-sans">
         <PWARegister />
         <UploadNotice />
-        <CookieConsentProvider>{children}</CookieConsentProvider>
+        <CookieConsentProvider initialConsent={initialConsent}>{children}</CookieConsentProvider>
       </body>
     </html>
   );
