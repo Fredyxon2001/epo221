@@ -218,3 +218,8 @@ El navegador de producción encontró una guarda duplicada en admin/layout que t
 ## Contenido público sin depender del indicador de carga — 2026-10-06
 
 La prueba de escritorio con JavaScript deshabilitado encontró el contenido dentro de un segmento oculto de Suspense tras el skeleton público. Se retiró únicamente publico/loading.tsx para que la respuesta espere el contenido público y lo muestre sin ese intercambio de scripts. Título y enlace de oferta visibles sin JavaScript local 1440px PASS; lint/build PASS. No cambia sesiones/CSP/no-store. Se apagó temporalmente nuestro emulador para medir la web con menor competencia de CPU; se reiniciará para QA del APK. La medición inmediatamente anterior de portada estática (46/TBT2052ms) estaba bajo carga y queda registrada, no se presenta como una ganancia. Comparar condiciones al interpretar laboratorio. EAS sigue en cola; el panel oficial reportó Android Free ~59.9min de espera a las 00:14 UTC. No contratar prioridad ni iniciar un build duplicado.
+
+
+## Registro PWA y efectos móviles — 2026-10-06
+
+Se registra el service worker también cuando React monta después de window.load (document.readyState complete), evitando perder el evento. En pantallas pequeñas se detiene el gradiente animado y se ocultan blobs decorativos; se retiran desenfoques de navegación y sombras filtradas del logo de portada. Conserva colores, contenido y comportamiento de escritorio. Lint/build PASS. Último laboratorio publicado sin emulador: rendimiento58, accesibilidad100, buenas prácticas100, SEO100, LCP4.80s, TBT783ms, CLS0.00175; objetivo LCP y medición de campo todavía pendientes. Verificar registro real del service worker tras desplegar este ajuste.

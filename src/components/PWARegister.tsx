@@ -10,7 +10,8 @@ export function PWARegister() {
     const onLoad = () => {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     };
-    window.addEventListener('load', onLoad);
+    if (document.readyState === 'complete') onLoad();
+    else window.addEventListener('load', onLoad);
     return () => window.removeEventListener('load', onLoad);
   }, []);
   return null;

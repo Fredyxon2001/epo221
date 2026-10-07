@@ -420,4 +420,11 @@ body { background: #ffffff; color: #0f2e2b; }
 
 .public-site .text-verde { color: #115e59; }
 
-@media (max-width:767px) { .public-site .blob, .public-site .aurora, .public-site .text-shimmer, .public-site .animate-golden-pulse { animation: none !important; } }
+@media (max-width:767px) { .public-site .blob, .public-site .aurora, .public-site .text-shimmer, .public-site .animate-golden-pulse, .public-site .bg-animated-verde { animation: none !important; } }
+
+/* Mobile decorative layers keep color without costly blur rasterization. */
+@media (max-width:767px) {
+ .public-site .blob { display: none; }
+ .public-site nav [class*="backdrop-blur"] { backdrop-filter: none; }
+ .public-site main > section:first-child [class*="drop-shadow-"] { filter: none; }
+}
