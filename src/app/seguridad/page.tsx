@@ -3,6 +3,7 @@ import { sessionIdentity } from '@/lib/security/access';
 import { panelForRole, safeRedirect } from '@/lib/security/policy';
 import { MFAForm } from './MFAForm';
 import { logoutAction } from '@/app/login/actions';
+import { AuthenticatorHelp } from '@/components/help/AuthenticatorHelp';
 
 export const dynamic = 'force-dynamic';
 export default async function SecurityPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
@@ -19,6 +20,7 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
     <section className="w-full max-w-md bg-white p-6 rounded-2xl shadow-lg space-y-4">
       <h1 className="font-serif text-2xl text-verde-oscuro">Verificación en dos pasos</h1>
       <p className="text-sm text-gray-600">Protege tu cuenta con una aplicación autenticadora. Conserva el acceso a esa aplicación; si pierdes el dispositivo, solicita ayuda a Control Escolar para verificar tu identidad.</p>
+      <AuthenticatorHelp configured={!!factor} />
       <MFAForm factorId={factor?.id ?? null} destination={destination} />
       <form action={logoutAction}><button className="text-sm underline text-verde">Cerrar sesión</button></form>
     </section>

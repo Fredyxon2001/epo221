@@ -2,6 +2,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { CambiarPasswordForm } from './CambiarPasswordForm';
 import { redirect } from 'next/navigation';
+import { PublicGuideEntry } from '@/components/help/PublicGuideEntry';
+import { getHelpViewer } from '@/lib/help/viewer.server';
 
 export default async function CambiarPasswordPage() {
   const supabase = (await createClient());
@@ -10,9 +12,11 @@ export default async function CambiarPasswordPage() {
 
   const { data: p } = await supabase.from('perfiles')
     .select('debe_cambiar_password, nombre, email').eq('id', user.id).maybeSingle();
+  const viewerIdentity = p?.debe_cambiar_password ? null : await getHelpViewer();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-verde-claro/20 via-crema to-dorado/10 flex items-center justify-center p-6">
+    <>{viewerIdentity && <PublicGuideEntry links={[]} viewerIdentity={viewerIdentity} onlyResume />}
+    <main className="min-h-screen bg-linear-to-br from-verde-claro/20 via-crema to-dorado/10 flex items-center justify-center p-6">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
         <div className="bg-linear-to-br from-verde-oscuro via-verde to-verde-medio text-white p-6">
           <div className="text-[10px] uppercase tracking-[0.3em] text-verde-claro">
@@ -27,6 +31,6 @@ export default async function CambiarPasswordPage() {
         </div>
         <CambiarPasswordForm sugerida={!!p?.debe_cambiar_password} />
       </div>
-    </div>
+    </main></>
   );
 }

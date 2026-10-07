@@ -64,6 +64,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
     <PrivateShell
       role="director"
       guideRole={identity.profile.rol}
+      guideIdentity={identity.user.id}
       groups={groups}
       userName={perfil.nombre ?? 'Dirección'}
       userSub={perfil.email ?? 'EPO 221'}

@@ -1,12 +1,15 @@
 // Descarga pública del instalador; el acceso a los datos requiere autenticación.
 import { APP_MOVIL } from '@/lib/app-movil';
 import QRCode from 'qrcode';
+import { PublicGuideEntry } from '@/components/help/PublicGuideEntry';
+import { getPublicHelpLinks } from '@/lib/help/public-links.server';
+import { getHelpViewer } from '@/lib/help/viewer.server';
 
 export default async function AppMovilPage() {
-  const qrUrl = await QRCode.toDataURL(APP_MOVIL.apkUrl, { width: 280, margin: 2 });
+  const [qrUrl, helpLinks, viewerIdentity] = await Promise.all([QRCode.toDataURL(APP_MOVIL.apkUrl, { width: 280, margin: 2 }), getPublicHelpLinks(), getHelpViewer()]);
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
+    <><PublicGuideEntry links={helpLinks} viewerIdentity={viewerIdentity} /><main className="max-w-3xl mx-auto p-6 space-y-6">
       <div className="text-center">
         <div className="text-6xl mb-3">📱</div>
         <h1 className="font-serif text-4xl text-verde mb-2">App móvil EPO 221</h1>
@@ -89,6 +92,6 @@ export default async function AppMovilPage() {
           ¿Problemas para instalar? Acude a la dirección o usa el sitio web normal desde tu navegador móvil.
         </p>
       </div>
-    </div>
+    </main></>
   );
 }

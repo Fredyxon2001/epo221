@@ -1,5 +1,7 @@
 # Mejoras escolares — estado del 2026-10-06
 
+Actualización 2026-10-07: asistente visual vestido por rol y guía secuencial introducción→controles→siguiente módulo implementados en web y app vigente; recomendaciones y tiendas oficiales Google Authenticator añadidas. Guía pública11 módulos y RN Web de todos los roles pasan. Fuente móvil e32b936 publicada en Git/CI success; APK code8 solicitado una sola vez (EAS e1347938-eed4-4934-adab-561741c78807), pendiente QA nativo antes de distribución/OTA. Descarga code7 sigue vigente hasta terminar esa comprobación. Web final, rutas compartidas, compilación y estado de despliegue se registrarán a continuación en AGENTS.md. Se conservan los pendientes institucionales y límites de verificación descritos abajo.
+
 Implementadas: motor de riesgo por grupo/ciclo con fallos explícitos y finanzas separadas; avisos críticos atómicos/deduplicados; bandejas por rol en web/app; diagnóstico, cierre y reapertura auditados; guías públicas editables por ciclo; sitemap/metadata del contenido publicado; teclado/foco/movimiento reducido/texto ampliado y optimización de imágenes.
 
 Las reglas de cierre son operativas: fechas concluidas, inscripción/materias/calificaciones completas, grupos consistentes y revisiones resueltas. Los adeudos y las notas reprobatorias no bloquean el cierre ni modifican el riesgo. No sustituyen decisiones pedagógicas o normativa institucional. Reapertura con motivo para corregir un ciclo cerrado.

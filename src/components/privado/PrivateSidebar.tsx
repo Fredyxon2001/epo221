@@ -154,6 +154,7 @@ export function PrivateSidebar({
                     <li key={it.href}>
                       <Link
                         href={it.href}
+                        prefetch={it.href.startsWith('/api/') ? false : undefined}
                         title={collapsed ? it.label : undefined}
                         className={`
                           relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium

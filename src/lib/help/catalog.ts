@@ -2,7 +2,7 @@ import type { Role } from '@/lib/security/policy';
 
 export type HelpRole = Role | 'publico';
 export type HelpLink = { href: string; label: string; description?: string };
-export const HELP_VERSION = 1;
+export const HELP_VERSION = 2;
 export const helpAppearance: Record<HelpRole, { title: string; color: string; intro: string }> = {
   publico: { title: 'Visitantes y familias', color: '#115e59', intro: 'Conoce la escuela, consulta los trámites publicados y encuentra los documentos y medios de contacto.' },
   alumno: { title: 'Alumno', color: '#115e59', intro: 'Organiza tus clases, tareas, evaluaciones y trámites. Consulta primero Pendientes para saber qué necesita tu atención.' },
@@ -80,10 +80,14 @@ const topics: Record<string, string> = {
   privacidad: 'Consulta cómo se tratan los datos escolares y los medios institucionales disponibles.',
   cookies: 'Consulta y cambia tus preferencias de servicios opcionales. Rechazarlos mantiene el acceso y tu sesión escolar.',
   login: 'Entra con las credenciales entregadas por la escuela. Completa cambio inicial y autenticador cuando se soliciten.',
+  recuperar: 'Solicita la recuperación de acceso con el formulario de la escuela. Sigue sus instrucciones y verifica tu identidad; no compartas contraseñas ni códigos.',
 };
 
 export function describeModule(href: string, role: HelpRole, label: string) {
   const parts = href.split('?')[0].split('/').filter(Boolean);
+  if (parts[0] === 'publico' && !parts[1]) return helpAppearance.publico.intro;
+  if (parts[0] === 'publico' && parts[1] === 'p') return 'Lee la información institucional publicada en esta página. Los enlaces y documentos disponibles complementan su contenido; consulta a la escuela si necesitas una aclaración.';
+  if (parts[0] === 'publico' && parts[1] === 'noticias') return 'Consulta las noticias oficiales publicadas por la escuela. Abre una noticia para leer su contenido completo y revisar la fecha y las imágenes disponibles.';
   if (href.startsWith('/admin/publico/descargas')) return 'Administra formatos públicos por ciclo, versión y vigencia. Sube PDF y DOCX, conserva una versión anterior como histórica y publica solo después de revisar el contenido. Un borrador no está disponible para visitantes.';
   if (href.startsWith('/admin/publico/guias')) return 'Edita requisitos, fechas y preguntas de cada ciclo; guarda borrador o publica para web y app móvil. Usa información confirmada por la escuela y comprueba la guía pública después de guardar.';
   if (parts.includes('calificaciones')) return role === 'alumno'
@@ -97,8 +101,31 @@ export function describeModule(href: string, role: HelpRole, label: string) {
 
 /** Explanations only: never execute a target or inspect field values. */
 export function describeControl(label: string, href: string | null, role: HelpRole, pathname: string) {
-  if (href) return describeModule(href, role, label);
   const text = label.toLocaleLowerCase('es-MX');
+  if (/rechazar opcionales/.test(text)) return 'Mantiene bloqueado el mapa externo y guarda tu elección cuando el navegador permite cookies. Puedes seguir navegando e iniciar sesión.';
+  if (/aceptar opcionales/.test(text)) return 'Autoriza el mapa de Google y sus servicios opcionales. Google puede recibir datos de tu conexión al cargarlo; puedes retirar el permiso después.';
+  if (/preferencias de cookies|configurar cookies|cookies del mapa/.test(text)) return 'Abre tus preferencias para permitir o bloquear el mapa de Google. Las cookies necesarias de acceso y de tu elección siguen activas.';
+  if (/guardar preferencias/.test(text)) return 'Guarda la opción de servicios externos que elegiste en las preferencias de cookies; espera la confirmación o el aviso si el navegador impide guardarla.';
+  if (pathname.includes('/oferta') && /semestre/.test(text)) return 'Muestra las asignaturas y la información del semestre seleccionado. Puedes cambiar de semestre para comparar la oferta educativa.';
+  if (/reproducir|pausar|ver video|vídeo|^video/.test(text)) return 'Abre, reproduce o pausa el material audiovisual indicado. Puedes detenerlo o cerrar el reproductor cuando quieras.';
+  if (/más secciones|^menú$|abrir menú|cerrar menú/.test(text)) return 'Muestra u oculta la navegación para elegir otra sección del portal. La guía explica las opciones sin abrirlas por ti.';
+  if (pathname === '/login') {
+    if (/mostrar contraseña|ocultar contraseña/.test(text)) return 'Muestra u oculta los caracteres de tu contraseña en pantalla. Úsalo solo si nadie más puede ver tu dispositivo; no envía ni cambia la clave.';
+    if (/alumno|docente|profesor|personal|administración|director|finanzas/.test(text) && !href) return 'Selecciona el tipo de acceso que corresponde a tu cuenta. El formulario mostrará las indicaciones y campos de ese perfil.';
+    if (/entrar|iniciar sesión|acceder/.test(text) && !href) return 'Envía las credenciales al sistema para iniciar sesión. Completa el cambio de contraseña inicial y la verificación en dos pasos si se solicitan.';
+  }
+  if (/autenticador|google authenticator/.test(text) && !href) return 'Configura o verifica la aplicación autenticadora de tu cuenta. Sigue los pasos de seguridad y conserva el acceso a sus códigos; no compartas el QR ni la clave.';
+  if (href) {
+    if (/^tel:/i.test(href)) return 'Abre la aplicación de llamadas con el teléfono publicado por la escuela. Tú decides si realizas la llamada.';
+    if (/^mailto:/i.test(href)) return 'Abre tu aplicación de correo para escribir a la dirección institucional publicada. Revisa el destinatario y el mensaje antes de enviarlo.';
+    if (/pdf|docx/i.test(text) || /\.(?:pdf|docx)(?:$|[?#])/i.test(href)) return /docx/i.test(text + href)
+      ? 'Descarga la versión DOCX del formato para completarla con un editor compatible. Comprueba el ciclo, la vigencia y la versión antes de usarla.'
+      : 'Abre o descarga la versión PDF para leerla o imprimirla. Comprueba el ciclo, la vigencia y la versión del documento.';
+    if (/^https?:\/\//i.test(href)) return 'Abre el sitio externo indicado. Allí aplican sus propias condiciones y privacidad; volver al portal sigue siendo tu decisión.';
+    return describeModule(href, role, label);
+  }
+  if (role === 'publico' && /consultar|buscar|filtrar/.test(text)) return 'Actualiza la información pública según el ciclo o texto seleccionado. No modifica los documentos ni los registros de la escuela.';
+  if (/^(?:configurar)$/.test(text)) return 'Abre las opciones disponibles para esta función. Revísalas antes de guardar o confirmar una elección.';
   if (pathname.includes('/ciclos') && /registrar cambio|acción|diagnóstico/.test(text)) return topics.ciclos;
   if (pathname.includes('/pagos') && /validar|aprobar/.test(text)) return 'Valida el comprobante seleccionado y registra su pago y folio. Comprueba alumno, concepto, importe y evidencia antes de confirmar.';
   if (pathname.includes('/calificaciones') && /enviar|proponer/.test(text)) return 'Envía las calificaciones propuestas del grupo y parcial seleccionados para su revisión. Revisa las notas antes de registrar la propuesta.';
@@ -124,4 +151,17 @@ export function describeControl(label: string, href: string | null, role: HelpRo
   if (/contraseña/.test(text)) return topics['cambiar-password'];
   if (/autenticador|verificar/.test(text)) return topics.seguridad;
   return `Usa «${label}» para la operación indicada en esta pantalla. ${describeModule(pathname, role, 'el módulo actual')} Revisa los datos y el resultado que muestra el sistema.`;
+}
+
+export function describeField(label: string, role: HelpRole, pathname: string, required: boolean, inputType?: string) {
+  const text = label.toLocaleLowerCase('es-MX');
+  const obligation = required ? ' Es obligatorio.' : '';
+  if (/mapa|cookies|opcionales/.test(text)) return 'Elige si autorizas el mapa de Google y sus servicios opcionales. Guarda las preferencias para aplicar la decisión; rechazarlo mantiene el acceso al portal.';
+  if (inputType === 'number' && /parcial|calificación|calificacion|nota|promedio/.test(text)) return `Introduce el resultado académico de la columna indicada, dentro del rango que permite el formulario. Revisa grupo y periodo antes de guardar.${obligation} La guía no lee ni cambia la calificación.`;
+  if (/ciclo|periodo|semestre/.test(text) || /parcial/.test(text) && inputType !== 'number') return `Selecciona el periodo escolar que quieres consultar o usar en este formulario. Revisa que corresponda a tu trámite o actividad.${obligation} La guía no cambia tu selección.`;
+  if (inputType === 'file') return `Selecciona el archivo indicado y revisa los formatos y tamaños que admite esta pantalla.${obligation} La guía no abre, lee ni sube archivos.`;
+  if (/buscar|búsqueda|filtrar/.test(text)) return 'Escribe el texto que quieres localizar y utiliza el botón de consulta si aparece. El filtro no modifica registros; la guía no lee lo que escribes.';
+  if (pathname === '/login' && /correo|curp|usuario|contraseña|matrícula/.test(text)) return `Introduce la credencial que te entregó la escuela, siguiendo el tipo de acceso seleccionado.${obligation} La guía no lee ni guarda tus credenciales.`;
+  if (pathname === '/cambiar-password' && /contraseña|clave/.test(text)) return `Escribe la contraseña solicitada y cumple los requisitos que indica el formulario.${obligation} La guía no lee ni cambia tus contraseñas.`;
+  return `Completa o selecciona «${label}» según las instrucciones del formulario.${obligation} La guía no lee ni cambia lo que hayas escrito. ${role === 'publico' ? 'Consulta los datos publicados o las indicaciones de acceso.' : ''}`;
 }

@@ -105,6 +105,7 @@ export default async function AlumnoLayout({ children }: { children: React.React
   return (
     <PrivateShell
       role="alumno"
+      guideIdentity={user.id}
       groups={groups}
       userName={alumno.nombre}
       userSub={alumno.matricula ?? alumno.curp}

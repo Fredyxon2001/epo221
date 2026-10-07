@@ -31,6 +31,7 @@ const blobTones: Record<Role, { a: string; b: string; c: string }> = {
 export function PrivateShell({
   role,
   guideRole = role,
+  guideIdentity,
   groups,
   userName,
   userSub,
@@ -40,6 +41,7 @@ export function PrivateShell({
 }: {
   role: Role;
   guideRole?: AccountRole;
+  guideIdentity: string;
   groups: NavGroup[];
   userName: string;
   userSub?: string;
@@ -58,7 +60,7 @@ export function PrivateShell({
   return (
     <div className={`min-h-screen text-verde-oscuro flex bg-linear-to-br ${bg}`}>
       <PrivateSidebar role={role} groups={groups} userName={userName} userSub={userSub} logoUrl={logoUrl} avatarUrl={avatarUrl} />
-      <InteractiveGuide role={guideRole} links={helpLinks} orientador={guideRole === 'profesor' && groups.some(group => group.items.some(item => item.href.startsWith('/profesor/orientacion')))} />
+      <InteractiveGuide key={guideIdentity} identityKey={guideIdentity} role={guideRole} links={helpLinks} orientador={guideRole === 'profesor' && groups.some(group => group.items.some(item => item.href.startsWith('/profesor/orientacion')))} />
 
       <div className="flex-1 min-w-0 flex flex-col relative overflow-hidden">
         {/* ───── Capa decorativa animada (aurora + blobs + grid sutil + logo watermark) ───── */}

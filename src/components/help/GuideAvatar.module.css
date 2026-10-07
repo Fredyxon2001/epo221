@@ -1,0 +1,12 @@
+.assistant{display:flex;align-items:center;gap:1rem;margin:.75rem 0;padding:.75rem;border-radius:1rem;background:#f0f7f5}
+.character{position:relative;flex:0 0 108px!important;width:108px;height:108px;overflow:hidden;border:0!important;border-radius:1rem!important;padding:0!important;background:transparent;transform-origin:50% 90%;transition:transform .18s ease}
+.character:hover,.character:focus-visible{transform:rotate(-3deg) scale(1.03)}
+.character:active{transform:rotate(3deg)}
+.sprite{position:absolute;width:400%!important;height:200%!important;max-width:none!important;pointer-events:none}
+.bubble{min-width:0;font-size:.9rem;line-height:1.4}
+.bubble p{font-size:.85rem;line-height:1.5;margin:.4rem 0 0!important}
+.compact{padding:.5rem;gap:.65rem}
+.compact .character{flex-basis:72px!important;width:72px;height:72px}
+.compact .bubble{font-size:.8rem}
+@media(max-width:639px){.character{flex-basis:84px!important;width:84px;height:84px}.assistant{gap:.65rem}.compact .character{flex-basis:60px!important;width:60px;height:60px}.compact .bubble p{font-size:.78rem}}
+@media(prefers-reduced-motion:reduce){.character{transition:none}.character:hover,.character:focus-visible,.character:active{transform:none}}

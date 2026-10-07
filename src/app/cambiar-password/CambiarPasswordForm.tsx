@@ -7,7 +7,7 @@ export function CambiarPasswordForm({ sugerida }: { sugerida: boolean }) {
   const [confirma, setConfirma] = useState('');
   const [err, setErr] = useState<string | null>(null);
   const [pending, start] = useTransition();
-  const coincide = nueva.length >= 8 && nueva === confirma;
+  const coincide = nueva.length >= 12 && nueva === confirma;
 
   return (
     <form
@@ -22,8 +22,8 @@ export function CambiarPasswordForm({ sugerida }: { sugerida: boolean }) {
     >
       {sugerida && (
         <div className="bg-dorado/20 border border-dorado/50 rounded-lg p-3 text-xs text-verde-oscuro">
-          💡 <strong>Sugerencia:</strong> usa tu matrícula como contraseña para recordarla fácilmente,
-          o crea una con al menos 12 caracteres (letras + números).
+          💡 <strong>Sugerencia:</strong> crea una contraseña nueva de al menos 12 caracteres,
+          combinando letras, números o símbolos. Evita tu matrícula y otros datos fáciles de adivinar.
         </div>
       )}
 

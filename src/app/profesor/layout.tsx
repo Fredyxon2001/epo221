@@ -130,6 +130,7 @@ export default async function ProfesorLayout({ children }: { children: React.Rea
     <PrivateShell
       role="profesor"
       guideRole={identity.profile.rol}
+      guideIdentity={identity.user.id}
       groups={groups}
       userName={perfil.nombre ?? 'Docente'}
       userSub={perfil.email ?? undefined}

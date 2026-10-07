@@ -8,6 +8,7 @@ import { CustomCursor } from '@/components/publico/CustomCursor';
 import { LogoEPO } from '@/components/publico/LogoEPO';
 import { PageBackdrop } from '@/components/publico/PageBackdrop';
 import { GobiernoBanner } from '@/components/publico/GobiernoBanner';
+import { publicHelpLinks } from "@/lib/help/public-links";
 import { PublicGuideEntry } from '@/components/help/PublicGuideEntry';
 
 export default async function PublicoLayout({ children }: { children: React.ReactNode }) {
@@ -34,15 +35,7 @@ export default async function PublicoLayout({ children }: { children: React.Reac
       <ScrollProgress />
       <CustomCursor />
       <Navbar extras={extras} escuela={cfg?.nombre_escuela ?? 'EPO 221'} logoUrl={cfg?.logo_url} cct={cfg?.cct} />
-      <PublicGuideEntry links={[
-        {href:'/publico',label:'Inicio'}, {href:'/publico/oferta',label:'Oferta educativa'},
-        {href:'/publico/guia',label:'Guía escolar y trámites'}, {href:'/publico/convocatorias',label:'Convocatorias'},
-        {href:'/publico/descargas',label:'Documentos y descargas'}, {href:'/publico/contacto',label:'Contacto'},
-        {href:'/publico/noticias',label:'Noticias'}, {href:'/publico/albumes',label:'Galería'},
-        {href:'/publico/conoce',label:'Recorrido de la escuela'}, {href:'/app-movil',label:'App móvil'},
-        {href:'/login',label:'Acceso al sistema escolar'}, ...extras,
-      ]} />
-
+      <PublicGuideEntry links={publicHelpLinks(extras)} />
       <main id="contenido-publico" tabIndex={-1} className="flex-1 pt-0">{children}</main>
 
       <FloatingSocial
