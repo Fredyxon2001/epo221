@@ -223,3 +223,15 @@ La prueba de escritorio con JavaScript deshabilitado encontró el contenido dent
 ## Registro PWA y efectos móviles — 2026-10-06
 
 Se registra el service worker también cuando React monta después de window.load (document.readyState complete), evitando perder el evento. En pantallas pequeñas se detiene el gradiente animado y se ocultan blobs decorativos; se retiran desenfoques de navegación y sombras filtradas del logo de portada. Conserva colores, contenido y comportamiento de escritorio. Lint/build PASS. Último laboratorio publicado sin emulador: rendimiento58, accesibilidad100, buenas prácticas100, SEO100, LCP4.80s, TBT783ms, CLS0.00175; objetivo LCP y medición de campo todavía pendientes. Verificar registro real del service worker tras desplegar este ajuste.
+
+
+## Pruebas publicadas de PWA y rendimiento — 2026-10-06
+
+Commit869d289 desplegado READY en dpl_3WN1cybABftxNxpby5Dqp811cyRZ con aliases epo221.edu.mx/www/epo221.vercel.app. Prueba real en navegador nuevo confirma service worker activo en scope / (sin cachear HTML privado); teclado/móvil/texto200% y escritorio sin JavaScript vuelven a pasar. Lighthouse sin emulador: rendimiento73, accesibilidad100, buenas prácticas100, SEO100, LCP2.977s, TBT548.5ms, CLS0.00305. Referencia51/LCP7.63s; la corrida anterior58/LCP4.80s se conserva. Todavía no acredita LCP≤2.5s, INP/p75 ni conformidad WCAG. Resultados de laboratorio en C:/Users/Public/epo221-verification, fuera de Git.
+
+
+## Recuperación de datos en PostgreSQL aislado — 2026-10-06
+
+Docker local detectado; se usó únicamente una imagen postgres:17-alpine ya instalada, sin crear servicios pagados. scripts/verify-isolated-restore.cjs reconstruyó tipos/columnas/PK/check/unique y cargó el respaldo cifrado de 23:24 UTC en contenedor temporal con network none, sin puertos/volúmenes y PGDATA tmpfs. Resultado PASS: 63 tablas, 5612 filas comparadas completamente, 125 FK validadas, 8 archivos con tamaño/SHA256 comprobados. Se eliminó el contenedor al finalizar. Catálogo local security-backups/restore-catalog.json está ignorado, sin registros escolares; conservarlo con el respaldo antes de una emergencia.
+
+Límite explícito: auth.users contiene solo UUID de referencia como placeholders para comprobar relaciones. No se restauraron contraseñas/identidades/MFA/sesiones de Auth, políticas RLS/RPC/triggers/views, infraestructura ni objetos en un servicio Storage independiente. No llamar a esto recuperación integral Supabase. El ensayo integral sigue pendiente; la rama pagada conserva su confirmación de costo pendiente. Los errores del helper ocultan datos sensibles y limpia incluso en fallo. Primer intento falló por search_path de citext y se corrigió incluyendo extensions; segundo intento PASS.
