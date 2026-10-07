@@ -257,3 +257,10 @@ Pruebas web de esta página: 390px sin desborde/errores, enlace estable, redirec
 
 
 Descarga pública final verificada: GitHub HTTP200, Content-Length69813969 y nombreepo221-1.2.0.apk; comparación de los bytes descargados completa produce SHA256 fa56ac7a4ecfadf2299621f48fad3d964d55d50350a2979c13880781d0c312a6. El primer helper consultó URL del asset obtenida mientras el release era draft y recibió404 después de publicar; al releer el release público se obtuvo URL canónica válida. No alterar hash/archivo ni repetir build por ese detalle de publicación.
+
+
+## Inventario de descarga y limpieza del laboratorio — 2026-10-06
+
+Política de cookies actualizada al6Oct: informa navegación voluntaria a GitHub al descargar APK y enlaza privacidad oficial vigente. No hay embeds/prefetch/recursos GitHub cargados automáticamente ni se amplía la opción de GoogleMaps, por eso no se cambia la versión1 de consentimiento ni se pide una elección nueva. Referencia consultada https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement.
+
+Copia local del instalador público firmado en C:/Users/Public/epo221-verification/epo221-1.2.0.apk (mismo hash). AVD propio EPO221 apagado; http_proxy restaurado a null, ADB reverse8903 retirado y túnel propio detenido. SDK/AVD quedan instalados para pruebas futuras. Dev web propio3002 permanece disponible. No se tocó un servicio de usuario ajeno. CI móvil5fa0511 success; deploy web36dddd1 READY dpl_DYomNs3ZLLedzoJhJQQTRH5iBKDs. Confirmar el siguiente commit de inventario en producción antes de cerrar.
