@@ -77,7 +77,7 @@ export function HeroVideo() {
           Recorre cada espacio del plantel "Nicolás Bravo" con tomas profesionales de nuestras instalaciones, fachada, áreas de construcción y más.
         </p>
         <div className="mt-8 flex flex-wrap gap-3 justify-center">
-          <a href="#galeria" className="bg-dorado hover:bg-dorado-claro text-verde-oscuro font-bold px-7 py-3.5 rounded-xl transition shadow-2xl">
+          <a href="#galeria" className="bg-dorado hover:bg-dorado-claro text-teal-950 font-bold px-7 py-3.5 rounded-xl transition shadow-2xl">
             ▶ Ver galería
           </a>
           <a href="/publico/oferta" className="bg-white/10 backdrop-blur-sm border border-white/30 hover:bg-white/20 text-white font-bold px-7 py-3.5 rounded-xl transition">

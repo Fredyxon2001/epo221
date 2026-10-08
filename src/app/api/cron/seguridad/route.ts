@@ -9,6 +9,8 @@ export const maxDuration = 300;
 export async function GET(req: Request) {
   if (!cronAuthorized(req)) return new Response('Unauthorized',{status:401});
   const client = adminClient();
+  const { error: metricCleanupError } = await client.rpc('purge_public_metrics');
+  if (metricCleanupError) return Response.json({ error:'No se pudo aplicar la retención de métricas públicas.' },{status:500});
   const { error } = await client.rpc('security_cleanup');
   if (error) return Response.json({ error:'No se pudo ejecutar el mantenimiento de seguridad.' },{status:500});
   try {

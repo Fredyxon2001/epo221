@@ -1,17 +1,25 @@
 export const CONSENT_COOKIE = 'epo221-cookie-consent';
-export const CONSENT_VERSION = 1;
+export const CONSENT_VERSION = 2;
 export const CONSENT_MAX_AGE = 180 * 24 * 60 * 60;
 
-export type CookieConsent = { version: number; external: boolean; savedAt: number };
+export type CookieConsent = { version: number; external: boolean; analytics: boolean; savedAt: number };
 
 export function parseConsent(value: string | undefined, now = Date.now()): CookieConsent | null {
   if (!value) return null;
   try {
     const data = JSON.parse(decodeURIComponent(value));
-    if (data?.version !== CONSENT_VERSION || typeof data.external !== 'boolean' ||
+    // Version 1 only authorized Maps. Preserve that choice without extending it.
+    if (![1, CONSENT_VERSION].includes(data?.version) || typeof data.external !== 'boolean' ||
+        (data.version === CONSENT_VERSION && typeof data.analytics !== 'boolean') ||
         typeof data.savedAt !== 'number' || !Number.isFinite(data.savedAt) ||
         data.savedAt > now || now - data.savedAt >= CONSENT_MAX_AGE * 1000) return null;
-    return { version: CONSENT_VERSION, external: data.external, savedAt: data.savedAt };
+    return { version: data.version, external: data.external, analytics: data.version === CONSENT_VERSION && data.analytics === true, savedAt: data.savedAt };
+  } catch { return null; }
+}
+
+export function readBrowserConsent(): CookieConsent | null {
+  try {
+    return parseConsent(document.cookie.split('; ').find(item => item.startsWith(`${CONSENT_COOKIE}=`))?.slice(CONSENT_COOKIE.length + 1));
   } catch { return null; }
 }
 

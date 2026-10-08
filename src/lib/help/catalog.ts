@@ -14,6 +14,7 @@ export const helpAppearance: Record<HelpRole, { title: string; color: string; in
 };
 
 const topics: Record<string, string> = {
+  operacion: 'Registra procedimientos y responsables por área, referencias y fechas de revisión. Administración o Dirección con MFA aprueban la ficha guardada. Si cambia el contenido público o vence el plazo, vuelve a revisarla; el historial conserva las aprobaciones anteriores.',
   pendientes: 'Agrupa asuntos que requieren atención. Abre el elemento para revisar su detalle; entrar a la bandeja no lo resuelve automáticamente.',
   horario: 'Consulta las clases por día y hora. Revisa el grupo, la asignatura y el docente antes de organizar tus actividades.',
   boleta: 'Consulta y descarga el documento de calificaciones del ciclo seleccionado.',
@@ -88,6 +89,7 @@ export function describeModule(href: string, role: HelpRole, label: string) {
   if (parts[0] === 'publico' && !parts[1]) return helpAppearance.publico.intro;
   if (parts[0] === 'publico' && parts[1] === 'p') return 'Lee la información institucional publicada en esta página. Los enlaces y documentos disponibles complementan su contenido; consulta a la escuela si necesitas una aclaración.';
   if (parts[0] === 'publico' && parts[1] === 'noticias') return 'Consulta las noticias oficiales publicadas por la escuela. Abre una noticia para leer su contenido completo y revisar la fecha y las imágenes disponibles.';
+  if (href === '/admin/publico/rendimiento') return 'Consulta los contadores anónimos de rendimiento público de los últimos 30 días. LCP mide carga, INP respuesta y CLS movimientos visuales. Los resultados con menos de 20 muestras se ocultan; el p75 es una aproximación por intervalos, no una certificación ni un conteo de personas únicas.';
   if (href.startsWith('/admin/publico/descargas')) return 'Administra formatos públicos por ciclo, versión y vigencia. Sube PDF y DOCX, conserva una versión anterior como histórica y publica solo después de revisar el contenido. Un borrador no está disponible para visitantes.';
   if (href.startsWith('/admin/publico/guias')) return 'Edita requisitos, fechas y preguntas de cada ciclo; guarda borrador o publica para web y app móvil. Usa información confirmada por la escuela y comprueba la guía pública después de guardar.';
   if (parts.includes('calificaciones')) return role === 'alumno'
@@ -102,9 +104,12 @@ export function describeModule(href: string, role: HelpRole, label: string) {
 /** Explanations only: never execute a target or inspect field values. */
 export function describeControl(label: string, href: string | null, role: HelpRole, pathname: string) {
   const text = label.toLocaleLowerCase('es-MX');
-  if (/rechazar opcionales/.test(text)) return 'Mantiene bloqueado el mapa externo y guarda tu elección cuando el navegador permite cookies. Puedes seguir navegando e iniciar sesión.';
-  if (/aceptar opcionales/.test(text)) return 'Autoriza el mapa de Google y sus servicios opcionales. Google puede recibir datos de tu conexión al cargarlo; puedes retirar el permiso después.';
-  if (/preferencias de cookies|configurar cookies|cookies del mapa/.test(text)) return 'Abre tus preferencias para permitir o bloquear el mapa de Google. Las cookies necesarias de acceso y de tu elección siguen activas.';
+  if (pathname.startsWith('/admin/operacion') && /aprobar ficha/.test(text)) return 'Aprueba la ficha ya guardada, su referencia y el contenido público actual. Requiere Administración o Dirección con MFA, folio y fechas válidas. Si alguien modifica la ficha o el contenido, debes revisarlo otra vez.';
+  if (pathname.startsWith('/admin/operacion') && /guardar borrador/.test(text)) return 'Guarda responsables por área, procedimiento y fechas como propuesta pendiente. Conserva el historial y deja sin vigencia la aprobación anterior; no publica cambios ni elimina expedientes.';
+  if (/rechazar opcionales/.test(text)) return 'Mantiene bloqueados el mapa externo y la medición propia del rendimiento público. Guarda tu elección cuando el navegador permite cookies; puedes seguir navegando e iniciar sesión.';
+  if (/aceptar opcionales/.test(text)) return 'Autoriza tanto el mapa de Google como la medición propia del rendimiento público. Google recibe la conexión del mapa; las métricas propias no incluyen cuentas ni expedientes. Puedes configurar o retirar cada permiso después.';
+  if (/medición propia|rendimiento de páginas públicas/.test(text)) return 'Permite medir los tiempos de carga, respuesta y movimientos visuales del sitio público. La medición es opcional, no incluye cuentas ni expedientes y se guarda como contadores anónimos. Puedes rechazarla aunque permitas el mapa.';
+  if (/preferencias de cookies|configurar cookies|cookies del mapa/.test(text)) return 'Abre las preferencias para elegir por separado el mapa de Google y la medición propia del rendimiento público. Las cookies necesarias de acceso y de tu elección siguen activas.';
   if (/guardar preferencias/.test(text)) return 'Guarda la opción de servicios externos que elegiste en las preferencias de cookies; espera la confirmación o el aviso si el navegador impide guardarla.';
   if (pathname.includes('/oferta') && /semestre/.test(text)) return 'Muestra las asignaturas y la información del semestre seleccionado. Puedes cambiar de semestre para comparar la oferta educativa.';
   if (/reproducir|pausar|ver video|vídeo|^video/.test(text)) return 'Abre, reproduce o pausa el material audiovisual indicado. Puedes detenerlo o cerrar el reproductor cuando quieras.';

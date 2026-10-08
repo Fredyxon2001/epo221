@@ -18,7 +18,9 @@ export default async function AdminPublicoHub() {
     supabase.from('paginas_publicas').select('id', { count: 'exact', head: true }),
   ]);
 
-  const cards: Card[] = [{href:'/admin/publico/guias',icon:'ℹ️',title:'Guía por ciclo',desc:'Requisitos, fechas, admisión y preguntas frecuentes para web y app.'},
+  const cards: Card[] = [{href:'/admin/operacion',icon:'📋',title:'Revisión institucional',desc:'Responsables, referencias, aprobación con MFA e historial del contenido público.'},
+    {href:'/admin/publico/rendimiento',icon:'📊',title:'Rendimiento público',desc:'Métricas agrupadas del sitio, con consentimiento opcional.'},
+    {href:'/admin/publico/guias',icon:'ℹ️',title:'Guía por ciclo',desc:'Requisitos, fechas, admisión y preguntas frecuentes para web y app.'},
     {href:'/admin/publico/descargas',icon:'📥',title:'Documentos públicos',desc:'Formatos PDF/DOCX por ciclo, versión y vigencia.'},
     {
       href: '/admin/publico/inicio',

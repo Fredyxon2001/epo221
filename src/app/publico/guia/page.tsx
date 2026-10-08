@@ -23,7 +23,7 @@ export default async function Guia({searchParams}:{searchParams:Promise<{ciclo?:
       ].map(([title,text,href,label])=><details key={href} className="border rounded-lg p-4"><summary className="cursor-pointer font-semibold">{title}</summary><p className="mt-3 mb-3 leading-relaxed">{text}</p><Link href={href} className="text-verde underline">{label} →</Link></details>)}
     </section>
     {!guides.length && <p>La guía aún no está publicada. Consulta las convocatorias o comunícate con Control Escolar.</p>}
-    <form className="flex gap-3 flex-wrap"><label>Ciclo<select name="ciclo" defaultValue={query.ciclo??''} className="block border rounded p-3"><option value="">Todos los ciclos</option>{guides.map(g=><option key={g.id} value={g.ciclo_id}>{g.ciclo_label}</option>)}</select></label><button className="rounded bg-verde text-white p-3 self-end">Consultar</button></form>
+    <form className="flex gap-3 flex-wrap"><label>Ciclo<select name="ciclo" defaultValue={query.ciclo??''} className="block border rounded p-3"><option value="">Todos los ciclos</option>{guides.map(g=><option key={g.id} value={g.ciclo_id}>{g.ciclo_label}</option>)}</select></label><button className="rounded bg-teal-800 hover:bg-teal-900 text-white p-3 self-end">Consultar</button></form>
     {guides.length>0 && query.ciclo && !guides.some(g=>g.ciclo_id===query.ciclo) && <p>No hay guía publicada para el ciclo seleccionado.</p>}
     {guides.filter(g=>!query.ciclo || g.ciclo_id===query.ciclo).map(g=><article key={g.id} className="rounded-xl border bg-white p-5 space-y-5">
       <h2 className="font-serif text-2xl">{g.titulo}</h2><p>Ciclo {g.ciclo_label} · Actualizado {new Date(g.updated_at).toLocaleDateString('es-MX',{timeZone:'America/Mexico_City'})}</p>

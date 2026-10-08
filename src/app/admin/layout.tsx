@@ -116,6 +116,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     {
       title: 'Sistema',
       items: [
+        { href: '/admin/operacion', label: 'Operación institucional', icon: '📋' },
         { href: '/admin/auditoria', label: 'Auditoría', icon: '🔍' },
         { href: '/admin/reglamento', label: 'Reglamento', icon: '📜' },
         { href: '/admin/seiem', label: 'Reportes SEIEM', icon: '📑' },

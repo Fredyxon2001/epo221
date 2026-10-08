@@ -2,6 +2,8 @@
 
 Estado técnico preparado el 2026-10-05. La publicación efectiva debe comprobarse en Git y Vercel. Este documento no acredita cumplimiento jurídico.
 
+Actualización documental del 2026-10-07: consultar [la guía institucional por áreas](institutional-operation-guide.md) y [el plan propuesto PostgreSQL/recuperación](postgres-maintenance-plan.md). Las cifras y ensayos de este documento son antecedentes fechados. El simulacro integral local pasó Auth/MFA, archivo, revocación de sesión y RLS con cuentas sintéticas en17.11; no acredita recuperación del proyecto alojado, RPO/RTO, actualización de producción ni aprobación institucional. Registrar los resultados de cada flujo y su alcance; producción sigue17.6.1.104.
+
 ## Accesos y recuperación
 
 - Administración, dirección, staff y finanzas requieren contraseña configurada y TOTP con nivel AAL2. Alumnos y docentes con un autenticador registrado también deben verificarlo.
@@ -58,7 +60,9 @@ Con Docker ya instalado, obtener el JSON catalog de scripts/restore-catalog.sql 
 Resultado de este ensayo: 63 tablas, 5612 filas comparadas íntegramente, 125 FK validadas, cuatro secuencias corregidas/verificadas y ocho archivos descifrados en memoria con hash/tamaño correctos. Los UUID de Auth se reconstruyen como referencias vacías: no hay usuarios capaces de iniciar sesión. No se recuperaron contraseñas/MFA, RLS/RPC/triggers/views, Storage como servicio ni infraestructura. Para recuperación integral preparar además el dump nativo/proveedor, configuración y ensayo Supabase aislado; no usar esta prueba para sustituirlos. El catálogo refleja el esquema al exportarse: conservarlo antes de una emergencia y renovarlo cuando cambie el esquema. El contenedor se elimina también en error; revisar el aviso de cleanup si Docker no responde.
 
 
-## Instalador Android externo
+## Historial del instalador Android externo (code6)
+
+Los datos siguientes corresponden a la distribución code6 y sus pruebas históricas. La versión vigente del enlace institucional se configura en `src/lib/app-movil.ts`; su publicación y pruebas posteriores están en `AGENTS.md`. Conservar el APK vigente y su hash en la custodia independiente, no asumir que el cron de Storage respalda assets de GitHub.
 
 Android1.2.0/code6 se distribuye en el release público epo221-mobile-v1.2.0 del repositorio Fredyxon2001/epo221: https://github.com/Fredyxon2001/epo221/releases/download/epo221-mobile-v1.2.0/epo221-1.2.0.apk. SHA256 fa56ac7a4ecfadf2299621f48fad3d964d55d50350a2979c13880781d0c312a6; 69813969 bytes; certificado Android original. Supabase respondió413 al upload69.8MB: no se amplió un plan ni el bucket de respaldos. El cron de Storage continúa respaldando los objetos existentes, incluido el APK1.0; no incluye automáticamente assets externos de GitHub. Conservar además una copia del instalador1.2 y el hash en custodia institucional.
 

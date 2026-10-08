@@ -107,7 +107,7 @@ export default function ConocePage() {
                 Conoce nuestra oferta educativa y los procesos de inscripción para el siguiente ciclo escolar.
               </p>
               <div className="flex flex-wrap gap-3 justify-center">
-                <a href="/publico/oferta" className="bg-dorado hover:bg-dorado-claro text-verde-oscuro font-bold px-6 py-3 rounded-xl transition shadow-lg">
+                <a href="/publico/oferta" className="bg-dorado hover:bg-dorado-claro text-teal-950 font-bold px-6 py-3 rounded-xl transition shadow-lg">
                   📚 Oferta educativa
                 </a>
                 <a href="/publico/descargas" className="bg-white/10 border border-white/30 hover:bg-white/20 text-white font-bold px-6 py-3 rounded-xl transition">

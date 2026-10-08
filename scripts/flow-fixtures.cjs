@@ -2,7 +2,8 @@
 const crypto = require('node:crypto');
 const { createClient } = require('@supabase/supabase-js');
 const { createServerClient } = require('@supabase/ssr');
-require('@next/env').loadEnvConfig(process.cwd());
+if(process.env.EPO_ISOLATED_TEST==='1')require('./assert-isolated.cjs').assertIsolatedEnvironment();
+else require('@next/env').loadEnvConfig(process.cwd());
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const admin = createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 function otp(secret) {

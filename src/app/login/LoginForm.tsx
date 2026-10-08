@@ -98,14 +98,14 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
           >
             Portal institucional
           </motion.div>
-          <motion.h1
+          <motion.h2
             initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.15 }}
             className="font-serif text-4xl xl:text-5xl leading-[1.08]"
           >
             Bienvenido a{' '}
             <span className="text-shimmer">tu escuela</span>.
-          </motion.h1>
+          </motion.h2>
           {lema && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -169,32 +169,33 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
             <LogoEPO url={logoUrl} size={60} />
             <div>
               <div className="font-serif text-verde-oscuro text-lg leading-tight">{nombreEscuela ?? 'EPO 221'}</div>
-              <div className="text-[10px] uppercase tracking-[0.3em] text-verde/70">Nicolás Bravo · CCT {cct ?? '15EBH0409B'}</div>
+              <div className="text-[10px] uppercase tracking-[0.3em] text-teal-800">Nicolás Bravo · CCT {cct ?? '15EBH0409B'}</div>
             </div>
           </motion.div>
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          initial={false} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <div className="text-[11px] uppercase tracking-[0.4em] text-verde font-semibold mb-2">Iniciar sesión</div>
-            <h2 className="font-serif text-3xl md:text-4xl text-verde-oscuro">Accede a tu cuenta</h2>
+            <div className="text-[11px] uppercase tracking-[0.4em] text-teal-800 font-semibold mb-2">Iniciar sesión</div>
+            <h1 className="font-serif text-3xl md:text-4xl text-verde-oscuro">Accede a tu cuenta</h1>
             <p className="text-sm text-gray-500 mt-2">
               Selecciona tu rol para ver las indicaciones correctas.
             </p>
           </div>
 
           {/* Segmented control de rol */}
-          <div className="relative mb-6 p-1 bg-white rounded-2xl border border-gray-200 flex shadow-xs">
+          <div role="group" aria-label="Tipo de acceso" className="relative mb-6 p-1 bg-white rounded-2xl border border-gray-200 flex shadow-xs">
             {(['alumno', 'staff'] as const).map((r) => {
               const active = role === r;
               return (
                 <button
                   key={r}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => setRole(r)}
                   className={`relative flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors ${active ? 'text-white' : 'text-gray-500 hover:text-verde-oscuro'}`}
                 >
@@ -238,11 +239,12 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
                   type="text"
                   required
                   autoComplete="username"
+                  aria-describedby="login-user-help"
                   placeholder={role === 'alumno' ? 'nombre.apellido@epo221.edu.mx' : 'docente@epo221.edu.mx'}
                   className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-3 py-3 tracking-wider font-mono text-sm text-verde-oscuro placeholder:text-gray-400 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden transition"
                 />
               </div>
-              <p className="text-[11px] text-gray-500 mt-1.5">
+              <p id="login-user-help" className="text-[11px] text-gray-500 mt-1.5">
                 {role === 'alumno'
                   ? 'Es tu nombre y apellido, por ejemplo raul.flores@epo221.edu.mx. Si no lo recuerdas, pídelo en Control Escolar.'
                   : 'Usa tu correo institucional asignado. Profesores, admin y dirección entran aquí.'}
@@ -261,6 +263,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
                   type={showPwd ? 'text' : 'password'}
                   required
                   autoComplete="current-password"
+                  aria-describedby={role === 'alumno' ? 'login-password-help' : undefined}
                   placeholder="Tu contraseña"
                   className="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-12 py-3 text-sm text-verde-oscuro placeholder:text-gray-400 focus:border-verde focus:ring-4 focus:ring-verde/10 outline-hidden transition"
                 />
@@ -269,12 +272,14 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
                   onClick={() => setShowPwd((v) => !v)}
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg text-gray-400 hover:text-verde hover:bg-crema transition flex items-center justify-center"
                   aria-label={showPwd ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-pressed={showPwd}
+                  aria-controls="password"
                 >
                   {showPwd ? '🙈' : '👁️'}
                 </button>
               </div>
               {role === 'alumno' && (
-                <p className="text-[11px] text-gray-500 mt-1.5">
+                <p id="login-password-help" className="text-[11px] text-gray-500 mt-1.5">
                   Primer ingreso: usa la clave individual entregada por Control Escolar. Te pediremos cambiarla.
                 </p>
               )}
@@ -283,6 +288,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
             <AnimatePresence>
               {error && (
                 <motion.div
+                  role="alert"
                   initial={{ opacity: 0, y: -8, height: 0 }}
                   animate={{ opacity: 1, y: 0, height: 'auto' }}
                   exit={{ opacity: 0, y: -8, height: 0 }}
@@ -317,7 +323,7 @@ function LoginInner({ logoUrl, lema, cct, nombreEscuela }: {
           </form>
 
           <div className="mt-4 text-center">
-            <Link href="/recuperar" className="text-xs text-verde font-semibold hover:underline">
+            <Link href="/recuperar" className="text-xs text-teal-800 font-semibold hover:underline">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>

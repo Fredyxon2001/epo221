@@ -79,7 +79,7 @@ export default async function AppMovilPage() {
           <li>• Recibir notificaciones</li>
           <li>• Acceder a tu perfil</li>
         </ul>
-        <p className="text-xs text-verde-oscuro/70 mt-2">
+        <p className="text-xs text-teal-800 mt-2">
           Las funciones disponibles dependen de tu rol. El personal autorizado puede revisar ciclos con verificación de seguridad y registrar su cierre o reapertura.
         </p>
         <p className="text-sm text-verde-oscuro mt-3">

@@ -46,6 +46,9 @@ function load(file, mocks = {}, cache = new Map()) {
     ['future', encodeURIComponent(JSON.stringify({ ...accepted, savedAt: Date.now() + 60000 })), true],
     ['accepted', encodeURIComponent(JSON.stringify(accepted)), false],
     ['rejected', encodeURIComponent(JSON.stringify(rejected)), false],
+    ['analytics-only-v2', encodeURIComponent(JSON.stringify({ ...rejected, version:2, analytics:true })), false],
+    ['reject-v2', encodeURIComponent(JSON.stringify({ ...rejected, version:2, analytics:false })), false],
+    ['invalid-v2', encodeURIComponent(JSON.stringify({ ...accepted, version:2 })), true],
   ];
   for (const [name, value, banner] of cases) {
     const html = renderToStaticMarkup(React.createElement(Provider, { initialConsent: parseConsent(value) }, React.createElement(MapComponent, { src: 'https://www.google.com/maps/embed?pb=synthetic' })));
@@ -70,5 +73,5 @@ function load(file, mocks = {}, cache = new Map()) {
   }
   assert.equal(headerReads, cases.length, 'per-request dynamic nonce rendering is retained');
   assert.ok(cookieNames.every((name) => name === CONSENT_COOKIE), 'only the preference cookie is read/serialized');
-  console.log('PASS cookie SSR: seven request states, no third-party iframe before client validation, no-JS guidance, dynamic RootLayout cookie handoff.');
+  console.log('PASS cookie SSR: ten request states including legacy/v2/invalid analytic consent, no iframe or metric effects before client validation, no-JS guidance, dynamic RootLayout cookie handoff.');
 })().catch((error) => { console.error(error); process.exitCode = 1; });

@@ -19,12 +19,14 @@ const cookie=(external,savedAt=Date.now()-1000,version=1)=>encodeURIComponent(JS
   }
   async function context(value,init){
    const ctx=await browser.newContext({viewport:{width:1440,height:1000}});
+   // This regression tests cookie/map behavior, not persistence of RUM samples.
+   await ctx.route('**/api/public/metricas',r=>r.fulfill({status:204}));
    if(value)await ctx.addCookies([{name,value,url:BASE}]);
    const external=[];await ctx.route(/https:\/\/(?:www\.)?(?:maps\.)?google\.com(?:\.mx)?\//,r=>{external.push(r.request().url());return r.abort();});
    if(init)await ctx.addInitScript(init);
-   const p=await ctx.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));
-   await p.goto(BASE+'/publico/contacto');
-   await p.getByRole('button',{name:'Preferencias de cookies',exact:true}).waitFor();
+   const p=await ctx.newPage();p.setDefaultTimeout(90000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
+   await p.goto(BASE+'/publico/contacto',{waitUntil:'domcontentloaded',timeout:90000});
+   await p.locator('[data-cookie-ready="true"]').waitFor();
    return {ctx,p,external,errors};
   }
   const fresh=await context();await fresh.p.getByRole('button',{name:'Rechazar opcionales',exact:true}).click();await fresh.p.locator('#cookie-heading').waitFor({state:'hidden'});assert.equal(await fresh.p.locator('iframe').count(),0);const saved=(await fresh.ctx.cookies()).find(c=>c.name===name);assert.equal(JSON.parse(decodeURIComponent(saved.value)).external,false);assert.equal(saved.sameSite,'Lax');assert.equal(saved.path,'/');await fresh.p.reload();assert.equal(await fresh.p.locator('#cookie-heading').count(),0);assert.deepEqual(fresh.errors,[]);await fresh.ctx.close();results.push('fresh reject persists/no map PASS');

@@ -48,6 +48,7 @@ export default async function DirectorLayout({ children }: { children: React.Rea
       items: [
         { href: '/admin', label: 'Panel admin', icon: '⚙️' },
         { href: '/admin/publico', label: 'Sitio público', icon: '🌐' },
+        { href: '/admin/operacion', label: 'Operación institucional', icon: '📋' },
       ],
     },
     {
