@@ -179,7 +179,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
       {/* Mobile menu */}
         {open && (
           <div id="menu-publico-movil"
-            className="xl:hidden overflow-hidden bg-verde/95 backdrop-blur-xl border-t border-white/20 max-h-[80vh] overflow-y-auto"
+            className="xl:hidden overflow-hidden bg-teal-900 backdrop-blur-xl border-t border-white/20 max-h-[80vh] overflow-y-auto"
           >
             <div className="px-5 sm:px-6 py-4 flex flex-col gap-1">
               <Link
@@ -219,7 +219,7 @@ export function Navbar({ extras, escuela, logoUrl, cct }: { extras: NavItem[]; e
             </div>
           </div>
         )}
-      <noscript><details className="xl:hidden border-t border-white/20 bg-verde text-white"><summary className="cursor-pointer px-5 py-3">Ver todas las secciones</summary><div className="max-h-[60vh] overflow-y-auto px-5 pb-4">{items.map(it => <Link key={it.href} href={it.href} className="block py-2">{it.label}</Link>)}<Link href="/login" className="block py-2">Acceso al portal</Link></div></details></noscript>
+      <noscript><details className="xl:hidden border-t border-white/20 bg-teal-900 text-white"><summary className="cursor-pointer px-5 py-3">Ver todas las secciones</summary><div className="max-h-[60vh] overflow-y-auto px-5 pb-4">{items.map(it => <Link key={it.href} href={it.href} className="block py-2">{it.label}</Link>)}<Link href="/login" className="block py-2">Acceso al portal</Link></div></details></noscript>
     </nav>
   );
 }
