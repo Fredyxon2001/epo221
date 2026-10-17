@@ -1,6 +1,6 @@
 # Mejoras escolares — seguimiento al 2026-10-16
 
-Estado de entrega: base web108b759 publicada READY y ambas CI success con Next16.4.2/React19.3.1. El nuevo descriptor de descarga se configura a Android1.3.0/code10, ya publicado y comprobado; el alias web se verificará después del push. APK fuente46cdb7c/runtime1.3.0, EAS19539f91-f4ba-474a-a41e-c8a27ebafca2, cuatro escenariosAPI24/x86_64 y cleanup integral PASS. Code9 retenido;8 conserva su condición de archivo anterior. Los bloques fechados anteriores son historia. No se cierran por inferencia los pendientes externos de la tabla.
+Estado comprobado al16oct: web6ff9781dce908e317c3cd38263a2a8d2164d4c44 publicada READY (dpl_H48EEX8UUJbsSTXqvDJFERyCQsXj) con Next16.4.2/React19.3.1. El enlace/QR institucional entrega Android1.3.0/code10: descarga completa71429665bytes/SHA256cc2107122b5bfecd17f646a6f3ff9ba78771c6b409e909c2def9229a8c7bc591 verificada. Instalador390/1440 con QR/versión/instrucciones/axe seleccionado/sin errores ni escrituras PASS. APK fuente46cdb7c/runtime1.3.0, EAS19539f91-f4ba-474a-a41e-c8a27ebafca2 y cuatro escenariosAPI24/x86_64 con cleanup integral PASS. Fuente móvil46 y baseweb108 tuvieron ambas suites CI success; el CI de la entrega y cierre documental se comprueba al terminar. Code9 retenido;8 es archivo anterior. La tabla separa pendientes externos, y los bloques anteriores fechados son historia.
 
 ## Siete frentes — entrega del16oct
 
