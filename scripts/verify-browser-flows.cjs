@@ -9,12 +9,15 @@ async function login(fixture, target) {
   const context = await browser.newContext({ locale: 'es-MX' });
   const page = await context.newPage(); page.setDefaultTimeout(60000);
   await page.goto(`${base}/login?redirect=${encodeURIComponent(target)}`);
+  await page.locator('[data-cookie-ready="true"]').waitFor();
   const reject = page.getByRole('button', { name: /rechazar opcionales/i });
   await reject.waitFor({ state:'visible' });
   await reject.click();
-  await page.locator('input[name="curp"]').fill(fixture.email);
-  await page.locator('input[name="password"]').fill(fixture.password);
-  await page.locator('button[type="submit"]').first().click();
+  const userField = page.getByRole('textbox', { name: 'Correo institucional', exact: true });
+  const loginForm = page.locator('form:visible').filter({ has: userField });
+  await userField.fill(fixture.email);
+  await loginForm.locator('input[name="password"]:visible').fill(fixture.password);
+  await loginForm.getByRole('button', { name: /^Entrar/ }).click();
   if (['admin','finanzas'].includes(fixture.role)) {
     await page.waitForURL(/\/seguridad/);
     await page.getByRole('button', { name: 'Configurar autenticador' }).click();
