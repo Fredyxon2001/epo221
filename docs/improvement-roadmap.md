@@ -1,6 +1,18 @@
 # Mejoras escolares — seguimiento al 2026-10-16
 
-Estado de entrega actual: web1be8ea0 publicada READY con Next16.4.2/React19.3.1. GitHub Security and build success; la primera suite Linux falló un selector de login durante hidratación y se ajusta el probe para repetirla. Descarga Android8 aprobada y candidato9 aún en QA nativa. Asesores Supabase, recuperación alojada/custodia externa y aprobaciones institucionales conservan sus límites. Los bloques fechados anteriores son historial, no el destino de descarga vigente.
+Estado de entrega: base web108b759 publicada READY y ambas CI success con Next16.4.2/React19.3.1. El nuevo descriptor de descarga se configura a Android1.3.0/code10, ya publicado y comprobado; el alias web se verificará después del push. APK fuente46cdb7c/runtime1.3.0, EAS19539f91-f4ba-474a-a41e-c8a27ebafca2, cuatro escenariosAPI24/x86_64 y cleanup integral PASS. Code9 retenido;8 conserva su condición de archivo anterior. Los bloques fechados anteriores son historia. No se cierran por inferencia los pendientes externos de la tabla.
+
+## Siete frentes — entrega del16oct
+
+| Frente | Resultado comprobado | Pendiente que no se sustituye por código |
+| --- | --- | --- |
+| 1. Framework y parches web | Next16.4.2/React19.3.1, guard de versiones, audit0 y CI/build/servicios/navegador PASS | Mantener revisión de avisos nuevos |
+| 2. Asesores Supabase | Acceso actual del conector denegado -32600; no se eludió | Reautorizar conector y revisar asesores vigentes |
+| 3. App móvil | APK1.3.0/code10 firmado, TLS públicoAPI24, acceso/MFA/guía/sesión/503 y upgrade8→10 PASS; release y bytes públicos verificados | ARM físico, upgrade1.0, iOS y TalkBack; tres avisos de herramientas móviles sin parche upstream |
+| 4. Respaldo y recuperación | Copia real cifrada/custodia local PASS y simulacro integral aislado con Auth/TOTP/RLS/Storage PASS | Auth/infraestructura alojados, copia externa y RPO/RTO institucionales |
+| 5. Contenido público | Checklist real de ciclo/contacto/guía/PDF y editor de histórico/activo PASS | La escuela confirma/publica datos y documentos oficiales |
+| 6. Accesibilidad y métricas | 34estados seleccionados axe/teclado/sin desborde; LCP/INP/CLS oficiales con consentimiento PASS | Lector de pantalla real, PDF accesibles y p75 de campo |
+| 7. Operación institucional | Revisiones por rol/MFA, evidencia/fechas y bloqueo de aprobación al editar PASS | Responsables, custodia, políticas y aprobaciones institucionales |
 
 Nota histórica del 2026-10-07, antes de publicar code8: asistente visual vestido por rol y guía secuencial introducción→controles→siguiente módulo implementados en web y app vigente; recomendaciones y tiendas oficiales Google Authenticator añadidas. Guía pública11 módulos y RN Web de todos los roles pasan. Fuente móvil e32b936 publicada en Git/CI success; APK code8 solicitado una sola vez (EAS e1347938-eed4-4934-adab-561741c78807), pendiente QA nativo antes de distribución/OTA. Descarga code7 sigue vigente hasta terminar esa comprobación. Web final, rutas compartidas, compilación y estado de despliegue se registrarán a continuación en AGENTS.md. Se conservan los pendientes institucionales y límites de verificación descritos abajo.
 
@@ -21,7 +33,7 @@ Las reglas de cierre son operativas: fechas concluidas, inscripción/materias/ca
 ## Continuidad operativa pendiente — revisada2026-10-16
 
 1. Simulacro integral local PostgreSQL17.11 PASS con Auth/TOTP originales, revocación, relaciones/RLS y bytes Storage públicos/privados. Respaldo real de aplicación y copia cifrada local íntegra/reciente PASS hoy. Siguen pendientes Auth alojado/infraestructura, custodia externa y objetivos institucionales RPO/RTO. Se utilizó Docker propio; no se contrató la rama cotizada anteriormente.
-2. Android1.2.0/code8 continúa aprobado; code9 candidato está en QA nativa antes de cambiar descarga. Android físico ARM, actualización desde1.0 e iOS no están probados. QR antiguos directos al objeto Supabase1.0 deben sustituirse por /app-movil/descargar.
+2. Android1.3.0/code10 publicado y verificado: TLS público real/API24, acceso/MFA/guía/sesión/logout, recuperación503 y actualización original8→10 sin borrar datos PASS. Code9 retenido por dos defectos reproducidos;8 conservado como anterior. Android físico ARM, actualización desde1.0 e iOS no están probados. QR antiguos directos al objeto Supabase1.0 deben sustituirse por /app-movil/descargar.
 3. Compatibilidad PostgreSQL alojado y nuevos asesores requieren acceso vigente del conector, actualmente denegado. No usar versión histórica como confirmación actual ni actualizar infraestructura sin recuperación/compatibilidad comprobadas.
 4. La escuela debe confirmar información editorial, aviso, contacto, retención, fotografías y custodios. Operación permite responsables/evidencias/fechas y aprobación con MFA, sin convertir propuestas en aprobación oficial.
 5. Suite E2E y medición cliente se amplían en entorno aislado, con lector de pantalla y p75 de campo aún pendientes. Los resultados automatizados no certifican WCAG/legal ni ausencia absoluta de bugs.

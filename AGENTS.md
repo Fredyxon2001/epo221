@@ -547,3 +547,19 @@ AndroidAPI29 ya pasó TLS real del proveedor con validación normal de cadena/ho
 
 
 Validación publicada sin Chrome PASS:13rutas públicas200/h1, guardas admin/operacion y admin/publico/rendimiento307→login/no-store, CSP/DENY/HSTS, descargaGET/HEAD307/no-store a8; alias institucional SHA1be8ea0 exacto y cero grupos error/fatal30min. CI Linux1be8ea0 terminó fallido en el selector global de login: curp resolvió dos elementos durante SSR/hidratación en Turbopack; todas las suites previas de recuperación/servicios pasaron y cleanup eliminó laboratorio. Se ajusta sólo el probe a controles visibles por nombre accesible y formulario visible, esperando data-cookie-ready; conserva selector estricto (no first arbitrario), credenciales/roles/MFA y asserts. Se repetirá CI antes de declarar cierre. No se cambia login de producto por este fallo del probe.
+
+
+### Coherencia de documentación y cierre CI web — 2026-10-16
+
+108b759e22975d2aebde202b0633826e9a977800 terminó Security and build e Isolated school flows SUCCESS, cerrando el fallo previo del selector QA. Vercel dpl_E5qeABFittkJoVqoUDJ1EETxNHso READY/SHA exacto/dominio institucional;13rutas200,2guardas307/login/no-store y cabeceras PASS, descarga8 conservada. Se distinguen las versiones actuales del informe histórico de seguridad del5oct y se corrige una frase antigua de security-operations que negaba el respaldo real autorizado del16oct. Ambos documentos separan copia real cifrada, unitarios/simulacro sintéticos y pendientes alojados. Cambios sólo documentales; los resultados de CI/HTTP corresponden al mismo código publicado108b759.
+
+Móvil:9 se retuvo por dos defectos reales (503borra sesión y cadena TLS web fallaAPI24). Fuente46cdb7c corrige resiliencia/tiempos/cancelación y confianza Android por dominio con raíz oficialX1; versión/runtime1.3.0 requiere APK nuevo, no OTA1.2. CI móvil ambasSUCCESS; build1019539f91-f4ba-474a-a41e-c8a27ebafca2 en curso sin publicar. No atribuir todavía QA nativa o distribución al código corregido; detalles/avisos upstream y límites en AGENTS/docs del repo móvil.
+
+
+### APK aprobado y descriptor de descarga — 2026-10-16
+
+APK1.3.0/code10 fuente46cdb7c, EAS19539f91-f4ba-474a-a41e-c8a27ebafca2 FINISHED,71429665bytes/SHA256cc2107122b5bfecd17f646a6f3ff9ba78771c6b409e909c2def9229a8c7bc591 y firma original. Revisión independiente de proof exacto confirma API24/x86_64: guía pública con TLS institucional real (9fallaba), suite acceso CURP/correo/MFA/guía/avatar/sesión/logout,503 bloquea sin borrar sesión y reintento sin credenciales, original8→10 conserva UID/sesión sin clear. Cleanup cuentas/XML/CAQA/proxy/reverses/firewall/servicios/ambosAVD PASS. No cuentas ni fixtures de producción. Release https://github.com/Fredyxon2001/epo221/releases/download/epo221-mobile-v1.3.0-code10/epo221-1.3.0-code10.apk y descarga pública completa/hash PASS. Code9 retenido; no OTA1.2 por cambio nativo a runtime1.3.
+
+APP_MOVIL cambia sólo versión/código/fecha/URL al artefacto aprobado; QR y enlace estable se conservan. Página de instalación explica actualizar sin desinstalar y el APK nuevo obligatorio, corrige alcance de prueba a Android7.0/API24 y retira la promesa ambigua de notificaciones push nativas (no hay integración push en app/src/deps; avisos y pendientes permanecen). No añade botones ni cambia catálogo/permisos. Typecheck nuevo PASS; pruebas de la página y enlace institucional se ejecutan tras publicar. Se detuvo sólo el Next3004 propio verificando proceso/descendientes/puerto; se retiraron exclusivamente dos includesQA generados y tsconfig vuelve a ser idéntico a Git.
+
+Roadmap ahora mapea los siete frentes con evidencia y pendientes externos. No afirmar todas las obligaciones institucionales, asesores, respaldo alojado, métricas reales, lector de pantalla o dispositivos físicos cerrados. Se prepara commit/push del descriptor y textos; verificar CI/alias por SHA y download final antes de declarar el enlace institucional actualizado.

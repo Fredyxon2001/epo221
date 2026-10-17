@@ -46,6 +46,10 @@ export default async function AppMovilPage() {
             <li>Abre la app y entra con tu correo y contraseña institucional</li>
           </ol>
 
+          <p className="text-sm text-gray-700">
+            Para actualizar, abre el nuevo APK sobre la app instalada y elige <strong>Actualizar</strong>. Evita desinstalarla para conservar tu sesión y preferencias. La actualización desde la compilación 8 se comprobó en el emulador; esta versión requiere descargar e instalar el APK nuevo.
+          </p>
+
           <a
             href={APP_MOVIL.apkUrl}
             target="_blank"
@@ -63,7 +67,7 @@ export default async function AppMovilPage() {
       <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
         <h3 className="font-semibold text-amber-900 mb-2">⚠️ Sobre Android e iPhone</h3>
         <ul className="text-sm text-amber-900 space-y-1">
-          <li>• <strong>Android:</strong> APK directo para Android 7 o posterior. Verificado en emulador Android 10; otros dispositivos pueden requerir ajustes.</li>
+          <li>• <strong>Android:</strong> APK directo para Android 7 o posterior. Esta compilación se verificó en emulador Android 7.0; las pruebas en dispositivos físicos siguen pendientes.</li>
           <li>• <strong>iPhone:</strong> usa el portal escolar desde Safari. Todavía no hay un instalador iOS verificado.</li>
         </ul>
       </div>
@@ -76,7 +80,6 @@ export default async function AppMovilPage() {
           <li>• Entregar tareas y consultar la bandeja de pendientes</li>
           <li>• Leer avisos y la guía escolar publicada</li>
           <li>• Usar una guía con avatar según tu rol y ayuda para cada pantalla</li>
-          <li>• Recibir notificaciones</li>
           <li>• Acceder a tu perfil</li>
         </ul>
         <p className="text-xs text-teal-800 mt-2">

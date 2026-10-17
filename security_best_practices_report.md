@@ -1,8 +1,12 @@
 # Revisión y correcciones de seguridad — EPO 221
 
+Estado vigente al 2026-10-16: web108b759e22975d2aebde202b0633826e9a977800 publicada READY y ambas suites CI success, Next16.4.2/React19.3.1/SupabaseJS2.117.3. El advisory GHSA-p3m5-59mp-jv5r queda fuera de la versión desplegada; auditoría web0 en esta entrega. Los apartados del5oct son evidencia histórica, no versiones actuales ni prueba vigente del proveedor.
+
+Hoy se comprobó un respaldo real de aplicación cifrado y su copia local, y un simulacro integral aislado con Auth/TOTP originales, revocación, RLS y Storage. No acredita recuperación Auth/infraestructura alojadas ni custodia externa/RPO/RTO. Los asesores Supabase actuales están bloqueados por permiso del conector; no reutilizar resultados antiguos como actuales. Android1.3.0/code10 está publicado y verificado, con fuente46cdb7c y CI success. API24/x86_64: TLS público real, acceso/MFA/guía/sesión/logout, recuperación503 y upgrade8→10 PASS; cleanup integral. Code9 se retuvo por los dos defectos reproducidos; no atribuir al10 pruebas físicas ARM/iOS/1.0 pendientes. La auditoría móvil tiene27 entradas propagadas de tres avisos upstream aún sin parche; consultar el reporte móvil separado, no extrapolar audit0 web.
+
 Fecha: 2026-10-05. Alcance: repositorio sistema, Supabase de EPO 221 y Vercel. No acredita cumplimiento jurídico integral ni cubre React Native.
 
-## Hallazgos corregidos
+## Hallazgos corregidos — corte histórico del 5 de octubre
 
 | Hallazgo | Estado |
 | --- | --- |
