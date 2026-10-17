@@ -8,9 +8,13 @@ const encode=data=>encodeURIComponent(JSON.stringify(data));
  const browser=await chromium.launch({headless:false});const results=[];
  const phase=name=>console.log('Checking '+name);
  async function page(cookie,blocked=false){
-  const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'}),samples=[];
+  const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',serviceWorkers:'block'}),samples=[];
   if(cookie)await ctx.addCookies([{name:cookieName,value:encode(cookie),url:base}]);
-  await ctx.route(url=>url.origin!==new URL(base).origin,route=>route.abort());
+  await ctx.route('**/*',route=>{
+   const request=route.request();
+   if(new URL(request.url()).origin!==new URL(base).origin || !['GET','HEAD'].includes(request.method()))return route.abort();
+   return route.continue();
+  });
   await ctx.route('**/api/public/metricas',route=>{
    const payload=JSON.parse(route.request().postData());assert.ok(parsePublicMetricPayload(payload));samples.push(payload);
    return route.fulfill({status:204});
@@ -20,9 +24,10 @@ const encode=data=>encodeURIComponent(JSON.stringify(data));
    Object.defineProperty(document,'cookie',{get(){return descriptor.get.call(document);},set(value){if(!window.__blockPreferenceWrites||!value.startsWith('epo221-cookie-consent='))descriptor.set.call(document,value);}});
    const interval=window.setInterval;window.setInterval=function(fn,ms,...args){if(ms===60000)window.__consentTick=()=>fn(...args);return interval.call(window,fn,ms,...args);};
   });
-  const p=await ctx.newPage();p.setDefaultTimeout(90000);let errors=0;p.on('pageerror',()=>errors++);
+  await ctx.addInitScript(()=>document.addEventListener('visibilitychange',event=>{if(event.isTrusted && document.visibilityState==='hidden')console.log('epo-metrics-native-hidden');}));
+  const p=await ctx.newPage();p.setDefaultTimeout(90000);let errors=0,hiddenEvents=0;p.on('pageerror',()=>errors++);p.on('console',message=>{if(message.text()==='epo-metrics-native-hidden')hiddenEvents++;});
   await p.goto(base+'/publico/contacto',{waitUntil:'domcontentloaded',timeout:90000});await p.locator('[data-cookie-ready="true"]').waitFor();
-  return {ctx,p,samples,get errors(){return errors;}};
+  return {ctx,p,samples,get errors(){return errors;},get hiddenEvents(){return hiddenEvents;}};
  }
  async function settle(p){await p.waitForTimeout(1200);await p.keyboard.press('Tab');await p.waitForTimeout(1000);}
  async function stored(ctx){return JSON.parse(decodeURIComponent((await ctx.cookies()).find(c=>c.name===cookieName).value));}
@@ -42,14 +47,23 @@ const encode=data=>encodeURIComponent(JSON.stringify(data));
   assert.ok(yes.samples.length>0,'Official web-vitals produced no LCP measurement after consent/interaction');
   assert.equal((await stored(yes.ctx)).external,false);assert.equal((await stored(yes.ctx)).analytics,true);assert.equal(await yes.p.locator('iframe').count(),0);
   await yes.p.getByRole('button',{name:'Preferencias de cookies',exact:true}).click();await yes.p.getByRole('button',{name:'Cerrar',exact:true}).click();
-  await yes.p.waitForTimeout(700);await yes.p.evaluate(()=>{const sample=document.createElement('div');sample.style.height='160px';document.querySelector('main').prepend(sample);});await yes.p.waitForTimeout(700);
+  await yes.p.waitForTimeout(700);
  phase('real background finalization');const hidden=await yes.ctx.newPage();await hidden.goto('about:blank');await hidden.bringToFront();
   const backgrounded=await yes.p.waitForFunction(()=>document.visibilityState==='hidden',null,{polling:100,timeout:2000}).then(()=>true,error=>{if(error.name==='TimeoutError')return false;throw error;});
   await yes.p.waitForTimeout(1200);await yes.p.bringToFront();await hidden.close();
+  if(!backgrounded){
+   // A real document navigation hides the outgoing document even on hosts that keep
+   // simultaneous tabs visible. Do not spoof visibilityState, events or metric values.
+   phase('real document navigation finalization');
+   await yes.p.reload({waitUntil:'domcontentloaded'});
+   await yes.p.locator('[data-cookie-ready="true"]').waitFor();
+   await yes.p.waitForTimeout(1000);
+  }
   const names=[...new Set(yes.samples.flatMap(payload=>payload.samples.map(sample=>sample.name)))];
   assert.ok(names.includes('LCP'),'Official LCP was not observed');
-  if(backgrounded)assert.equal(names.length,3,'Official browser LCP/INP/CLS not all observed: '+names.join(','));
-  else results.push('Browser keeps both tabs visible: native INP/CLS finalization pending; observed '+names.join(','));
+  assert.equal(names.length,3,'Official browser LCP/INP/CLS not all observed: '+names.join(','));
+  assert.ok(yes.hiddenEvents>0,'Native hidden lifecycle event was not observed');
+  results.push('Official native LCP/INP/CLS finalization PASS via '+(backgrounded?'background tab':'normal document navigation'));
   phase('withdrawal');await yes.p.getByRole('button',{name:'Preferencias de cookies',exact:true}).click();await yes.p.getByRole('button',{name:'Rechazar opcionales',exact:true}).click();
   const acceptedCount=yes.samples.length;await yes.p.evaluate(()=>{const block=document.createElement('div');block.style.height='170px';document.body.prepend(block);window.dispatchEvent(new Event('focus'));});await settle(yes.p);assert.equal(yes.samples.length,acceptedCount,'Withdrawal allowed a new send');
   await yes.p.reload();await settle(yes.p);assert.equal(yes.samples.length,acceptedCount,'Rejected consent sent after reload');assert.equal(yes.errors,0);await yes.ctx.close();results.push('analytics-only official scalar POSTs; withdrawal/reload stops sends PASS');

@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { ReviewEditor } from './ReviewEditor';
 import { requireIdentity } from '@/lib/security/access';
-import { OPERATION_TOPICS, reviewState, type OperationReview } from '@/lib/operation-governance';
+import { OPERATION_TOPICS, reviewState, approvalRequirements, reviewDaysRemaining, type OperationReview } from '@/lib/operation-governance';
 import { formatSchoolDate, schoolToday } from '@/lib/public-convocatorias';
 import { guardarRevision, aprobarRevision } from './actions';
 import { policySourcesFor, publicPolicyFingerprint } from '@/lib/operation-public-sources';
@@ -12,7 +13,7 @@ const notices: Record<string, string> = {
   incompleto: 'Para aprobar, completa folio, procedimiento (al menos 30 caracteres), revisión realizada y próximo vencimiento dentro de la periodicidad. Continuidad requiere RPO y RTO.', error: 'No se pudo registrar la operación. Intenta nuevamente.',
 };
 type History = { id: string; revision_id: string; actor_rol: string; accion: string; version: number; created_at: string; datos: Record<string, unknown> };
-const inputClass = 'mt-1 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm';
+const inputClass = 'mt-1 min-h-11 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm';
 function Field({ name, label, value, type = 'text', required = false, min, max, maxLength }: { name: string; label: string; value: string | number | null; type?: string; required?: boolean; min?: number; max?: number; maxLength?: number }) {
   return <label className="block text-sm font-medium text-slate-700">{label}<input className={inputClass} name={name} type={type} defaultValue={value ?? ''} required={required} min={min} max={max} maxLength={maxLength} /></label>;
 }
@@ -40,11 +41,21 @@ export default async function OperacionPage({ searchParams }: { searchParams: Pr
     {items.map((item, index) => {
       const fingerprint = fingerprints[index]; const status = reviewState(item, fingerprint?.huella ?? null, today, policySourcesFor(item.tema, sources)); const topic = OPERATION_TOPICS[item.tema];
       const entries = ((history.data ?? []) as History[]).filter(entry => entry.revision_id === item.id);
+      const requirements = approvalRequirements(item, today);
+      const remaining = reviewDaysRemaining(item.proxima_revision, today);
       return <section key={item.id} id={item.tema} className="rounded-2xl border border-slate-200 bg-white p-4 md:p-6 space-y-4">
         <div className="flex flex-wrap gap-3 items-center justify-between"><h2 className="text-xl font-semibold">{item.titulo}</h2><span className={`rounded-full px-3 py-1 text-sm font-semibold ${status.state === 'vigente' ? 'bg-green-100 text-green-900' : status.state === 'vencido' ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950'}`}>{status.state}</span></div>
         <p className="text-sm text-slate-600">{status.reason}</p><p className="text-sm">{topic.instruction} <Link href={topic.href} className="font-semibold text-teal-800 underline">{topic.link}</Link></p>
         <details className="text-sm text-slate-600"><summary className="cursor-pointer">Datos que se revisan y versión actual</summary><p className="mt-2">Ficha versión {item.revision}. {fingerprint ? Object.entries(fingerprint.resumen).map(([name, count]) => `${name.replaceAll('_', ' ')}: ${count}`).join(' · ') || 'Sin conjuntos públicos adicionales para este tema.' : 'Huella no disponible.'}</p></details>
-        <form action={guardarRevision} className="space-y-4">
+        {status.state === 'vigente' && remaining !== null && remaining >= 0 && remaining <= 7 && <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">{remaining === 0 ? 'La revisión vence hoy.' : `La próxima revisión vence en ${remaining} día${remaining === 1 ? '' : 's'}.`} Acuerda la revisión con el área responsable y registra su evidencia.</p>}
+        {requirements.length > 0 && <aside aria-label="Datos pendientes para aprobar" className="rounded-lg border border-slate-200 p-4 text-sm text-slate-700"><h3 className="font-semibold">Completa en la ficha guardada antes de aprobar</h3><ul className="mt-2 list-disc pl-5 space-y-1">{requirements.map(requirement => <li key={requirement}>{requirement}</li>)}</ul></aside>}
+        <ReviewEditor key={item.revision} formId={`draft-${item.id}`} approval={mayApprove && fingerprint ? <form action={aprobarRevision} className="space-y-3 rounded-xl border border-teal-200 bg-teal-50 p-4">
+          <input type="hidden" name="id" value={item.id} /><input type="hidden" name="revision" value={item.revision} /><input type="hidden" name="huella" value={fingerprint.huella} />
+          <input type="hidden" name="fuentes" value={policySourcesFor(item.tema, sources) ?? ''} />
+          <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" name="confirmacion" required />He revisado el contenido actual y la referencia de esta ficha guardada; registro su aprobación institucional.</label>
+          <button type="submit" className="min-h-11 rounded-lg bg-teal-800 px-4 py-2 text-white">Aprobar ficha guardada con MFA</button><p className="text-xs">Guarda primero los cambios del formulario. La aprobación verifica de nuevo la versión y la huella en la base de datos.</p>
+        </form> : <p className="text-sm text-slate-600">{mayApprove ? 'Recarga para comprobar la huella antes de aprobar.' : 'Dirección o Administración con MFA pueden aprobar las fichas guardadas.'}</p>}>
+        <form id={`draft-${item.id}`} action={guardarRevision} className="space-y-4">
           <input type="hidden" name="id" value={item.id} /><input type="hidden" name="revision" value={item.revision} />
           <div className="grid gap-4 md:grid-cols-2">
             <Field name="titulo" label="Título" value={item.titulo} required maxLength={200} /><Field name="area_responsable" label="Área responsable (sin nombres personales)" value={item.area_responsable} required maxLength={120} />
@@ -55,14 +66,9 @@ export default async function OperacionPage({ searchParams }: { searchParams: Pr
             {item.tema === 'continuidad' && <><Field name="objetivo_rpo_minutos" label="Objetivo RPO en minutos" value={item.objetivo_rpo_minutos} type="number" min={0} max={43200} /><Field name="objetivo_rto_minutos" label="Objetivo RTO en minutos" value={item.objetivo_rto_minutos} type="number" min={1} max={43200} /></>}
           </div>
           <label className="block text-sm font-medium text-slate-700">Procedimiento, alcance y evidencia de revisión<textarea name="detalle" defaultValue={item.detalle} maxLength={12000} rows={5} className={inputClass} /></label>
-          <button type="submit" className="rounded-lg bg-slate-800 px-4 py-2 text-white">Guardar borrador</button><p className="text-xs text-slate-600">Guardar una modificación deja la ficha pendiente; conserva la aprobación anterior en el historial.</p>
+          <button type="submit" className="min-h-11 rounded-lg bg-slate-800 px-4 py-2 text-white">Guardar borrador</button><p className="text-xs text-slate-600">Guardar una modificación deja la ficha pendiente; conserva la aprobación anterior en el historial.</p>
         </form>
-        {mayApprove && fingerprint ? <form action={aprobarRevision} className="space-y-3 rounded-xl border border-teal-200 bg-teal-50 p-4">
-          <input type="hidden" name="id" value={item.id} /><input type="hidden" name="revision" value={item.revision} /><input type="hidden" name="huella" value={fingerprint.huella} />
-          <input type="hidden" name="fuentes" value={policySourcesFor(item.tema, sources) ?? ''} />
-          <label className="flex gap-2 text-sm"><input type="checkbox" name="confirmacion" required />He revisado el contenido actual y la referencia de esta ficha guardada; registro su aprobación institucional.</label>
-          <button type="submit" className="rounded-lg bg-teal-800 px-4 py-2 text-white">Aprobar ficha guardada con MFA</button><p className="text-xs">Guarda primero los cambios del formulario. La aprobación verifica de nuevo la versión y la huella en la base de datos.</p>
-        </form> : <p className="text-sm text-slate-600">{mayApprove ? 'Recarga para comprobar la huella antes de aprobar.' : 'Dirección o Administración con MFA pueden aprobar las fichas guardadas.'}</p>}
+        </ReviewEditor>
         <details><summary className="cursor-pointer font-medium">Historial ({entries.length} registros mostrados)</summary><p className="my-2 text-xs text-slate-600">Últimos 100 movimientos del módulo. Historial protegido contra edición y registros manuales.</p>{entries.length ? <ol className="space-y-3">{entries.map(entry => <li key={entry.id} className="border-l-2 border-slate-300 pl-3 text-sm"><p>{entry.accion === 'aprobacion' ? 'Aprobación' : 'Borrador'} · versión {entry.version} · rol {entry.actor_rol} · {new Intl.DateTimeFormat('es-MX', { timeZone: 'America/Mexico_City', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(entry.created_at))}</p><p>Área: {String(entry.datos.area_responsable ?? '')} · Referencia: {String(entry.datos.folio_referencia || 'sin folio')}</p><details><summary>Ver procedimiento registrado</summary><p className="whitespace-pre-wrap mt-2">{String(entry.datos.detalle ?? '')}</p><p className="mt-2">Revisión: {String(entry.datos.fecha_revision ?? 'sin fecha')} · Próxima: {String(entry.datos.proxima_revision ?? 'sin fecha')}</p></details></li>)}</ol> : <p className="mt-2 text-sm text-slate-600">Todavía no hay revisiones registradas.</p>}</details>
       </section>;
     })}

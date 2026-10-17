@@ -29,7 +29,7 @@ export default async function AdminConfig() {
         </Section>
 
         {/* Contacto */}
-        <Section title="Contacto" icon="📞">
+        <Section id="contacto" title="Contacto" icon="📞">
           <div className="grid md:grid-cols-2 gap-4">
             <Field name="telefono" label="Teléfono" defaultValue={cfg?.telefono ?? ''} />
             <Field name="email" label="Email" type="email" defaultValue={cfg?.email ?? ''} />
@@ -84,9 +84,9 @@ export default async function AdminConfig() {
   );
 }
 
-function Section({ title, icon, accent, children }: { title: string; icon: string; accent?: boolean; children: React.ReactNode }) {
+function Section({ id, title, icon, accent, children }: { id?: string; title: string; icon: string; accent?: boolean; children: React.ReactNode }) {
   return (
-    <section className={`bg-white rounded-xl shadow-xs overflow-hidden border ${accent ? 'border-dorado/40' : 'border-transparent'}`}>
+    <section id={id} className={`scroll-mt-24 bg-white rounded-xl shadow-xs overflow-hidden border ${accent ? 'border-dorado/40' : 'border-transparent'}`}>
       <header className={`px-5 py-3 ${accent ? 'bg-linear-to-r from-dorado/20 to-dorado/5' : 'bg-crema'} border-b border-dorado/10`}>
         <div className="flex items-center gap-2 text-verde font-serif text-lg">
           <span className="text-2xl">{icon}</span>

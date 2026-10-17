@@ -49,7 +49,7 @@ async function main() {
   assert.ok((await staff.client.from('operacion_historial').update({ accion: 'aprobacion' }).eq('revision_id', baseline.id)).error);
   console.log('PASS operation database: role/MFA gates, real approval, stale hash/version, future dates, history and public continuity.');
   if (process.argv.includes('--browser')) {
-    const { chromium } = require('playwright'); const base = process.env.FLOW_BASE_URL;
+    const { chromium } = require('playwright'); const AxeBuilder = require('@axe-core/playwright').default; const tags = ['wcag2a','wcag2aa','wcag21aa','wcag22aa']; const base = process.env.FLOW_BASE_URL;
     browser = await chromium.launch({ headless: false });
     const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
     await context.addCookies([...admin.cookies.values()].map(cookie => ({ name: cookie.name, value: cookie.value, url: base })));
@@ -66,11 +66,32 @@ async function main() {
     }
     assert.equal(new URL(page.url()).searchParams.get('status'), 'aprobado', 'Public content changed repeatedly during approval; retry after concurrent content tests');
     const guiApproved = await getReview(admin.client); assert.equal(guiApproved.estado, 'aprobado'); assert.match(guiApproved.fuentes_aprobadas, /^[0-9a-f]{64}$/);
-    section = page.locator('#publicaciones'); await section.locator('input[name="area_responsable"]').fill('Dirección / Control Escolar');
+    await page.locator('[data-cookie-ready="true"]').waitFor();
+    section = page.locator('#publicaciones'); await section.locator('input[name="area_responsable"]').fill('Dirección / Control Escolar · QA local');
+    await section.getByRole('status').filter({ hasText: 'Hay cambios sin guardar' }).waitFor();
+    assert.equal(await section.getByRole('button', { name: 'Aprobar ficha guardada con MFA' }).isDisabled(), true, 'Unsaved edits must not approve the previously saved revision');
+    const operationAxe = await new AxeBuilder({ page }).include('#publicaciones').withTags(tags).analyze();
+    assert.equal(operationAxe.violations.length, 0, 'Changed operation section has axe violations: ' + operationAxe.violations.map(v => v.id).join(','));
     await Promise.all([page.waitForURL(/status=guardado/), section.getByRole('button', { name: 'Guardar borrador' }).click()]);
-    assert.equal((await getReview(admin.client)).estado, 'borrador'); assert.equal(errors.length, 0, 'Operation GUI page errors');
+    assert.equal((await getReview(admin.client)).estado, 'borrador');
+    assert.equal(await page.locator('#publicaciones').getByRole('button', { name: 'Aprobar ficha guardada con MFA' }).isDisabled(), false, 'Saving a new revision restores approval');
+    await page.goto(base + '/admin/publico', { waitUntil: 'domcontentloaded' });
+    await page.getByRole('heading', { name: 'Antes de publicar información del ciclo' }).waitFor();
+    assert.equal(await page.getByText('Todo listo.', { exact: true }).count(), 0);
+    assert.equal(await page.locator('[aria-labelledby="public-readiness"] li').count(), 4, 'Readiness shows four checked categories');
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      const readinessAxe = await new AxeBuilder({ page }).include('[aria-labelledby="public-readiness"]').withTags(tags).analyze();
+      assert.equal(readinessAxe.violations.length, 0, 'Readiness axe violations at ' + width + ': ' + readinessAxe.violations.map(v => v.id).join(','));
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Readiness board overflows at ' + width);
+    }
+    await page.locator('[aria-labelledby="public-readiness"]').getByRole('link', { name: 'Revisar contacto de atención', exact: true }).click();
+    await page.waitForURL(/admin\/publico\/config#contacto$/);
+    await page.locator('#contacto input[name="email"]').waitFor();
+    assert.equal(await page.locator('#contacto').count(), 1, 'Contact editor anchor must exist exactly once');
+    assert.equal(errors.length, 0, 'Operation GUI page errors');
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Mobile operation board overflows');
-    console.log('PASS operation GUI390: actual approval action, draft action, source hash, no page errors/overflow.');
+    console.log('PASS operation GUI: actual approval/draft, unsaved guard, operation390/readiness390+1440 axe, source hash and no page errors/overflow.');
   }
   console.log('PASS isolated governance: MFA/RLS, staff draft, director approval, stale/tampered hash, protected history, public continuity.');
 }

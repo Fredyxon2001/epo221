@@ -23,3 +23,15 @@ El laboratorio no acredita recuperación de producción ni tiempos RPO/RTO insti
 Los endpoints/configuración de la aplicación móvil se generan sólo para el laboratorio y no se distribuyen por EAS Update, APK ni tiendas. Expo Go prueba ejecución administrada del código; no acredita firma, instalación autónoma, OTA o actualización física del APK.
 
 Fuentes: [desarrollo local](https://supabase.com/docs/guides/local-development), [respaldos](https://supabase.com/docs/guides/platform/backups), [actualizaciones](https://supabase.com/docs/guides/platform/upgrading).
+
+
+## Enlace local comprobado — 2026-10-16
+
+Docker Desktop publicó inicialmente API/DB en0.0.0.0 yIPv6 pese a que la red tenía host_binding_ipv4=127.0.0.1. La guía oficial recomienda esa opción, pero no se puede usar como prueba suficiente del enlace real. El arranque ahora inspecciona los puertos publicados y fija explícitamente127.0.0.1 sólo en los contenedores propios de API/DB cuando hace falta. Conserva Config, healthcheck, volúmenes con nombre y configuración local del gateway en memoria; no cambia Docker global, firewall, redes ajenas ni proveedor alojado. Una recreación fallida deja contenedores detenidos y conserva sus volúmenes.
+
+status/environment fallan antes de proporcionar credenciales de ensayo si el inventario DB/API no tiene únicamente puertos loopback esperados. El guard rechaza IPv4/IPv6 global, puerto inesperado, contenedor/proyecto ajeno y contenedor detenido. Las pruebas sintéticas verifican estas fronteras y la conservación de configuración. Readback real de esta entrega: API127.0.0.1:55431 yDB127.0.0.1:55432 healthy, volumen propio conservado. Los contenedores antiguos detenidos de esta corrección se retiraron sin borrar volúmenes. La recuperación integral coordinada se registra en AGENTS.md al concluir.
+
+Fuentes oficiales: [desarrollo local](https://supabase.com/docs/guides/local-development), [reporte de enlace en Docker Desktop](https://github.com/supabase/supabase/issues/51027). No inferir aislamiento por mostrar localhost en la URL del cliente.
+
+
+Repetición2026-10-16 con los puertos corregidos: PASS en PostgreSQL17.11 para contraseña Auth, factor y secreto TOTP originales, sesiones previas revocadas, relaciones de inscripción, separación entre alumnos, lectura privada del dueño permitida/ajena denegada y hash de archivos restaurados. Funciones/triggers/grants recuperados; cleanup de cuentas/filas/archivos sintéticos PASS. El laboratorio continúa disponible para las siguientes pruebas coordinadas; apagar sólo sus servicios al finalizar toda la verificación. No se restauró producción ni se acreditó respaldo Auth alojado.

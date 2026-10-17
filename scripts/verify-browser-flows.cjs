@@ -23,7 +23,7 @@ async function login(fixture, target) {
     await page.locator('input[name="code"]').fill(otp(secret));
     await page.getByRole('button', { name: 'Verificar y continuar' }).click();
   }
-  await page.waitForURL(base + target);
+  await page.waitForURL(base + target, { waitUntil: 'domcontentloaded', timeout: 180000 });
   console.log(`PASS browser login ${fixture.role}${['admin','finanzas'].includes(fixture.role) ? ' → TOTP MFA → requested page' : ' → requested page'}`);
   return page;
 }
@@ -51,6 +51,8 @@ async function main() { try {
   assert.ok((await financePage.locator('body').textContent()).includes('Mi perfil'));
   console.log('PASS finance home and profile remain accessible.');
   await teacherPage.goto(base+'/profesor/perfil');
+  // File selection dispatches change directly: wait for the profile client bundle first.
+  await teacherPage.waitForLoadState('networkidle');
   const avatar = Buffer.concat([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aAXkAAAAASUVORK5CYII=','base64'),Buffer.alloc(1200000)]);
   await teacherPage.locator('input[type="file"]').setInputFiles({name:'fixture.png',mimeType:'image/png',buffer:avatar});
   await teacherPage.getByText('✅ Foto actualizada',{exact:true}).waitFor();

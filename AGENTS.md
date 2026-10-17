@@ -3,7 +3,7 @@
 ## Reglas de continuidad
 
 - Documentar aquí cada cambio de código solicitado por el usuario: alcance, motivo, comprobaciones y limitaciones. Claude importa este archivo mediante `CLAUDE.md`.
-- Stack actual: Next.js **16.3.8**, React **19.3.0**, Tailwind **4.3.3**, TypeScript y Supabase SSR **0.12.7**. APIs de `cookies`, `headers`, `params` y `searchParams` son asíncronas. El middleware actual es `src/proxy.ts`.
+- Stack actual: Next.js **16.4.2**, React **19.3.1**, Tailwind **4.3.3**, TypeScript y Supabase SSR **0.12.7**. APIs de `cookies`, `headers`, `params` y `searchParams` son asíncronas. El middleware actual es `src/proxy.ts`.
 - Nunca imprimir ni guardar credenciales, cookies de sesión, archivos `.env.local` o datos personales de alumnos en documentación o artefactos.
 - Mantener los créditos institucionales y de desarrollo existentes.
 
@@ -157,7 +157,7 @@ El usuario pidió comprobar efectos, reparar los recorridos y construir mejoras.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
-# This is NOT the Next.js you know
+## This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
@@ -468,3 +468,72 @@ Web b26188f5ca684fb348fdabc8b420ea0affd9054b publicado READY en dpl_GpjYGcTiTzSa
 - Repetición8interactivos encontró único fallo real en menú móvil: Contacto blanco85% sobre bg-verde/95 mezclado con fondo blanco, contraste2.96<4.5. Root autorizó cambiar SOLO2clases en Navbar: panel móvil y fallbacknoscript ahora bg-teal-900 opaco, sin cambiar enlaces/rol/acciones. Local3004 ochointeractivos axe0, foco/teclado PASS, pintura computada alpha255 y contraste7.31 móvil/9.41 noscript; Contacto visible, details nativo Enter funciona. LintNavbar PASS. Pendiente revisión del parche cuando root publique nuevaREADY.
 - Consentimiento publicado PASS v1/rechazo/vencida/map-only sin muestras; analytics-only LCP oficial escalar sin iframe; retirada/reload y setter bloqueado+focus+timer sin nuevos envíos. POSTs interceptados/terceros bloqueados, ceroDB. CDP Browser.getWindowForTarget/setWindowBounds minimizó/restauró solo propia ventana; visibilityState siguióvisible y solo LCPfinalizó. INP/CLS nativos pendientes, sin DOM modificado para métricas ni eventoslifecycle fabricados; callbacks sintéticos síPASS. NVDA/Narrador pendiente con protocolo documentado.
 - Todas las corridas cerraron browsers propios; sin commit/push por este agente. Detalle reproducible y límites en docs/public-performance-and-accessibility.md.
+
+### Cierre publicado del contraste móvil — 2026-10-07
+
+- Root confirmó10b931dc3c5d9df90f3dd575fefe7fd8145aac0b READY dpl_CSR59vjkDiK92W3Sr2Xxg3kvg9mq en dominios institucionales. Repetición anónima de ocho estados interactivos en epo221.edu.mx390/1440 PASS0axe/0pageerror/0writes: menú, overview, coach y cookies, con salto/Tab/Escape/retorno de foco.
+- Comprobación de pintura publicada del enlace Contacto confirma panel opaco alpha255, contraste7.31 JS (antes2.96) y9.41 fallbacknoscript; enlacevisible y details nativo Enter PASS. Ambas sesiones nuevas, serviceworkersbloqueados, todos POST/PUT/PATCH/DELETE abortados, sin credenciales ni fixtures. Browserspropios cerrados.
+- Evidencia combinada:26páginas del commit b26188f y ocho estados interactivos después de la corrección10b931d =34estados revisados/corregidos. Se conserva el timeout previo90s tras Recorrido y su repetición exitosa en contexto nuevo; no se afirma repetir26páginas después de dos clases de color. Consentimiento/LCP escalar/retirada yaPASSpublicados e intactos por el parche. INP/CLS nativos y NVDA/Narrador siguen pendientes explícitos; CDP minimize no produjo hidden y no se fabricaron valores ni eventos.
+- Solo esta nota y actualización docs/public-performance-and-accessibility.md posteriores al patch; ningún cambio funcional adicional ni publicación por este agente.
+
+### 2026-10-14 — Compatibilidad TLS futura del proveedor
+
+Novedad material de la revisión de lectura: [Supabase anunció el 12 de octubre](https://supabase.com/changelog/cbc-tls-ciphers-deprecated) que retirará cuatro suites CBC de TLS1.2, no antes del 10 de noviembre de 2026, en sus APIs HTTP. TLS1.3 permanece disponible. No se comprobó un cliente afectado ni una regresión actual. Handshakes de sólo lectura desde Node en este equipo contra el proyecto alojado pasan con certificado validado, TLS1.2/ECDHE-ECDSA-AES128-GCM-SHA256 y TLS1.3/TLS_AES_128_GCM_SHA256; no equivalen a probar todos los navegadores o el APK mínimo. Se agrega al plan comprobar negociación moderna del instalador en Android API24 antes de la retirada. Sin cambios de código, infraestructura, cifrados, paquetes ni publicación; conservar los pendientes y resultados anteriores.
+
+
+## Revision material 2026-10-15
+
+Prioridad alta: produccion 10b931d usa Next16.3.8 y App Router/Server Actions, dentro del rango afectado por GHSA-p3m5-59mp-jv5r (14oct). Aviso oficial: https://github.com/vercel/next.js/security/advisories/GHSA-p3m5-59mp-jv5r . Siguiente paso fuera del heartbeat de lectura: actualizar Next16.4.1, revisar React/ReactDOM19.3.1, ejecutar tipos/build/suite aislada MFA/roles/flujos y verificar despliegue. Audit web0 no invalida el aviso nuevo; no se enviaron payloads de explotacion. Avisos criticos adicionales en https://github.com/vercel/next.js/releases/tag/v16.4.1 : no use-cache encontrado; lock sharp0.35.5 ya cumple mitigacion SVG. No afirmar RCE reproducida.
+
+Asesores Supabase: dos lecturas rechazadas por permiso (-32600). Revisar/reautorizar conector y repetir metadatos/asesores; ultimo resultado14oct es historico. CI web/movil y navegacion publica siguen correctos, code8 publicado/code9 candidato. Sin codigo, instalaciones, fixtures, commit/push ni despliegue en esta revision. Intentos anteriores de anexar por apply_patch y PowerShell no persistieron; este proceso comprueba lectura inmediatamente despues de append.
+
+
+## 2026-10-16 — Siete mejoras autorizadas, implementación y verificación
+
+Usuario autoriza trabajo paralelo, pruebas web/móvil, commit/push y despliegue únicamente validado. Next16.4.2/React19.3.1/SupabaseJS2.117.3 y guard explícito de versiones por advisories; instalación normal de Next se interrumpió por IO OneDrive. Se obtuvo tarball npm oficial fuera de OneDrive, se preservó el directorio parcial propio. Un vínculo inicial al runtime externo falló el build por resolución del layout interno; se retiró sólo ese vínculo y se copió el paquete verificado SHA512 a su ubicación normal en node_modules. El build posterior completo pasó (134 páginas y TypeScript); código/lock permanecen en checkout activo y CI instala normal. No distribuir salidas de QA. Backups/readiness/operación y laboratorio de puertos locales se integran con pruebas dedicadas; resultados definitivos y entrega se registrarán al completar, sin afirmar PASS anticipado.
+
+
+### Integridad de respaldos y aislamiento del laboratorio — 2026-10-16
+
+Snapshot nuevo autenticado después de persistir/descargar y antes de retención; fallo o corrupción conserva anteriores. La copia local revalida AES-GCM, SHA256 y tamaño de archivos ya existentes y guarda el manifiesto sólo al concluir. verify-backup-integrity PASS con corrupción, ausencias, clave incorrecta y control de antigüedad. backup-security.cjs exige --create antes de cargar entorno/red porque crea un respaldo real y aplica la retención existente; verify-backup-custody.cjs es exclusivamente offline, no carga .env ni restaura, emite agregados y usa exit0 íntegro/reciente, 2 íntegro/vencido, 1 inválido. Ver docs/backup-custody-check.md. La prueba sintética no acredita custodia externa, respaldo Auth alojado ni objetivos RPO/RTO.
+
+Docker Desktop ignoró el host_binding_ipv4 por defecto y publicó inicialmente puertos locales sobre todas las interfaces. scripts/isolated-network.cjs corrige exclusivamente los contenedores propios epo221-isolated (DB55432/API55431) con binding explícito 127.0.0.1, preservando configuración, healthcheck y volúmenes; copia el bundle gateway/certificados sólo en RAM, sin imprimir secretos. Verificación real Docker posterior PASS; guard inspecciona bindings efectivos antes de fixtures y rechaza puertos, proyectos o redes ajenos. verify-isolated-network PASS. No se cambió el firewall global, daemon Docker ni otros proyectos.
+
+Simulacro integral local repetido hoy PASS PostgreSQL17.11: dump cifrado public/Auth/Storage + bytes originales, pérdida sintética y restore, contraseña/TOTP originales, sesión anterior revocada, relaciones/RLS, Storage público/privado y hash; cleanup propio PASS. No se crearon cuentas de pruebas ni se restauró producción. Asesores alojados siguen denegados por el conector (ProtocolError -32600); no se eludió con otra credencial. Reautorizar la conexión es pendiente externo; último resultado histórico no prueba estado actual.
+
+
+### Respaldo real de aplicación comprobado — 2026-10-16
+
+Con autorización de esta entrega se ejecutó una sola vez node scripts/backup-security.cjs --create: snapshot2026-10-17T01:59:00.631Z (16oct local), 70tablas/7342filas/8archivos, manifiesto cifrado486969bytes y archivos originales45191862bytes. Subida, descarga persistida, autenticación AES-GCM y copia cifrada local con relectura PASS; sin imprimir filas, nombres escolares ni claves. Comprobación offline independiente verifyCustody PASS, reciente bajo36h e integridad de cada archivo. Se aplicó únicamente retención existente7d de manifiestos remotos después de verificar el nuevo snapshot. Los objetos por hash y copias locales no se purgan automáticamente: requieren política y custodia institucional; docs/backup-custody-check.md aclara ese alcance y la custodia separada de APK GitHub. No restaura producción, no incluye contraseña/TOTP/Auth del proveedor ni acredita custodia externa o recuperación de infraestructura. security-backups sigue ignorado; conservar clave fuera del repositorio.
+
+
+### Preparación pública, revisiones y métricas — 2026-10-16
+
+/admin/publico reemplaza «Todo listo» no comprobado por checklist de ciclo único, contacto, guía propia y PDF vigentes; errores, truncado y datos nulos quedan pendientes. El editor de guías prioriza ciclo activo, conserva selección histórica y la advierte. Operación muestra evidencia, fechas y RPO/RTO faltantes y vencimientos dentro de siete días; editar deshabilita aprobación hasta guardar. getAttribute('id') evita sombreado por hidden name=id; captura input/change. Contacto tiene ancla real y explicación puntual en guía; controles nuevos conservan descripciones y objetivos44px. No se inventaron datos oficiales ni se cambió esquema/permisos.
+
+Unidades readiness/governance/actions PASS. Probe integral aislado3004/55431 Next16.4.2/React19.3.1 PASS: DB rol/MFA/versión/huella/fechas/historial, aprobación y guardado, bloqueo al editar y rehabilitación al guardar, axe Operación390 y checklist390/1440, ancla, cero errores/desbordes, cleanup y Chrome cerrado. Los intentos iniciales del probe fallaron y limpiaron sus fixtures; diagnóstico fresco identificó la propiedad de formulario id sombreada y confirmó reparación con input real/teclado antes de repetir la suite final.
+
+Consentimiento contra publicación anterior PASS con métodos de escritura bloqueados: LCP/INP/CLS oficiales finalizan en navegación normal con evento hidden nativo, tres POST interceptados y cero escrituras. El probe actualizado usa reload real como alternativa, sin fabricar métricas, DOM ni eventos. Detalle en docs/public-readiness-and-reviews.md. Lector de pantalla, cohorte real, aprobación institucional y accesibilidad del contenido PDF siguen sin certificar.
+
+
+### Regresión de servicios y compilación final — 2026-10-16
+
+Build optimizado final Next16.4.2 --webpack PASS con134páginas y TypeScript, tras la última reparación ReviewEditor y catálogo de guía. npm audit --audit-level=moderate:0; lint global y verify-guide-controls PASS. npm run test:security/test:operation/test:metrics ya PASS con los nuevos guardas de framework, integridad y aislamiento. Versiones instaladas Next/React/DOM/SupabaseJS/SSR coinciden con lock; CI normal instalará dependencias de cero y probará Turbopack.
+
+Repetición por run-isolated.cjs de verify-academic-flows --live, verify-financial-flows --live, verify-mobile-flows --live y verify-public-metrics-isolated --web: PASS y limpieza exacta en las cuatro. Tareas/entregas/exámenes/calificaciones, recibo-rechazo-corrección-validación/folio, roles y recursos ajenos denegados, APIs móviles/calendario/avisos/adjuntos/cambio inicial/revocación, MFA, métricas anónimas/cohortes19-20/retención30UTC/HTTP400403204 comprobados. La prueba académica cubre la página HTML de constancia; PDF corresponde al recorrido de navegador.
+
+El primer navegador agotó90s al pedir PDF de constancia en el laboratorio bajo carga y limpió sus datos. Repetición con caché caliente ya comprobó PDF propio y403ajeno sin cambiar producto ni relajar timeout. El resto del recorrido de navegador sigue hasta finalización; no atribuir su PASS completo antes de la nota de cierre.
+
+
+La segunda corrida de navegador alcanzó Finanzas/MFA/inicio/perfil y agotó la espera de confirmación de foto mientras el AVD consumía memoria; limpieza PASS. Se detuvo sólo el emulador propio (sin fixtures nativos), dejando recursos al navegador. El probe ahora espera networkidle del perfil antes de selección de archivo programática, para cargar su bundle cliente; mantiene tamaño>1MB, timeout y validación de guardado. Diagnóstico agregado sin datos privados y repetición PASS de subida real, staging privado, validación servidor y avatar persistido. No se cambió la subida de producto para acomodar el ensayo.
+
+
+Cierre navegador: node scripts/run-isolated.cjs -- scripts/verify-browser-flows.cjs --live final ORIGINAL completo PASS y cleanup PASS. Profesor y constancia PDF propia/403ajena, admin/Finanzas con MFA, panel/perfil financieros, upload>1MB, alumno-examen, reanudación/orden/tiempo/autoguardado/envío/calificación10 y cambio obligatorio de contraseña con sesión renovada comprobados en una misma corrida. Se conserva fallo intermedio de espera load60s al entrar alumno; probe mínimo confirmó destino exacto con DOMContentLoaded180, rate local8/20 sin bloqueo ni reset, y terminó examen+contraseña PASS. Prueba original incorpora esa espera documental y preparación de recursos del perfil; no se relajaron permisos ni se cambió auth/examen/subida del producto.
+
+
+Comprobación posterior de sólo lectura de custodia remota: siete manifiestos anteriores al manual siguen disponibles. El más reciente se descargó y autenticó con AES-GCM y esquema, antigüedad20.68h. Esto comprueba compatibilidad de clave con un respaldo reciente; no prueba origen de cron, archivos de esa copia anterior ni recuperación Auth. Sólo se mostraron conteos/antigüedad, sin nombres escolares ni registros.
+
+
+Cierre de regresión pública en la nueva fuente16.4.2: verify-public-axe PASS34estados (13rutas390/1440, menú/overview/coach/cookies, foco/teclado), cero infracciones seleccionadas, errores, desbordes o escrituras. verify-metrics-consent-browser PASS completo: LCP/INP/CLS oficiales con evento hidden nativo en navegación real, todos POST interceptados, rechazo/v1/vencimiento/permisos separados/retirada y almacenamiento bloqueado. verify-cookie-map-isolated PASS15estados SSR/noJS/cliente/foco/timer/reintento; singleton y dos auditorías propios eliminados. Tres procesos exit0, Chrome cerrado entre probes; ninguna cuenta o fixture en producción. Se libera memoria reiniciando sólo Next3004 propio con heap2GB para QA Android; Docker y datos locales propios siguen aislados.
+
+Se prepara commit/push de la entrega web validada; CI Linux y alias de producción se comprobarán después. Descarga8 conservada mientras code9 sigue QA, sin afirmar publicación nativa. Lector de pantalla, p75 real y aprobaciones institucionales continúan pendientes.

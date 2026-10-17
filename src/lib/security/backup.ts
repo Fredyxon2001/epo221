@@ -2,6 +2,7 @@ import 'server-only';
 import { createCipheriv, createDecipheriv, randomBytes, createHash } from 'node:crypto';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { adminClient } from '@/lib/supabase/admin';
+import { validateBackupManifest } from './backup-integrity';
 
 export function encryptBackup(data: Buffer) {
   const secret = process.env.BACKUP_ENCRYPTION_KEY;
@@ -13,7 +14,7 @@ export function encryptBackup(data: Buffer) {
   return Buffer.concat([Buffer.from('EPOBK1'),iv,cipher.getAuthTag(),payload]);
 }
 export function decryptBackup(data: Buffer) {
-  if (!process.env.BACKUP_ENCRYPTION_KEY || data.subarray(0,6).toString() !== 'EPOBK1') throw new Error('Respaldo inválido.');
+  if (!process.env.BACKUP_ENCRYPTION_KEY || data.length < 34 || data.subarray(0,6).toString() !== 'EPOBK1') throw new Error('Respaldo inválido.');
   const cipher = createDecipheriv('aes-256-gcm', createHash('sha256').update(process.env.BACKUP_ENCRYPTION_KEY).digest(), data.subarray(6,18));
   cipher.setAAD(Buffer.from('epo221:backup:v1')); cipher.setAuthTag(data.subarray(18,34));
   return Buffer.concat([cipher.update(data.subarray(34)),cipher.final()]);
@@ -37,12 +38,18 @@ export async function createSecurityBackup() {
     manifest.files.push({ bucket: file.bucket_id, name: file.name, object, sha256: hash, size: bytes.length });
   }
   const encoded = encryptBackup(gzipSync(Buffer.from(JSON.stringify(manifest))));
-  const decoded = JSON.parse(gunzipSync(decryptBackup(encoded)).toString('utf8'));
+  const decoded = validateBackupManifest(JSON.parse(gunzipSync(decryptBackup(encoded)).toString('utf8')));
   const { data: restored, error: restoreError } = await client.rpc('security_backup_validate', { p_snapshot: decoded.snapshot });
   if (restoreError || !restored?.ok) throw new Error('La prueba de recuperación de datos falló.');
   const name = `snapshots/${manifest.createdAt.replace(/[:.]/g,'-')}.json.gz.enc`;
   const { error: saveError } = await client.storage.from('security-backups').upload(name, encoded, { contentType:'application/octet-stream',upsert:false });
   if (saveError) throw new Error('No se pudo guardar el respaldo cifrado.');
+  // Keep previous snapshots until the new persisted bytes are authenticated.
+  const { data: saved, error: savedError } = await client.storage.from('security-backups').download(name);
+  if (savedError || !saved) throw new Error('No se pudo verificar el respaldo guardado.');
+  const savedBytes = Buffer.from(await saved.arrayBuffer());
+  if (!savedBytes.equals(encoded)) throw new Error('La integridad del respaldo guardado falló.');
+  validateBackupManifest(JSON.parse(gunzipSync(decryptBackup(savedBytes)).toString('utf8')));
   const { data: older, error: listError } = await client.storage.from('security-backups').list('snapshots',{limit:1000});
   if (listError) throw new Error('No se pudo comprobar la retención de respaldos.');
   const expired = (older ?? []).filter(file => file.created_at && Date.parse(file.created_at) < Date.now()-7*24*60*60*1000).map(file => `snapshots/${file.name}`);

@@ -1,13 +1,12 @@
 import { requireIdentity } from "@/lib/security/access";
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { PublicationReadiness } from './PublicationReadiness';
 import { adminClient } from '@/lib/supabase/admin';
 import { HubCards, type HubCard as Card } from './HubCards';
 
 export default async function AdminPublicoHub() {
-  await requireIdentity(["admin","staff","director"]);
+  const { client } = await requireIdentity(["admin","staff","director"]);
 
-  const auth = (await createClient());
   const supabase = adminClient();
 
   // Conteos para tarjetas (tolerante a tablas que aún no existen)
@@ -107,15 +106,10 @@ export default async function AdminPublicoHub() {
         </Link>
       </div>
 
+      <PublicationReadiness client={client} />
       <HubCards cards={cards} />
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-900 flex items-start gap-3">
-        <span className="text-lg">✅</span>
-        <div>
-          <strong>Todo listo.</strong> Las tablas del CMS están creadas, el bucket <code className="text-xs bg-green-100 px-1 rounded-sm">publico</code> está activo y las auditorías se registran automáticamente.
-          Puedes gestionar cada apartado desde las tarjetas de arriba.
-        </div>
-      </div>
+      {[noticias, convocatorias, albumes, paginas].some(result => result.error) && <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-950">No se pudieron comprobar todos los conteos del CMS. Un cero no confirma que el catálogo esté vacío. Revisa la conexión y vuelve a cargar.</p>}
     </div>
   );
 }

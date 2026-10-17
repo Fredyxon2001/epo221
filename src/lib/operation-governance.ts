@@ -35,3 +35,23 @@ export function safeReferenceUrl(value: string): boolean {
 export function validReviewDates(review: string | null, next: string | null): boolean {
   return (!review || validCalendarDate(review)) && (!next || validCalendarDate(next)) && (!review || !next || review <= next);
 }
+
+/** UI guidance mirrors the database preconditions; it never grants approval. */
+export function approvalRequirements(review: Pick<OperationReview, 'tema' | 'folio_referencia' | 'detalle' | 'fecha_revision' | 'proxima_revision' | 'periodicidad_dias' | 'objetivo_rpo_minutos' | 'objetivo_rto_minutos'>, today = schoolToday()): string[] {
+  const missing: string[] = [];
+  if (review.folio_referencia.trim().length < 3) missing.push('Folio o referencia de al menos 3 caracteres.');
+  if (review.detalle.trim().length < 30) missing.push('Procedimiento y evidencia de al menos 30 caracteres.');
+  const dates = !!review.fecha_revision && !!review.proxima_revision && validCalendarDate(review.fecha_revision) && validCalendarDate(review.proxima_revision) && review.fecha_revision <= today && review.proxima_revision >= today && review.fecha_revision <= review.proxima_revision;
+  if (!dates) missing.push('Fecha de revisión ya realizada y próxima revisión vigente, en orden.');
+  else if ((Date.parse(review.proxima_revision! + 'T00:00:00Z') - Date.parse(review.fecha_revision! + 'T00:00:00Z')) / 86400000 > review.periodicidad_dias) missing.push('Próxima revisión dentro de la periodicidad acordada.');
+  if (review.tema === 'continuidad') {
+    if (!Number.isInteger(review.objetivo_rpo_minutos) || review.objetivo_rpo_minutos! < 0 || review.objetivo_rpo_minutos! > 43200) missing.push('Objetivo RPO acordado entre 0 y 43200 minutos.');
+    if (!Number.isInteger(review.objetivo_rto_minutos) || review.objetivo_rto_minutos! < 1 || review.objetivo_rto_minutos! > 43200) missing.push('Objetivo RTO acordado entre 1 y 43200 minutos.');
+  }
+  return missing;
+}
+
+export function reviewDaysRemaining(next: string | null, today = schoolToday()): number | null {
+  if (!next || !validCalendarDate(next) || !validCalendarDate(today)) return null;
+  return (Date.parse(next + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / 86400000;
+}
