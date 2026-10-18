@@ -6,7 +6,7 @@ import { isPublicMetricRoute, METRIC_BUCKETS, type MetricName } from '@/lib/perf
 
 // web-vitals has no unsubscribe API. Retired generations never inspect metrics,
 // keep data or send; its internal public timing observers end at document unload.
-export function PublicPerformanceMetrics({ enabled }: { enabled: boolean }) {
+export function PublicPerformanceMetrics({ enabled, revision = 0 }: { enabled: boolean; revision?: number }) {
   const pathname = usePathname();
   const documentRoute = useRef(pathname);
   const navigated = useRef(false);
@@ -45,6 +45,6 @@ export function PublicPerformanceMetrics({ enabled }: { enabled: boolean }) {
       stop(); window.removeEventListener('epo:consent-changed', stop);
       window.removeEventListener('popstate', changed); window.removeEventListener('focus', changed);
     };
-  }, [enabled, pathname]);
+  }, [enabled, pathname, revision]);
   return null;
 }

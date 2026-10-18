@@ -15,7 +15,7 @@
     "test:improvements": "node scripts/verify-improvements.cjs",
     "test:isolated": "node scripts/verify-isolated-system.cjs",
     "test:operation": "node scripts/verify-operation-governance.cjs && node scripts/verify-operation-actions.cjs",
-    "test:metrics": "node scripts/verify-public-metrics.cjs && node scripts/verify-public-metrics-client.cjs"
+    "test:metrics": "node scripts/verify-public-metrics.cjs && node scripts/verify-public-metrics-client.cjs && node scripts/verify-metrics-consent-proxy.cjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "5.3.0",

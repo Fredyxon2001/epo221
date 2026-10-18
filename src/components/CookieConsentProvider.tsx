@@ -11,6 +11,7 @@ export const useCookieConsent = () => useContext(ConsentContext);
 export function CookieConsentProvider({ children, initialConsent = null }: { children: React.ReactNode; initialConsent?: CookieConsent | null }) {
   const [consent, setConsent] = useState<CookieConsent | null>(initialConsent);
   const [ready, setReady] = useState(false);
+  const [metricsRevision, setMetricsRevision] = useState(0);
   const [settings, setSettings] = useState(false);
   const [external, setExternal] = useState(false);
   const [analytics, setAnalytics] = useState(false);
@@ -49,6 +50,9 @@ export function CookieConsentProvider({ children, initialConsent = null }: { chi
     const stored = readBrowserConsent();
     const saved = stored?.version === next.version && stored.external === next.external && stored.analytics === next.analytics && stored.savedAt === next.savedAt;
     failedSave.current = !saved;
+    // A verified save starts a fresh generation even when analytics stays true.
+    // Focus/timer syncs must not restart observers or revive a failed withdrawal.
+    if (saved) setMetricsRevision(revision => revision + 1);
     setConsent(saved ? stored : null);
     setReady(true);
     setStorageError(!saved);
@@ -62,7 +66,7 @@ export function CookieConsentProvider({ children, initialConsent = null }: { chi
   return (
     <ConsentContext.Provider value={{ external: ready && consent?.external === true, analytics: ready && consent?.analytics === true, openSettings }}>
       {children}
-      <PublicPerformanceMetrics enabled={ready && consent?.analytics === true} />
+      <PublicPerformanceMetrics enabled={ready && consent?.analytics === true} revision={metricsRevision} />
       <button ref={trigger} type="button" onClick={openSettings} data-cookie-ready={ready ? 'true' : 'false'}
         className="fixed bottom-3 left-3 z-80 rounded-full bg-white px-4 py-2 text-xs font-semibold text-teal-900 shadow-lg border border-teal-200">
         Preferencias de cookies
