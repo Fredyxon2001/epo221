@@ -78,3 +78,6 @@ No hubo nuevos cambios de producto durante esta repetición ni se relajaron aser
 ## Corrección de continuidad de métricas — 2026-10-18
 
 Guardar de nuevo preferencias con analítica activa rearma únicamente una generación confirmada por lectura de cookie, manteniendo deduplicación por documento e invalidación anterior a persistencia. Unidades simuladas y navegador real PASS: INP/CLS pendientes vuelven a reportarse sin otro LCP; retirada fallida permanece bloqueada. El probe captura keepalive en un proxy HTTP loopback antes del backend, con origen/rutas/métodos/límites y cleanup probados; no fabrica valores ni eventos, ni escribe métricas en producción. La navegación normal produce hidden nativo y las tres métricas oficiales. Detalle, evidencia y límites en AGENTS.md (18oct).
+
+
+Al18oct, fuente funcionalf752114 tiene CI completa SUCCESS y Vercel READY. El smoke HTTPS directo confirma LCP, true→true sin duplicado y retirada/reload, con POST interceptados. Tres métricas completas corresponden a laboratorio/CI; reverseHTTPS→HTTP no produjo LCP y no se usa como prueba publicada. El probe integral exige origen HTTPloopback antes de abrir Chrome. AGENTS.md conserva la evidencia y limitaciones sin atribuir una causa no demostrada.

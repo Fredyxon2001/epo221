@@ -4,15 +4,17 @@ const {load}=require('./security-loader.cjs');
 const {parsePublicMetricPayload}=load('src/lib/performance/public-metrics.ts');
 const {startMetricsProxy}=require('./metrics-consent-proxy.cjs');
 const upstream=process.env.FLOW_BASE_URL||'http://127.0.0.1:3004',cookieName='epo221-cookie-consent';
+const target=new URL(upstream);
+assert.ok(target.protocol==='http:' && ['127.0.0.1','localhost','[::1]'].includes(target.hostname) && target.pathname==='/' && !target.search && !target.hash && !target.username && !target.password,'Full consent lifecycle probe requires an explicit HTTP loopback origin; published HTTPS uses a separate direct smoke test.');
 const encode=data=>encodeURIComponent(JSON.stringify(data));
 (async()=>{
  const browser=await chromium.launch({headless:false});const results=[],proxies=[];
  const phase=name=>console.log('Checking '+name);
  async function page(cookie,blocked=false){
-  const samples=[],mode=new URL(upstream).protocol==='http:'?'forward':'reverse';
+  const samples=[],mode='forward';
   const proxy=await startMetricsProxy(upstream,payload=>{assert.ok(parsePublicMetricPayload(payload));samples.push(payload);},{mode});proxies.push(proxy);
-  const base=mode==='forward'?upstream:proxy.base;
-  const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',serviceWorkers:'block',...(mode==='forward'?{proxy:{server:proxy.base,bypass:'<-loopback>'}}:{})});
+  const base=upstream;
+  const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce',serviceWorkers:'block',proxy:{server:proxy.base,bypass:'<-loopback>'}});
   if(cookie)await ctx.addCookies([{name:cookieName,value:encode(cookie),url:base}]);
   await ctx.route('**/*',route=>{
    const request=route.request();
