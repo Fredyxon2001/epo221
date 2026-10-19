@@ -156,3 +156,12 @@ Avisos confirmados, chats visibles, borradores por cuenta, archivos nativos, acc
 
 
 Navegador privado completo contra build optimizado final PASS y limpieza PASS (19oct); contratos/servicios/estáticos finales PASS. Backend nuevo se puede publicar con guard readiness503 hasta migración escolar autorizada. APK11 continúa en cola, sin publicación ni prueba Android atribuida. Detalle del recibo y límites en AGENTS.md.
+
+
+## Activación y riesgo de cuota — 2026-10-19
+
+Migración20261019185038 ya aplicada al Supabase escolar mediante sesión autenticada autorizada: cuatroguardas, service-only, historial1 y RESTready200true/anon401 verificados. Se cierra bloqueo de activación SQL, no la QA/distribución de APK final. Web b8e0ba8 publicado READY y auditoría23páginas/13recursos sinfallos; buildseguridad CI PASS, integral pendiente de recibo.
+
+**Prioridad operativa: antes del27oct2026.** Organización compartida Free en gracia por StorageSizeExceeded: promedio2.395GB/1GB; filtroEPO sólo0.073GB. Restricción anunciada puede causar402 a todos los proyectos. Titular debe resolver consumo compartido o aprobar un plan con costo explícito; no se contrataron planes ni borraron datos. Captura/UI y metadatos sustentan el hallazgo; no atribuir el exceso a las mejoras escolares. Asesores actuales0errores/20warnings/3info requieren revisión contextual; no revocar indiscriminadamente helpersRLS.
+
+Fuente funcional webb8e0ba8 cierra ambasCI con SUCCESS, incluido simulacro integral aislado+cleanup. Publicación institucional y activaciónSQL confirmadas. Continúa candidato Android final; descarga10 conservada hasta su QA.
