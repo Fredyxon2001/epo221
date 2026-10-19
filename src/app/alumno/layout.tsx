@@ -1,5 +1,4 @@
 import { scopedClient } from '@/lib/security/resources';
-import { logoutAction } from '@/app/login/actions';
 import { requireAccess } from '@/lib/security/access';
 import { redirect } from 'next/navigation';
 import { PrivateShell } from '@/components/privado/PrivateShell';
@@ -36,7 +35,7 @@ export default async function AlumnoLayout({ children }: { children: React.React
             <div className="break-all"><strong>ID:</strong> {user.id}</div>
           </div>
           <a href="/cambiar-password" className="block text-xs text-verde hover:underline mb-3">Cambiar mi contraseña</a>
-          <form action={logoutAction}><button
+          <form action="/api/logout" method="post"><button
             className="inline-block text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded-sm"
           >
             Cerrar sesión

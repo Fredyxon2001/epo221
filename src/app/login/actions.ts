@@ -1,4 +1,7 @@
 'use server';
+import { cookies } from 'next/headers';
+import { bestEffortRemoteLogout, localLogoutCookieNames } from '@/lib/supabase/local-logout';
+import { authCookieOptions } from '@/lib/supabase/cookie-options';
 
 import { createClient } from '@/lib/supabase/server';
 import { adminClient } from '@/lib/supabase/admin';
@@ -60,7 +63,8 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function logoutAction() {
-  const supabase = (await createClient());
-  await supabase.auth.signOut();
+  const store = await cookies(), snapshot = store.getAll();
+  for (const name of localLogoutCookieNames(snapshot, process.env.NEXT_PUBLIC_SUPABASE_URL!)) store.set(name, '', { ...authCookieOptions, maxAge: 0 });
+  await bestEffortRemoteLogout(snapshot, process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
   redirect('/');
 }

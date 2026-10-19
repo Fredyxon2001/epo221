@@ -165,3 +165,16 @@ Migración20261019185038 ya aplicada al Supabase escolar mediante sesión autent
 **Prioridad operativa: antes del27oct2026.** Organización compartida Free en gracia por StorageSizeExceeded: promedio2.395GB/1GB; filtroEPO sólo0.073GB. Restricción anunciada puede causar402 a todos los proyectos. Titular debe resolver consumo compartido o aprobar un plan con costo explícito; no se contrataron planes ni borraron datos. Captura/UI y metadatos sustentan el hallazgo; no atribuir el exceso a las mejoras escolares. Asesores actuales0errores/20warnings/3info requieren revisión contextual; no revocar indiscriminadamente helpersRLS.
 
 Fuente funcional webb8e0ba8 cierra ambasCI con SUCCESS, incluido simulacro integral aislado+cleanup. Publicación institucional y activaciónSQL confirmadas. Continúa candidato Android final; descarga10 conservada hasta su QA.
+
+
+## Resiliencia de sesión frente a cuota — 2026-10-19
+
+Defecto reproducido en SDK SSR: refresh expirado402/429 podía borrar cookie; el proxy también cerraba sesión por error transitorio de RPC. Se implementa transporte limitado al Auth configurado,503 cerrado/reintento sin borrar sesión y retiro local sólo ante invalidez comprobada. Auth10s/proxy8s son presupuestos de aplicación; archivos/REST fuera proxy mantienen tiempos existentes. Contratos de fuente real y SSR SDK sintético PASS; sin cuentas/red/esquema. Publicación y CI del commit nuevo requieren recibo independiente; Next local vivo sigue en build anterior. Esto reduce pérdidas de sesión, pero NO resuelve la cuota compartida/gracia27oct ni autoriza acceso durante caída; continúa decisión del titular descrita arriba. APK final y recuperación alojada conservan sus pendientes separados.
+
+Revisión previa a publicar: errores de permisos PostgREST403/42501 se separan de Auth403; los primeros devuelven503 sin cerrar sesión. Se requiere recibo del build fresco posterior a esta corrección, no el intermedio de calentamiento.
+
+
+**Cierre local durante indisponibilidadAuth (19oct):** /api/logout POST same-Origin + Fetch-Metadata,303/login/no-store y retiro exacto de cookies/chunks del proyecto antes de revocación global best-effort (JWT existente,2s/abort,redirect:error,sin refresh/getUser). Cuatroformularios y actionlegacy reutilizados; proxy sólo permite esta ruta POST y503ofrece salida local explícita. Contratos reales sintéticos/146guardas/test:security/lint/tipos PASS, sin red/fixtures. Revocación remota no garantizada siAuth/token fallan; navegador fresco y despliegue porSHA requieren recibo posterior.
+
+
+Recibo final Auth/logout19oct: build optimizado nuevo157s/0warnings y436archivos con huella d0940a857412ce1729c4c007c5be7760961131e75947dc04cd671745257fc23d idéntica antes/después. Flujos originales completosPASS; añadido503simulado falló inicialmente por interferencia delSW (comando65507exit1, cleanupPASS), causa comprobada anónimamente. ContextoQAseparado sinSW preserva originales: focal62455PASS/cleanup, unGET503HTML simulado desde proxy real yPOSTlogoutREAL303→loginGET200, Authchunksfuera/consentigual.0cuentas/exámenes/ciclos sintéticos residuales. Producto no cambió para corregir instrumento. Detalles y límites enAGENTS; publicación/CI del commit nuevo pendiente de recibo root, cuota27oct yAPK final no se resuelven con estas pruebas.

@@ -2,6 +2,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { authCookieOptions } from './cookie-options';
+import { resilientAuthFetch } from './auth-resilience';
 
 export const createClient = async () => {
   const cookieStore = await cookies();
@@ -10,6 +11,7 @@ export const createClient = async () => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookieOptions: authCookieOptions,
+      global: { fetch: resilientAuthFetch(process.env.NEXT_PUBLIC_SUPABASE_URL!) },
       cookies: {
         getAll: () => cookieStore.getAll(),
         setAll: (list: { name: string; value: string; options: CookieOptions }[]) => {

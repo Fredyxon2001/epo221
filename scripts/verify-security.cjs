@@ -68,6 +68,8 @@ async function main(){
   }}}
   visit('src/app');assert.ok(guarded>=140);
   await require('./verify-mobile-api-contracts.cjs').verify();
+  await require('./verify-auth-resilience.cjs').verify();
+  await require('./verify-local-logout.cjs').verify();
   console.log(`PASS: ${guarded} action guards; API authorization/MFA/CSRF/rate failures; redirects, password entropy, authenticated encryption, upload signatures and CSP.`);
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

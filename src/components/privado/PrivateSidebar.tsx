@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { logoutAction } from '@/app/login/actions';
 import { LogoEPO } from '@/components/publico/LogoEPO';
 
 export type NavItem = { href: string; label: string; icon: string; badge?: number | string };
@@ -214,7 +213,7 @@ export function PrivateSidebar({
             )}
           </div>
 
-          <form action={logoutAction} className="block">
+          <form action="/api/logout" method="post" className="block">
             <button
               type="submit"
               title="Cerrar sesión"

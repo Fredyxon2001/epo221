@@ -1,6 +1,7 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { adminClient } from '@/lib/supabase/admin';
+import { resilientAuthFetch } from '@/lib/supabase/auth-resilience';
 
 export function mobileReply(error:string,status:number) {
   return Response.json({error},{status,headers:{'Cache-Control':'private, no-store'}});
@@ -11,9 +12,13 @@ export async function mobileIdentity(req:Request) {
   const origin=req.headers.get('origin');
   if(origin&&origin!==new URL(req.url).origin)return {response:mobileReply('Origen no permitido.',403)};
   const client=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{
-    global:{headers:{Authorization:`Bearer ${token}`}},auth:{persistSession:false,autoRefreshToken:false},
+    global:{headers:{Authorization:`Bearer ${token}`},fetch:resilientAuthFetch(process.env.NEXT_PUBLIC_SUPABASE_URL!)},auth:{persistSession:false,autoRefreshToken:false},
   });
-  const {data:{user},error}=await client.auth.getUser(token);
+  let identity;
+  try { identity = await client.auth.getUser(token); }
+  catch { return {response:mobileReply('No se pudo verificar tu acceso temporalmente. Reintenta.',503)}; }
+  const {data:{user},error}=identity;
+  if (error && (error.status === 402 || error.status === 429 || !error.status || error.status >= 500)) return {response:mobileReply('No se pudo verificar tu acceso temporalmente. Reintenta.',503)};
   if(error||!user)return {response:mobileReply('Sesión expirada.',401)};
   const {data:valid,error:sessionError}=await client.rpc('security_session_valid');
   if(sessionError||!valid)return {response:mobileReply('Completa la verificación de tu acceso.',403)};

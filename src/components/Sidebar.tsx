@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { logoutAction } from '@/app/login/actions';
 
 type Item = { href: string; label: string; icon: string };
 
@@ -27,7 +26,7 @@ export function Sidebar({ items, titulo }: { items: Item[]; titulo: string }) {
           </Link>
         ))}
       </nav>
-      <form action={logoutAction} className="p-3 border-t border-verde-medio">
+      <form action="/api/logout" method="post" className="p-3 border-t border-verde-medio">
         <button
           type="submit"
           className="w-full text-left px-3 py-2 rounded-md hover:bg-verde-medio text-sm text-white/80"

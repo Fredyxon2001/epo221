@@ -12,7 +12,7 @@ function load(file, modules = {}, environment = 'production') {
   }).outputText;
   const exports = {};
   vm.runInNewContext(source, { exports, require: (name) => modules[name] ?? require(name),
-    process: { env: { NODE_ENV: environment, NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co' } }, URL, console, Buffer, Headers });
+    process: { env: { NODE_ENV: environment, NEXT_PUBLIC_SUPABASE_URL:'https://example.supabase.co' } }, URL, console, Buffer, Headers, AbortController, fetch, setTimeout, clearTimeout });
   return exports;
 }
 
@@ -72,6 +72,7 @@ async function main() {
       'next/server': { NextRequest, NextResponse },
       '@supabase/ssr': { createServerClient },
       '@/lib/supabase/cookie-options': { authCookieOptions: production },
+      '@/lib/supabase/auth-resilience': require('./security-loader.cjs').load('src/lib/supabase/auth-resilience.ts'),
       '@/lib/security/csp': require('./security-loader.cjs').load('src/lib/security/csp.ts'),
       '@/lib/security/policy': require('./security-loader.cjs').load('src/lib/security/policy.ts'),
     });
