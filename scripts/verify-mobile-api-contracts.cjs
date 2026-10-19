@@ -60,6 +60,27 @@ async function readinessContracts(){
  console.log('PASS native rollout gate: missing/error/false/nonboolean readiness denies new writes before RPC/storage/ticket; reads and legacy text remain compatible.');
 }
 
+async function legacyTaskBodyContracts(){
+ let mutations=0,lastComment='';
+ const tasks=load('src/app/api/mobile/tasks/route.ts',{'@/lib/security/mobile':{mobileReply:reply,mobileIdentity:async()=>({user:{id:actor},profile:{rol:'alumno'},service:{rpc:async(name,args)=>{assert.equal(name,'security_mobile_submit_task');mutations++;lastComment=args.p_comment;return {error:null};}}})},'@/lib/security/rate-limit':{rateLimit:async()=>true}});
+ const send=(body,headers={})=>tasks.POST(new Request('https://school.invalid/api/mobile/tasks',{method:'POST',headers:{'Content-Type':'application/json',...headers},body}));
+ const comment='中'.repeat(40000),body=JSON.stringify({task_id:exam,comment});
+ assert.ok(Buffer.byteLength(body)>115000);assert.ok(body.length<110000);
+ assert.equal((await send(body)).status,200);assert.equal(lastComment,comment);
+ assert.equal((await send(body,{'Content-Length':String(Buffer.byteLength(body))})).status,200);assert.equal(mutations,2);
+ const prefix={task_id:exam,comment:'Synthetic',padding:''};const empty=JSON.stringify(prefix);const exact=JSON.stringify({...prefix,padding:'x'.repeat(110000-empty.length)});
+ assert.equal(exact.length,110000);assert.equal((await send(exact)).status,200);
+ assert.equal((await send(exact+' ')).status,413);assert.equal(mutations,3,'Historical UTF16 ceiling must remain enforced');
+ assert.equal((await send(body,{'Content-Length':'440001'})).status,413);assert.equal(mutations,3);
+ for(const claimedLength of [undefined,'1']){
+  let canceled=false;
+  const stream=new ReadableStream({start(controller){controller.enqueue(new Uint8Array(220000));controller.enqueue(new Uint8Array(220001));},cancel(){canceled=true;}});
+  const req=new Request('https://school.invalid/api/mobile/tasks',{method:'POST',headers:{'Content-Type':'application/json',...(claimedLength?{'Content-Length':claimedLength}:{})},body:stream,duplex:'half'});
+  assert.equal((await tasks.POST(req)).status,413);assert.equal(canceled,true,'Oversized streamed body must be canceled');assert.equal(mutations,3);
+ }
+ console.log('PASS legacy task body: 40000 Unicode characters with/without Content-Length, historical UTF16 limit and bounded streamed transport before mutation.');
+}
+
 async function main(){
  reset();assert.equal(helper.examAnswers({[question]:'answer'}),true);assert.equal(helper.examAnswers({wrong:'answer'}),false);assert.equal(helper.examAnswers({[question]:1}),false);assert.equal(helper.examAnswers({[question]:'x'.repeat(10001)}),false);assert.equal(helper.examAnswers(Array(2)),false);
  const boundary=Object.fromEntries(Array.from({length:9},(_,n)=>[id(100+n), 'x'.repeat(n<8?10000:9621)]));
@@ -81,6 +102,7 @@ async function main(){
  reset();assert.equal((await request({action:'save',attempt_id:attempt,answers:{[question]:'A'}})).status,404);assert.equal(rpcCalls.length,0);
  reset();rows.examen_intentos=[{id:attempt,alumno_id:student,examen_id:exam}];rpcResult={data:{ok:true},error:null};assert.equal((await request({action:'submit',attempt_id:attempt,answers:{[question]:'A'},p_actor_id:id(999)})).status,200);assert.equal(rpcCalls[0].args.p_actor_id,actor);assert.equal(rpcCalls[0].args.p_submit,true);
  rpcResult={error:{code:'SYNTHETIC'}};assert.equal((await request({action:'save',attempt_id:attempt,answers:{[question]:'A'}})).status,409);
+ await legacyTaskBodyContracts();
  await taskReceipts();
  await readinessContracts();
  console.log('PASS synthetic mobile exam contracts: actor binding, role/access/rate/query failures, no side-effect preview, cycle/ownership, sanitization and publication gating. No DB or network.');

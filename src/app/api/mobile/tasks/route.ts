@@ -5,6 +5,21 @@ import { receiveUploadTicketForActor } from '@/lib/security/upload-tickets';
 import { validateFormData } from '@/lib/security/form-data';
 import { mobileUuid } from '@/lib/security/mobile-exams';
 export const runtime='nodejs';
+const TASK_BODY_BYTES=440000;
+const TASK_BODY_UTF16=110000;
+async function boundedTaskBody(req:Request):Promise<string|null> {
+  const reader=req.body?.getReader();if(!reader)return '';
+  const chunks:Uint8Array[]=[];let total=0;
+  try {
+    while(true) {
+      const {value,done}=await reader.read();if(done)break;
+      total+=value.byteLength;
+      if(total>TASK_BODY_BYTES){await reader.cancel().catch(()=>{});return null;}
+      chunks.push(value);
+    }
+    return Buffer.concat(chunks,total).toString('utf8');
+  }finally{reader.releaseLock();}
+}
 export async function POST(req:Request) {
   let uploadedPath: string | null = null;
   let mutationStarted = false;
@@ -14,9 +29,9 @@ export async function POST(req:Request) {
     const {user,profile,service}=identity;
     if(profile.rol!=='alumno')return mobileReply('Acceso de alumno requerido.',403);
     if(!req.headers.get('content-type')?.startsWith('application/json'))return mobileReply('Solicitud inválida.',400);
-    if(Number(req.headers.get('content-length')??0)>115000)return mobileReply('Respuesta demasiado grande.',413);
+    if(Number(req.headers.get('content-length')??0)>TASK_BODY_BYTES)return mobileReply('Respuesta demasiado grande.',413);
     if(!await rateLimit('mobile-task-submit',30,600,user.id))return mobileReply('Demasiados intentos. Intenta más tarde.',429);
-    const text=await req.text();if(Buffer.byteLength(text,'utf8')>115000)return mobileReply('Respuesta demasiado grande.',413);
+    const text=await boundedTaskBody(req);if(text===null||text.length>TASK_BODY_UTF16)return mobileReply('Respuesta demasiado grande.',413);
     let input;try{input=JSON.parse(text);}catch{return mobileReply('Solicitud inválida.',400);}
     if(!mobileUuid(input?.task_id)||typeof input.comment!=='string'||!input.comment.trim()||input.comment.length>100000||
       (input.upload_ticket!==undefined&&(typeof input.upload_ticket!=='string'||input.upload_ticket.length>3000)))return mobileReply('Respuesta inválida.',400);
