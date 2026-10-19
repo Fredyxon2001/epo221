@@ -1,18 +1,23 @@
-# Mejoras escolares — seguimiento al 2026-10-18
+# Mejoras escolares — seguimiento al 2026-10-19
 
-Estado funcional comprobado al18oct: webf752114352aa7039fb5f4bbd3d67557c71e84d8d publicada READY (dpl_FkTWahN1kLf7V6Qv3j7yDrTFLi25), ambas suites CI SUCCESS con Next16.4.2/React19.3.1. El enlace/QR institucional entrega Android1.3.0/code10: descarga completa71429665bytes/SHA256cc2107122b5bfecd17f646a6f3ff9ba78771c6b409e909c2def9229a8c7bc591 verificada. Instalador390/1440 con QR/versión/instrucciones/axe seleccionado/sin errores ni escrituras PASS. APK fuente46cdb7c/runtime1.3.0, EAS19539f91-f4ba-474a-a41e-c8a27ebafca2 y cuatro escenariosAPI24/x86_64 con cleanup integral PASS. Fuente móvil ea16 (funcional46) y webf752114 tienen ambas suites CI SUCCESS. El recibo del18oct conserva su alcance y distingue pruebas locales completas del smoke directo publicado. Code9 retenido;8 es archivo anterior. La tabla separa pendientes externos, y los bloques anteriores fechados son historia.
+Estado actual: web funcional e5efc13b7a56b83535a660dfe218b1f37eadebcb con ambas CI SUCCESS, Vercel dpl_FsJWaKGPLSnKrsYCEqEnvhSPBceB READY y ambos dominios institucionales con SHA exacto. Auditor publicado:23páginas/13recursos/0fallos, guardas privadas/APIs/logout/caché PASS. APK **1.4.0/code15 publicado**, fuente69c93029e816165fbb578d722e85af2c8efaf45e, ambas CI SUCCESS, EASed1a2b3c-d84c-49e8-b76c-3dca0c137c4d. Descarga completa pública71,536,713bytes/SHA256cff50e4927e8961f36b07aba3d508a56584c40b4476cd1c79042ea10a730bef0, misma firma original. **18/18 pruebas nativas frescas y limpieza PASS** en emuladores Android7/10. Descriptor/página institucional actualizados a15 en este cierre; su commit/CI/despliegue y navegador se registrarán al terminar en AGENTS.md. Code10 permanece reversión;11/13/14 no publicados y12 cancelado.
 
-## Siete frentes — entrega del16oct
+## Siete mejoras y exámenes nativos — entrega del19oct
 
-| Frente | Resultado comprobado | Pendiente que no se sustituye por código |
+| Frente | Resultado comprobado | Alcance y pendiente |
 | --- | --- | --- |
-| 1. Framework y parches web | Next16.4.2/React19.3.1, guard de versiones, audit0 y CI/build/servicios/navegador PASS | Mantener revisión de avisos nuevos |
-| 2. Asesores Supabase | Acceso actual del conector denegado -32600; no se eludió | Reautorizar conector y revisar asesores vigentes |
-| 3. App móvil | APK1.3.0/code10 firmado, TLS públicoAPI24, acceso/MFA/guía/sesión/503 y upgrade8→10 PASS; release y bytes públicos verificados | ARM físico, upgrade1.0, iOS y TalkBack; tres avisos de herramientas móviles sin parche upstream |
-| 4. Respaldo y recuperación | Copia real cifrada/custodia local PASS y simulacro integral aislado con Auth/TOTP/RLS/Storage PASS | Auth/infraestructura alojados, copia externa y RPO/RTO institucionales |
-| 5. Contenido público | Checklist real de ciclo/contacto/guía/PDF y editor de histórico/activo PASS | La escuela confirma/publica datos y documentos oficiales |
-| 6. Accesibilidad y métricas | 34estados seleccionados axe/teclado/sin desborde; LCP/INP/CLS oficiales con consentimiento PASS | Lector de pantalla real, PDF accesibles y p75 de campo |
-| 7. Operación institucional | Revisiones por rol/MFA, evidencia/fechas y bloqueo de aprobación al editar PASS | Responsables, custodia, políticas y aprobaciones institucionales |
+| 1. Avisos | Acuse explícito, error/reintento y adjunto privado; descargar no marca lectura | Web/RNWeb y APK15 aislados; sin escrituras de QA alojadas |
+| 2. Chats | Acuses sólo del hilo/cuenta visibles, suspendidos durante guía/background; envío único | Ambos chats con ayuda tocable fuera de StatusBar en API24/29 |
+| 3. Borradores | Tareas/mensajes por cuenta, aviso al salir y restauración temporal | En memoria: no sobreviven cierre completo, no sustituyen entrega |
+| 4. Archivos privados | Selección nativa, entrega con archivo, descarga autorizada y URI con permiso/readback diferido | Migración escolar20261019185038 aplicada una vez; readiness200true/anon401 |
+| 5. Accesibilidad móvil | Fuente1.3 y TalkBack real de fuente oficial firmado QA, foco/acción/TTS y guía por rol | Emuladores; audio físico/gestos/ARM/iOS/Android16 runtime pendientes |
+| 6. Sitio público | Navegación/recursos/PDF y estados seleccionados axe/teclado/tamaños, fechas civiles corregidas | No certifica PDF/UA ni WCAG; datos oficiales y p75 requieren validación institucional/de campo |
+| 7. CI y recuperación | Suites aisladas web/móvil y recuperación local con Auth/TOTP/RLS/Storage, CI programada | Auth/infraestructura alojados, custodia externa y RPO/RTO institucionales pendientes |
+| Exámenes nativos | Alumno: preview sin intento, inicio, autosave, reanudar mismo intento y entregar; API/UI ocultan nota cuando corresponde | SELECT histórico propio de examen_intentos.calificacion requiere migración compatible; personal usa portal |
+
+Conector Supabase sigue sin acceso al escolar; vía alternativa expresamente autorizada de sesión autenticada de navegador confirmó proyecto, catálogos, migración y asesores. Asesor UI:0errores/20advertencias/3info anunciados; revisión acotada de buckets/helpers internos, sin revocar funciones usadas por RLS. No es certificación integral. Cuota compartida StorageSizeExceeded: promedioorganización2.395GB/1GB; escolar0.073GB; gracia termina **27oct2026**. El titular debe resolver capacidad o aprobar presupuesto antes de esa fecha; no se contrató ni borró otro proyecto. Auth402/429 conserva sesión cifrada para reintentar y bloquea acceso, sin resolver esa cuota.
+
+Guías por rol y recomendaciones Google Authenticator ya disponibles. Las reglas operativas de cierre, aprobaciones, custodia y publicaciones oficiales siguen sujetas a responsables escolares. No se atribuye ausencia absoluta de bugs ni cumplimiento normativo completo a estas pruebas. Los bloques fechados anteriores siguientes son historia.
 
 Nota histórica del 2026-10-07, antes de publicar code8: asistente visual vestido por rol y guía secuencial introducción→controles→siguiente módulo implementados en web y app vigente; recomendaciones y tiendas oficiales Google Authenticator añadidas. Guía pública11 módulos y RN Web de todos los roles pasan. Fuente móvil e32b936 publicada en Git/CI success; APK code8 solicitado una sola vez (EAS e1347938-eed4-4934-adab-561741c78807), pendiente QA nativo antes de distribución/OTA. Descarga code7 sigue vigente hasta terminar esa comprobación. Web final, rutas compartidas, compilación y estado de despliegue se registrarán a continuación en AGENTS.md. Se conservan los pendientes institucionales y límites de verificación descritos abajo.
 
@@ -30,7 +35,7 @@ Las reglas de cierre son operativas: fechas concluidas, inscripción/materias/ca
 - Lighthouse: referencia rendimiento51/accesibilidad96/LCP7.63s/CLS0/TBT618ms. Último ensayo sin emulador tras reducir filtros móviles: rendimiento73/accesibilidad100/buenas prácticas100/SEO100/LCP2.98s/TBT548.5ms/CLS0.00305. Se conservan corridas intermedias y condiciones; no son métricas de campo ni certificación WCAG.
 - PWA: registro activo en producción; portada/título/enlace principal visibles también sin JavaScript.
 
-## Continuidad operativa pendiente — revisada2026-10-16
+## Continuidad operativa — recibo histórico2026-10-16 (actualizado en el estado del19oct arriba)
 
 1. Simulacro integral local PostgreSQL17.11 PASS con Auth/TOTP originales, revocación, relaciones/RLS y bytes Storage públicos/privados. Respaldo real de aplicación y copia cifrada local íntegra/reciente PASS hoy. Siguen pendientes Auth alojado/infraestructura, custodia externa y objetivos institucionales RPO/RTO. Se utilizó Docker propio; no se contrató la rama cotizada anteriormente.
 2. Android1.3.0/code10 publicado y verificado: TLS público real/API24, acceso/MFA/guía/sesión/logout, recuperación503 y actualización original8→10 sin borrar datos PASS. Code9 retenido por dos defectos reproducidos;8 conservado como anterior. Android físico ARM, actualización desde1.0 e iOS no están probados. QR antiguos directos al objeto Supabase1.0 deben sustituirse por /app-movil/descargar.
@@ -190,3 +195,10 @@ Web eca3d08ce30f917996c0ee52e3dd297ea4b31dc7: ambasCI SUCCESS, Vercel READY/alia
 Corregidas11presentaciones web en8páginas: SQLDATE ya no se transforma en instante medianoche y se evita mostrar el día anterior. Helper estrictoUTC conserva los formatos de ciclos, historial, álbumes y bitácora; pago usa literal como su página existente. Seguridad146, pruebas con4zonas horarias, tipos y lint PASS; sin cambios de datos/consultas/timestamptz. Detalle enAGENTS. Publicación del nuevo commit requiere recibo porSHA.
 
 En APK13 se confirmó hora+1h por TZDBantigua con SQL/UI sincronizados y fecha civil2008-03-15→14mar por ejecución de fuente. Se retiene13sinpublicar. Fuente móvil3704a8b26f6fa5bb50333d26dcca511dbab5da79 aplica sóloformato: UTC−6 después de última transición2022, reglas históricas anteriores y día civil intacto. Unidades/SDK/guías/tipos PASS; nueva compilación14 solicitada una única vez con Free9/15Android y estimado0. Export/RNWeb fresco y pruebas reales del artefacto14 siguen pendientes; descarga10 permanece aprobada.
+
+
+## Recibo publicado de fechas civiles y candidato móvil15 — 2026-10-19
+
+Web e5efc13b7a56b83535a660dfe218b1f37eadebcb en main/origin: Security and build39331964506 e Isolated school flows39331964595 SUCCESS. Build local optimizado131s/sinwarnings y navegador integral original EXIT0/cleanupPASS sobre437archivos funcionales/huella11394d57381aa857503ab82b0f7f929aee275c217f96ac6467d11fd8740a3f4c idéntica antes/después. Vercel dpl_FsJWaKGPLSnKrsYCEqEnvhSPBceB READY y dominios institucionales vinculados al SHA exacto; auditoría23páginas/13recursos sinfallos, guardasprivadas307/no-store, APIs401 y GETlogout405 PASS. Recibo ignorado .qa/e5efc13-publication-proof.json. Se cierra publicación del arreglo civil; no se deduce ausencia absoluta de errores de este smoke anónimo.
+
+APK14/fuente3704a8b queda supersedido por defecto real del objetivo táctil Ayuda de los chats: centro dentro StatusBar, sólo funcionaba punto inferior. Fuente móvil69c93029e816165fbb578d722e85af2c8efaf45e mueve exclusivamente ayuda debajo del encabezado en ambos chats, con prueba JSX negativa previa/positiva y suite/tipos/lint PASS. EAS15 ed1a2b3c-d84c-49e8-b76c-3dca0c137c4d solicitado una vez, versión/runtime1.4.0, código15; Free10/15Android antes de solicitud y estimado0. Descarga pública conserva code10 hasta pruebas nuevas del APK15 exacto y cleanup. Pruebas históricas parciales13/14 nunca acreditan15 ni autorizan su distribución.

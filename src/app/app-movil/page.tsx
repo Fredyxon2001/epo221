@@ -47,7 +47,7 @@ export default async function AppMovilPage() {
           </ol>
 
           <p className="text-sm text-gray-700">
-            Para actualizar, abre el nuevo APK sobre la app instalada y elige <strong>Actualizar</strong>. Evita desinstalarla para conservar tu sesión y preferencias. La actualización desde la compilación 8 se comprobó en el emulador; esta versión requiere descargar e instalar el APK nuevo.
+            Para actualizar, abre el nuevo APK sobre la app instalada y elige <strong>Actualizar</strong>. Evita desinstalarla para conservar tu sesión y preferencias. La actualización de la compilación 10 a la 15 se verificó en emulador conservando la sesión. Esta compilación también se probó en emuladores Android 7.0 y Android 10; requiere descargar e instalar el APK nuevo.
           </p>
 
           <a
@@ -67,7 +67,7 @@ export default async function AppMovilPage() {
       <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
         <h3 className="font-semibold text-amber-900 mb-2">⚠️ Sobre Android e iPhone</h3>
         <ul className="text-sm text-amber-900 space-y-1">
-          <li>• <strong>Android:</strong> APK directo para Android 7 o posterior. Esta compilación se verificó en emulador Android 7.0; las pruebas en dispositivos físicos siguen pendientes.</li>
+          <li>• <strong>Android:</strong> APK directo para Android 7 o posterior. Esta compilación se verificó en emuladores Android 7.0 y Android 10; las pruebas en dispositivos físicos siguen pendientes.</li>
           <li>• <strong>iPhone:</strong> usa el portal escolar desde Safari. Todavía no hay un instalador iOS verificado.</li>
         </ul>
       </div>
@@ -77,13 +77,20 @@ export default async function AppMovilPage() {
         <ul className="text-sm text-verde-oscuro space-y-1">
           <li>• Ver tus calificaciones por materia y promedios</li>
           <li>• Consultar tu horario diario (L-V)</li>
-          <li>• Entregar tareas y consultar la bandeja de pendientes</li>
-          <li>• Leer avisos y la guía escolar publicada</li>
+          <li>• Entregar tareas con texto y archivos privados, y consultar la bandeja de pendientes</li>
+          <li>• Presentar exámenes nativos como alumno: vista previa, inicio, guardado, reanudación y entrega</li>
+          <li>• Preparar borradores temporales de tareas y mensajes en memoria, separados por cuenta</li>
+          <li>• Leer avisos, confirmar su lectura y abrir adjuntos autorizados</li>
+          <li>• Enviar mensajes y consultar sus confirmaciones de lectura</li>
+          <li>• Consultar la guía escolar publicada</li>
           <li>• Usar una guía con avatar según tu rol y ayuda para cada pantalla</li>
           <li>• Acceder a tu perfil</li>
         </ul>
         <p className="text-xs text-teal-800 mt-2">
-          Las funciones disponibles dependen de tu rol. El personal autorizado puede revisar ciclos con verificación de seguridad y registrar su cierre o reapertura.
+          Las funciones disponibles dependen de tu rol. Los exámenes nativos son para alumnos. El personal autorizado conserva su portal y puede revisar ciclos con verificación de seguridad y registrar su cierre o reapertura.
+        </p>
+        <p className="text-sm text-verde-oscuro mt-3">
+          Los borradores de tareas y mensajes son temporales: no sustituyen una entrega y se pierden al cerrar por completo la app. En los exámenes, comprueba el estado de guardado antes de salir; el tiempo del examen sigue corriendo.
         </p>
         <p className="text-sm text-verde-oscuro mt-3">
           Después de entrar, toca <strong>Ayuda de esta pantalla</strong> o abre <strong>Guía interactiva</strong> en Más o en el portal de tu rol. Conocerás la introducción de cada módulo y sus controles uno por uno antes de pasar al siguiente. Puedes tocar el avatar para conocer tu alcance, volver, reiniciar y abrir una sección.
