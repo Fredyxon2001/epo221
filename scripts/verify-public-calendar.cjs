@@ -13,6 +13,7 @@ function load(file, imports = {}) {
   return module.exports;
 }
 const calendar = load('src/lib/public-convocatorias.ts');
+require('./verify-civil-dates.cjs');
 assert.equal(calendar.schoolToday(new Date('2026-10-07T02:00:00Z')), '2026-10-06');
 assert.equal(calendar.schoolToday(new Date('2026-10-07T05:59:59Z')), '2026-10-06');
 assert.equal(calendar.schoolToday(new Date('2026-10-07T06:00:00Z')), '2026-10-07');

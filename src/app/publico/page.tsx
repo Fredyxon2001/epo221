@@ -1,3 +1,4 @@
+import { formatCivilDate } from '@/lib/civil-date';
 import Link from 'next/link';
 import { PublicCover } from '@/components/publico/PublicCover';
 import { createClient } from '@/lib/supabase/server';
@@ -317,7 +318,7 @@ export default async function PublicoHome() {
                       <div className="font-serif text-lg">{a.titulo}</div>
                       {a.fecha_evento && (
                         <div className="text-xs opacity-80 mt-1">
-                          {new Date(a.fecha_evento).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
+                          {formatCivilDate(a.fecha_evento, { day: '2-digit', month: 'long', year: 'numeric' })}
                         </div>
                       )}
                     </div>

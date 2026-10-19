@@ -1,3 +1,4 @@
+import { formatCivilDate } from '@/lib/civil-date';
 import { requireIdentity } from "@/lib/security/access";
 // Panorama institucional para la Dirección.
 import Link from 'next/link';
@@ -99,9 +100,9 @@ export default async function DirectorHome() {
               </div>
               {ciclo.fecha_inicio && ciclo.fecha_fin && (
                 <div className="text-sm text-white/70 mt-1">
-                  {new Date(ciclo.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short' })}
+                  {formatCivilDate(ciclo.fecha_inicio, { day: '2-digit', month: 'short' })}
                   {' — '}
-                  {new Date(ciclo.fecha_fin).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric' })}
+                  {formatCivilDate(ciclo.fecha_fin, { day: '2-digit', month: 'short', year: 'numeric' })}
                 </div>
               )}
             </div>

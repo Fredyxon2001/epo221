@@ -178,3 +178,15 @@ Revisión previa a publicar: errores de permisos PostgREST403/42501 se separan d
 
 
 Recibo final Auth/logout19oct: build optimizado nuevo157s/0warnings y436archivos con huella d0940a857412ce1729c4c007c5be7760961131e75947dc04cd671745257fc23d idéntica antes/después. Flujos originales completosPASS; añadido503simulado falló inicialmente por interferencia delSW (comando65507exit1, cleanupPASS), causa comprobada anónimamente. ContextoQAseparado sinSW preserva originales: focal62455PASS/cleanup, unGET503HTML simulado desde proxy real yPOSTlogoutREAL303→loginGET200, Authchunksfuera/consentigual.0cuentas/exámenes/ciclos sintéticos residuales. Producto no cambió para corregir instrumento. Detalles y límites enAGENTS; publicación/CI del commit nuevo pendiente de recibo root, cuota27oct yAPK final no se resuelven con estas pruebas.
+
+
+## Recibo remoto de resiliencia y activación — 2026-10-19
+
+Web eca3d08ce30f917996c0ee52e3dd297ea4b31dc7: ambasCI SUCCESS, Vercel READY/aliasinstitucional exacto,23páginas/13recursos sinfallos y guardas/logout anónimos PASS. Se cierra el pendiente de publicación del arreglo Auth402/429/logout; la cuota compartida antesdel27oct sigue siendo decisión del titular. Readiness SQL escolar200true/anon401 reconfirmado mediante SDK oficial. APK13 compilado con fuente51a436e y firmaoriginal, QAAndroid en curso; descarga10 conservada. No trasladar resultados RNWeb o pruebas nativas parciales a aprobación de la distribución.
+
+
+## Fechas civiles y compatibilidad de hora móvil — 2026-10-19
+
+Corregidas11presentaciones web en8páginas: SQLDATE ya no se transforma en instante medianoche y se evita mostrar el día anterior. Helper estrictoUTC conserva los formatos de ciclos, historial, álbumes y bitácora; pago usa literal como su página existente. Seguridad146, pruebas con4zonas horarias, tipos y lint PASS; sin cambios de datos/consultas/timestamptz. Detalle enAGENTS. Publicación del nuevo commit requiere recibo porSHA.
+
+En APK13 se confirmó hora+1h por TZDBantigua con SQL/UI sincronizados y fecha civil2008-03-15→14mar por ejecución de fuente. Se retiene13sinpublicar. Fuente móvil3704a8b26f6fa5bb50333d26dcca511dbab5da79 aplica sóloformato: UTC−6 después de última transición2022, reglas históricas anteriores y día civil intacto. Unidades/SDK/guías/tipos PASS; nueva compilación14 solicitada una única vez con Free9/15Android y estimado0. Export/RNWeb fresco y pruebas reales del artefacto14 siguen pendientes; descarga10 permanece aprobada.

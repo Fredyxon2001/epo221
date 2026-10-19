@@ -1,3 +1,4 @@
+import { formatCivilDate } from '@/lib/civil-date';
 import { requireIdentity } from "@/lib/security/access";
 // Panel admin premium — KPIs, ciclo activo, últimos pagos, solicitudes globales.
 import Link from 'next/link';
@@ -142,9 +143,9 @@ export default async function AdminDashboard() {
                 </div>
                 {cicloActivo.fecha_inicio && cicloActivo.fecha_fin && (
                   <div className="text-right text-xs text-gray-500">
-                    <div>{new Date(cicloActivo.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                    <div>{formatCivilDate(cicloActivo.fecha_inicio, { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                     <div className="text-gray-400">↓</div>
-                    <div>{new Date(cicloActivo.fecha_fin).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                    <div>{formatCivilDate(cicloActivo.fecha_fin, { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                   </div>
                 )}
               </div>
@@ -211,7 +212,7 @@ export default async function AdminDashboard() {
             { key: 'alumno', label: 'Alumno', render: (p: any) => p.alumno ? `${p.alumno.apellido_paterno} ${p.alumno.nombre}` : '—' },
             { key: 'concepto', label: 'Concepto', hideOn: 'mobile', render: (p: any) => p.cargo?.concepto?.nombre ?? '—' },
             { key: 'monto', label: 'Monto', align: 'right', render: (p: any) => <span className="font-mono tabular-nums">${Number(p.monto_pagado).toFixed(2)}</span> },
-            { key: 'fecha', label: 'Fecha', hideOn: 'mobile', render: (p: any) => p.fecha_pago ? new Date(p.fecha_pago).toLocaleDateString('es-MX') : '—' },
+            { key: 'fecha', label: 'Fecha', hideOn: 'mobile', render: (p: any) => p.fecha_pago || '—' },
             {
               key: 'estatus',
               label: 'Estatus',

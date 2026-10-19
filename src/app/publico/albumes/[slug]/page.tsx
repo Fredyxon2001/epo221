@@ -1,3 +1,4 @@
+import { formatCivilDate } from '@/lib/civil-date';
 import { publicArticle,articleMetadata } from '@/lib/public-metadata';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -26,7 +27,7 @@ export default async function PublicoAlbumDetalle(props: { params: Promise<{ slu
       <h1 className="font-serif text-4xl text-verde mt-2">{album.titulo}</h1>
       {album.fecha_evento && (
         <p className="text-sm text-gray-500">
-          {new Date(album.fecha_evento).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}
+          {formatCivilDate(album.fecha_evento, { day: '2-digit', month: 'long', year: 'numeric' })}
         </p>
       )}
       {album.descripcion && <p className="mt-4 text-gray-700">{album.descripcion}</p>}

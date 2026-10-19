@@ -1,3 +1,4 @@
+import { formatCivilDate } from '@/lib/civil-date';
 import { requireIdentity } from "@/lib/security/access";
 // Timeline de movimientos del alumno: inscripciones, cambios de grupo, promociones, bajas.
 import { createClient } from '@/lib/supabase/server';
@@ -74,7 +75,7 @@ export default async function HistorialAlumno(props: { params: Promise<{ id: str
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge tone={m.tone}>{m.label}</Badge>
-                    <span className="text-sm text-gray-500">{new Date(i.fecha_inscripcion).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City',  day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                    <span className="text-sm text-gray-500">{formatCivilDate(i.fecha_inscripcion, { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                   </div>
                   <div className="mt-1 text-sm text-verde-oscuro">
                     <span className="font-semibold">Grupo {codigo}</span>
