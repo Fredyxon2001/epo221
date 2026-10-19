@@ -1,8 +1,19 @@
 // Explicit live verification using disposable fixtures, never real credentials/data.
 if(!process.argv.includes('--live'))throw Error('Requiere --live.');
+require('./assert-isolated.cjs').assertIsolatedEnvironment();
 const assert=require('node:assert/strict'),crypto=require('node:crypto');
 const {createFixtures}=require('./flow-fixtures.cjs');
 const f=createFixtures(),base=process.env.FLOW_BASE_URL??'http://localhost:3002';
+const {load}=require('./security-loader.cjs');
+const nativeModules={'next/headers':{headers:async()=>new Headers()},'@/lib/supabase/admin':{adminClient:()=>f.admin}};
+const nativeHandlers={tasks:load('src/app/api/mobile/tasks/route.ts',nativeModules,process.env),
+ 'task-files':load('src/app/api/mobile/task-files/route.ts',nativeModules,process.env),files:load('src/app/api/mobile/files/route.ts',nativeModules,process.env)};
+async function native(account,name,body,query='') {
+ const token=(await account.client.auth.getSession()).data.session.access_token;
+ const req=new Request('http://localhost:3004/api/mobile/'+name+query,{method:body?'POST':'GET',
+  headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+ return nativeHandlers[name][req.method](req);
+}
 async function main(){try{
   const own=await f.account('alumno',80),peer=await f.account('alumno',81),foreign=await f.account('alumno',82),admin=await f.account('admin'),teacher=await f.account('profesor');await f.enroll(admin);
   const cycle=await f.row('ciclos_escolares',{codigo:`FLOW-MOBILE-${Date.now()}`,periodo:'Verification',activo:false});
@@ -52,6 +63,47 @@ async function main(){try{
   await f.admin.from('entregas_tarea').update({archivo_url:'synthetic-kept',archivo_nombre:'fixture.txt'}).eq('id',delivery.id);
   assert.equal((await post(own,'tasks',{...body,comment:'Updated native text'})).status,200);
   assert.equal((await f.admin.from('entregas_tarea').select('archivo_url').eq('id',delivery.id).single()).data.archivo_url,'synthetic-kept');
+  // New file API assertions reuse this suite's existing task, notice and accounts only.
+  assert.equal((await f.admin.from('avisos').update({adjunto_nombre:'fixture.txt'}).eq('id',notices.individual)).error,null);
+  const noticeFile=await native(own,'files',null,'?kind=notice&id='+notices.individual);assert.equal(noticeFile.status,200);
+  assert.equal((await native(foreign,'files',null,'?kind=notice&id='+notices.individual)).status,404);
+  assert.equal((await f.admin.from('tareas').update({permite_archivos:true}).eq('id',task)).error,null);
+  f.cleanups.push(async()=>{const r=await f.admin.storage.from('tareas').list(task);if(r.error)throw Error('Task-file cleanup list failed');if(r.data.length){const removed=await f.admin.storage.from('tareas').remove(r.data.map(x=>task+'/'+x.name));if(removed.error)throw Error('Task-file cleanup failed');}});
+  const bytes=Buffer.from('%PDF-1.7\nSynthetic fixture');
+  async function stage(data=bytes,name='fixture.pdf') {
+    const prepared=await native(own,'task-files',{action:'prepare',task_id:task,name,type:'application/pdf',size:data.length});
+    assert.equal(prepared.status,200);const upload=await prepared.json();
+    const destination=new URL(upload.signedUrl);assert.ok(['localhost','127.0.0.1'].includes(destination.hostname)&&destination.port==='55431');
+    const put=await fetch(upload.signedUrl,{method:'PUT',headers:{'Content-Type':'application/octet-stream','x-upsert':'false'},body:data});assert.equal(put.status,200);
+    return upload.ticket;
+  }
+  assert.equal((await native(foreign,'task-files',{action:'prepare',task_id:task,name:'x.pdf',type:'application/pdf',size:bytes.length})).status,409);
+  assert.equal((await native(own,'task-files',{action:'prepare',task_id:task,name:'x.pdf',type:'application/pdf',size:26214401})).status,400);
+  const ticket=await stage();
+  assert.equal((await native(foreign,'tasks',{...body,upload_ticket:ticket})).status,409);
+  assert.equal((await native(own,'tasks',{...body,upload_ticket:ticket})).status,200);
+  const attached=(await f.admin.from('entregas_tarea').select('archivo_url,archivo_nombre').eq('id',delivery.id).single()).data;assert.equal(attached.archivo_nombre,'fixture.pdf');
+  assert.equal((await native(own,'tasks',{...body,upload_ticket:ticket})).status,400,'Staged ticket replay must fail');
+  const fileReply=await native(own,'files',null,'?kind=submission&id='+delivery.id);assert.equal(fileReply.status,200);
+  const file=await fileReply.json();assert.equal(file.expires_in,60);
+  assert.deepEqual(Buffer.from(await(await fetch(file.url)).arrayBuffer()),bytes);
+  assert.equal((await native(foreign,'files',null,'?kind=submission&id='+delivery.id)).status,404);
+  assert.equal((await native(teacher,'files',null,'?kind=submission&id='+delivery.id)).status,200);
+  assert.equal((await native(own,'tasks',{...body,comment:'Text preserves uploaded file'})).status,200);
+  assert.equal((await f.admin.from('entregas_tarea').select('archivo_url').eq('id',delivery.id).single()).data.archivo_url,attached.archivo_url);
+  const invalid=await stage(Buffer.from('This is not a PDF'),'invalid.pdf');
+  assert.equal((await native(own,'tasks',{...body,upload_ticket:invalid})).status,400);
+  const replacement=await stage(bytes,'replacement.pdf');
+  assert.equal((await native(own,'tasks',{...body,upload_ticket:replacement})).status,200);
+  const replaced=(await f.admin.from('entregas_tarea').select('archivo_url').eq('id',delivery.id).single()).data.archivo_url;assert.notEqual(replaced,attached.archivo_url);
+  assert.ok((await f.admin.storage.from('tareas').download(attached.archivo_url)).error,'Old file removed only after commit');
+  const lockedTicket=await stage();
+  assert.equal((await f.admin.from('entregas_tarea').update({calificacion:9}).eq('id',delivery.id)).error,null);
+  assert.equal((await native(own,'tasks',{...body,upload_ticket:lockedTicket})).status,409);
+  assert.equal((await f.admin.storage.from('tareas').list(task)).data.length,1,'Failed graded overwrite leaves no new object');
+  assert.equal((await f.admin.from('entregas_tarea').update({calificacion:null}).eq('id',delivery.id)).error,null);
+  assert.ok((await own.client.rpc('security_mobile_submit_task_file',{p_actor_id:own.id,p_task_id:task,p_comment:'Direct call denied',p_file:{}})).error);
+  console.log('PASS native file APIs on existing fixtures: private notices/submissions, staged bytes/signature/replay, replacement/text preservation and grade-lock cleanup.');
   await f.admin.from('tareas').update({fecha_entrega:new Date(Date.now()-60000).toISOString()}).eq('id',task);assert.equal((await post(own,'tasks',body)).status,409);
   await f.admin.from('tareas').update({fecha_entrega:new Date(Date.now()+3600000).toISOString(),fecha_apertura:new Date(Date.now()+60000).toISOString()}).eq('id',task);assert.equal((await post(own,'tasks',body)).status,409);
   await f.admin.from('tareas').update({fecha_apertura:new Date(Date.now()-60000).toISOString()}).eq('id',task);await f.admin.from('entregas_tarea').update({calificacion:10}).eq('id',delivery.id);assert.equal((await post(own,'tasks',body)).status,409);

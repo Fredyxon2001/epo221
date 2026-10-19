@@ -14,14 +14,20 @@ export function createUploadTicket(actor: string, name: string, type: string, si
   return { path: payload.path, ticket: `${UPLOAD_PREFIX}${encoded}.${mac(encoded).toString('base64url')}` };
 }
 export async function receiveUploadTicket(value: string): Promise<File> {
+  const identity = await sessionIdentity();
+  if (!identity) throw new Error('Sesión requerida.');
+  return receiveUploadTicketForActor(value, identity.user.id);
+}
+
+/** Bearer APIs pass only the user ID already validated by mobileIdentity. */
+export async function receiveUploadTicketForActor(value: string, actor: string): Promise<File> {
   const parts = value.split('.');
   if (value.length > 3000 || parts.length !== 3 || parts[0] !== 'epo-upload-v1') throw new Error('Referencia de archivo inválida.');
   const expected = mac(parts[1]), signature = Buffer.from(parts[2], 'base64url');
   if (signature.toString('base64url') !== parts[2] || signature.length !== expected.length || !timingSafeEqual(signature, expected)) throw new Error('Referencia de archivo inválida.');
   const ticket = JSON.parse(Buffer.from(parts[1], 'base64url').toString()) as Ticket;
-  const identity = await sessionIdentity();
-  if (!identity || ticket.actor !== identity.user.id || ticket.expires < Date.now() ||
-    !ticket.path.startsWith(`${identity.user.id}/`) || !Number.isInteger(ticket.size) || ticket.size < 1 || ticket.size > MAX_SIZE) {
+  if (ticket.actor !== actor || ticket.expires < Date.now() ||
+    !ticket.path.startsWith(`${actor}/`) || !Number.isInteger(ticket.size) || ticket.size < 1 || ticket.size > MAX_SIZE) {
     throw new Error('La carga venció o pertenece a otra sesión. Selecciona el archivo nuevamente.');
   }
   const storage = adminClient().storage.from(UPLOAD_BUCKET);

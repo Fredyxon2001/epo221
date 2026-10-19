@@ -4,6 +4,7 @@ import { requireAccess } from '@/lib/security/access';
 import { validateFormData } from '@/lib/security/form-data';
 import { adminClient } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
+import { examDraftBytes, EXAM_DRAFT_BUDGET } from '@/lib/exam-drafts';
 
 export async function iniciarIntento(examen_id: string): Promise<{ error?: string; id?: string }> {
   const identity = await requireAccess(['alumno'], 'alumno/examenes/actions.ts:iniciarIntento');
@@ -28,12 +29,12 @@ export async function entregarIntento(intento_id: string, answers: Record<string
   const identity = await requireAccess(['alumno'], 'alumno/examenes/actions.ts:entregarIntento');
   await requireResource('examen_intentos', intento_id);
   if (!answers || typeof answers !== 'object' || Array.isArray(answers) || Object.keys(answers).length > 500) return { error: 'Respuestas inválidas.' };
-  let size = 0;
   for (const [id,value] of Object.entries(answers)) {
     requireUuid(id);
-    if (typeof value !== 'string' || value.length > 10000 || (size += value.length) > 100000) return { error: 'Respuestas demasiado extensas.' };
+    if (typeof value !== 'string' || value.length > 10000) return { error: 'Respuestas demasiado extensas.' };
   }
-  // One database transaction saves the current draft and freezes the attempt.
+  if (examDraftBytes(answers) > EXAM_DRAFT_BUDGET) return { error: 'Guarda las respuestas pendientes antes de entregar.' };
+  // One database transaction saves only the final pending draft and freezes the attempt.
   const { error } = await adminClient().rpc('security_exam_answer', {
     p_intento_id: intento_id, p_actor_id: identity.user.id, p_answers: answers, p_submit: true,
   });

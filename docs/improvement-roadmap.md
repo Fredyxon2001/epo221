@@ -148,3 +148,11 @@ Se mantienen pendientes externos del cuadro de siete frentes: conector Supabase 
 ## Calidad pública y CI semanal — 2026-10-19
 
 Auditor GET/HEAD acotado, cuatro PDF derivados con Title y paridad visual exacta, y simulacro aislado semanal implementados; alcance y pruebas en AGENTS.md. Publicación/CI/chequeo de variantes en navegador pendientes de recibo. Métricas sintéticas Lighthouse mediana90/LCP2473ms no sustituyen p75 de campo. Formato reinscripción vigente aprobado y lector de pantalla permanecen abiertos. Nuevas mejoras nativas y su migración se entregan por separado; reconectar Supabase escolar, porque el conector actual sólo muestra un proyecto ajeno.
+
+
+## Siete mejoras y exámenes nativos — 2026-10-19
+
+Avisos confirmados, chats visibles, borradores por cuenta, archivos nativos, accesibilidad/guía, auditoría/PDF públicos y CI semanal implementados. Fuente móvil1.4.0 en rama candidata; RNWeb aprendizaje+todosroles y APIs/SQL local PASS con limpieza. APKreal/API24/29/503/upgrade/TalkBack pendientes de recibo, descarga10 preservada. Exámenes web/nativos usan entrega90kUTF8 sólo cambios pendientes y lotes para respuestas largas; no amplían tiempoSQL. Nueva mutación móvil falla cerrada503 mientras readinessSQL no sea true; migración alojada y asesores requieren reconectar Supabase escolar. NotaAPI ocultada no equivale a revocar SELECTdirecto histórico de calificación propia; ese ajuste global sigue pendiente. Detalle, riesgos concretos y resultadosenAGENTS.
+
+
+Navegador privado completo contra build optimizado final PASS y limpieza PASS (19oct); contratos/servicios/estáticos finales PASS. Backend nuevo se puede publicar con guard readiness503 hasta migración escolar autorizada. APK11 continúa en cola, sin publicación ni prueba Android atribuida. Detalle del recibo y límites en AGENTS.md.

@@ -61,6 +61,7 @@ export default async function PresentarExamenPage(props: { params: Promise<{ id:
       )}
 
       <PresentarExamen
+        key={res.id!}
         intentoId={res.id!}
         preguntas={preguntasFinal}
         respuestasIniciales={respMap}

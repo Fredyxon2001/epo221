@@ -2,6 +2,7 @@
 import { useEffect, useEffectEvent, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { guardarRespuesta, entregarIntento } from '../actions';
+import { submitExamDraft } from '@/lib/exam-drafts';
 
 export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, remainingSeconds }: {
   intentoId: string;
@@ -11,8 +12,12 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, rem
 }) {
   const router = useRouter();
   const [respuestas, setRespuestas] = useState<Record<string, string>>(respuestasIniciales);
+  const currentAnswers = useRef({ ...respuestasIniciales });
+  const confirmedAnswers = useRef({ ...respuestasIniciales });
+  const mounted = useRef(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [segundos, setSegundos] = useState(remainingSeconds);
+  const secondsRef = useRef(remainingSeconds);
   const [error, setError] = useState('');
   const saves = useRef(new Map<string, Promise<void>>());
   const submitting = useRef(false);
@@ -21,8 +26,16 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, rem
   const [ok, setOk] = useState(false);
 
   useEffect(() => {
-    const deadline = Date.now() + remainingSeconds * 1000;
-    const t = setInterval(() => setSegundos(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))), 1000);
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+  useEffect(() => {
+    const deadline = performance.now() + remainingSeconds * 1000;
+    const t = setInterval(() => {
+      const next = Math.max(0, Math.ceil((deadline - performance.now()) / 1000));
+      secondsRef.current = next;
+      setSegundos(next);
+    }, 1000);
     return () => clearInterval(t);
   }, [remainingSeconds]);
 
@@ -34,40 +47,65 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, rem
     }
   }, [segundos]);
 
+  function changeAnswer(question: string, value: string) {
+    if (submitting.current || !mounted.current || secondsRef.current <= 0) return;
+    currentAnswers.current = { ...currentAnswers.current, [question]: value };
+    setRespuestas(currentAnswers.current);
+  }
   async function saveOne(pregunta_id: string, valor: string) {
+    if (submitting.current || !mounted.current) return;
+    changeAnswer(pregunta_id, valor);
     setSavingId(pregunta_id);
-    setRespuestas((r) => ({ ...r, [pregunta_id]: valor }));
-    const fd = new FormData();
-    fd.set('intento_id', intentoId);
-    fd.set('pregunta_id', pregunta_id);
-    fd.set('respuesta', valor);
     const previous = saves.current.get(pregunta_id) ?? Promise.resolve();
     const save = previous.then(async () => {
+      if (!mounted.current) return;
       try {
+        const fd = new FormData();
+        fd.set('intento_id', intentoId);
+        fd.set('pregunta_id', pregunta_id);
+        fd.set('respuesta', valor);
         const result = await guardarRespuesta(fd);
+        if (!mounted.current) return;
         if (result.error) setError(result.error);
-      } catch { setError('No se pudo guardar la respuesta. Tu borrador sigue en esta pantalla; vuelve a enviar.'); }
+        else confirmedAnswers.current = { ...confirmedAnswers.current, [pregunta_id]: valor };
+      } catch { if (mounted.current) setError('No se pudo guardar la respuesta. Tu borrador sigue en esta pantalla; vuelve a enviar.'); }
     });
     saves.current.set(pregunta_id, save);
     await save;
-    if (saves.current.get(pregunta_id) === save) setSavingId(null);
+    if (mounted.current && saves.current.get(pregunta_id) === save) setSavingId(null);
   }
 
   function submit() {
-    if (submitting.current) return;
+    if (submitting.current || !mounted.current) return;
     submitting.current = true;
     setError('');
     start(async () => {
       try {
         await Promise.all(saves.current.values());
-        const r = await entregarIntento(intentoId, respuestas);
-        if (r.error) setError(r.error);
+        const result = await submitExamDraft({
+          current: () => currentAnswers.current,
+          confirmed: () => confirmedAnswers.current,
+          active: () => mounted.current,
+          expired: () => secondsRef.current <= 0,
+          save: async (question, value) => {
+            const fd = new FormData();
+            fd.set('intento_id', intentoId);
+            fd.set('pregunta_id', question);
+            fd.set('respuesta', value);
+            const saved = await guardarRespuesta(fd);
+            if (saved.error) throw Error(saved.error);
+            confirmedAnswers.current = { ...confirmedAnswers.current, [question]: value };
+          },
+          finish: draft => entregarIntento(intentoId, draft),
+        });
+        if (!mounted.current) return;
+        if (result.error) setError(result.error);
         else {
           setOk(true);
           router.replace('/alumno/examenes');
           router.refresh();
         }
-      } catch { setError('No se pudo entregar el examen. Intenta nuevamente.'); }
+      } catch { if (mounted.current) setError('No se pudo entregar el examen. Tus respuestas pendientes siguen en esta pantalla; intenta nuevamente.'); }
       finally { submitting.current = false; }
     });
   }
@@ -117,7 +155,9 @@ export function PresentarExamen({ intentoId, preguntas, respuestasIniciales, rem
             ))}
             {p.tipo === 'abierta' && (
               <textarea rows={4} value={respuestas[p.id] ?? ''}
-                onChange={(e) => setRespuestas((r) => ({ ...r, [p.id]: e.target.value }))}
+                onChange={(e) => changeAnswer(p.id, e.target.value)}
+                maxLength={10000}
+                aria-label={`Respuesta a la pregunta ${idx + 1}`}
                 onBlur={(e) => saveOne(p.id, e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-sm" />
             )}
