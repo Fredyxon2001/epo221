@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "derived": [
+    {
+      "source": "/descargas/solicitud-inscripcion.pdf",
+      "derived": "/descargas/solicitud-inscripcion-titulo-v2.pdf",
+      "sourceSha256": "5c87bcd084dfaf9a147f0ab0562d3eab3ae0924a73465b59da04c497aec73bbd",
+      "derivedSha256": "1056edd0fd2bf2a5d2479738dfd3936f88bebf6eb179d172e221c4118f82a072"
+    },
+    {
+      "source": "/descargas/solicitud-reinscripcion.pdf",
+      "derived": "/descargas/solicitud-reinscripcion-titulo-v2.pdf",
+      "sourceSha256": "3da857c0714389ed7d84ef5a7761254b202af1bdc20029bf76147a9786926992",
+      "derivedSha256": "7bcef4415bd2bae7de4d2390c94b11738ae0441d9a8cc9137c413de7265418ef"
+    },
+    {
+      "source": "/descargas/reglamento-escolar.pdf",
+      "derived": "/descargas/reglamento-escolar-titulo-v2.pdf",
+      "sourceSha256": "449f9b6c15f80c6713046c1928286edbdcd861cb7b066a51b4b6eeeb36e0eaa6",
+      "derivedSha256": "aefc4134aa95bcc907d852d153715654124e5f162aa2772cff8c6e8ef077d003"
+    },
+    {
+      "source": "/descargas/carta-compromiso.pdf",
+      "derived": "/descargas/carta-compromiso-titulo-v2.pdf",
+      "sourceSha256": "760b1d57240340d375558ba42e981172f4b323c21f6c8a6ffd59391e6d59ce4d",
+      "derivedSha256": "2edbca657346125829c90dbc2fa4f0d2b473ab717954b640d681e513260fce85"
+    }
+  ]
+}

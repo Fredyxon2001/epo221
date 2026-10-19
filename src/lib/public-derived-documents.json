@@ -1,0 +1,22 @@
+[
+  {
+    "source": "/descargas/solicitud-inscripcion.pdf",
+    "download": "/descargas/solicitud-inscripcion-titulo-v2.pdf",
+    "title": "Solicitud de inscripción"
+  },
+  {
+    "source": "/descargas/solicitud-reinscripcion.pdf",
+    "download": "/descargas/solicitud-reinscripcion-titulo-v2.pdf",
+    "title": "Solicitud de reinscripción"
+  },
+  {
+    "source": "/descargas/reglamento-escolar.pdf",
+    "download": "/descargas/reglamento-escolar-titulo-v2.pdf",
+    "title": "Reglamento escolar"
+  },
+  {
+    "source": "/descargas/carta-compromiso.pdf",
+    "download": "/descargas/carta-compromiso-titulo-v2.pdf",
+    "title": "Carta compromiso"
+  }
+]

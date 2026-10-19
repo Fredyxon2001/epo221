@@ -1,25 +1,40 @@
 name: Isolated school flows
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Monday 05:23 America/Mexico_City (UTC-6); off the top of the hour.
+    # GitHub schedules may be delayed; this is not a backup/RPO guarantee.
+    - cron: '23 11 * * 1'
 permissions:
   contents: read
 concurrency:
-  group: isolated-flows-${{ github.ref }}
-  cancel-in-progress: true
+  # A push must not cancel a running scheduled/manual recovery exercise.
+  group: isolated-flows-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
 jobs:
   school:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Public audit boundary contracts (local HTTP fixtures only)
+        run: |
+          node scripts/public-quality/verify-audit.cjs
+          node scripts/public-quality/verify-derived-ui.cjs
       - run: npx playwright install --with-deps chromium chrome
       - run: npm run test:operation
       - run: npm run test:metrics
       # Fresh Docker Supabase, loopback only; no hosted-project secrets or data.
       - run: xvfb-run --auto-servernum npm run test:isolated
       - if: always()
+        timeout-minutes: 5
         run: node scripts/isolated-stack.cjs --stop
