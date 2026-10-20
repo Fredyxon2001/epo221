@@ -5,12 +5,14 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const {root,project,environment,sql}=require('./isolated-stack.cjs');
 const {assertIsolatedEnvironment}=require('./assert-isolated.cjs');
 assertIsolatedEnvironment();const expected=environment();assert.equal(process.env.NEXT_PUBLIC_SUPABASE_URL,expected.NEXT_PUBLIC_SUPABASE_URL);assert.equal(process.env.SUPABASE_SERVICE_ROLE_KEY,expected.SUPABASE_SERVICE_ROLE_KEY);
+const proofFile=path.join(root,'.qa/recovery/synthetic-full-proof.json');
+if(fs.existsSync(proofFile))fs.unlinkSync(proofFile); // Retire only our own old receipt before a fresh rehearsal.
 const {createFixtures,otp}=require('./flow-fixtures.cjs'),{load}=require('./security-loader.cjs');
 const {encryptBackup,decryptBackup}=load('src/lib/security/backup.ts',{},process.env);
 const f=createFixtures(),pause=ms=>new Promise(r=>setTimeout(r,ms));
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 function binary(args,input){try{return execFileSync('docker',args,{input,timeout:180000,maxBuffer:64*1024*1024,stdio:['pipe','pipe','pipe']});}catch(e){const safe=String(e.stderr??'').split(/\r?\n/).filter(l=>/ERROR:/.test(l)&&!/(key|token|password|secret|eyJ|cookie)/i.test(l)).slice(0,2).join(' ');throw Error('Native local database rehearsal failed: '+safe);}}
-const services=['supabase_auth_'+project,'supabase_storage_'+project];let halted=false,stage='fixtures',failed=false;
+const services=['supabase_auth_'+project,'supabase_storage_'+project];let halted=false,stage='fixtures',failed=false,verification;const startedAt=Date.now();
 async function ready(){for(let i=0;i<60;i++){try{const r=await fetch(process.env.NEXT_PUBLIC_SUPABASE_URL+'/auth/v1/health',{headers:{apikey:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY},signal:AbortSignal.timeout(3000)});const buckets=await f.admin.storage.listBuckets();if(r.ok&&!buckets.error)return;}catch{}await pause(1000);}throw Error('Restored local Auth/Storage did not become healthy');}
 async function main(){try{
  const own=await f.account('alumno',87),foreign=await f.account('alumno',88),privileged=await f.account('admin');await f.enroll(privileged);
@@ -28,7 +30,7 @@ async function main(){try{
  // matching stack; dropping its GraphQL hooks would affect schemas outside this
  // application archive. Preserve extension inventory separately in the manifest.
  const extensions=JSON.parse(sql("SELECT coalesce(json_agg(json_build_object('name',extname,'version',extversion,'schema',n.nspname)),'[]') FROM pg_extension e JOIN pg_namespace n ON n.oid=e.extnamespace;").trim());
- const dump=binary(['exec','supabase_db_'+project,'pg_dump','-U','postgres','-Fc','-n','public','-n','auth','-n','storage','postgres']);
+ const dump=binary(['exec','supabase_db_'+project,'pg_dump','-U','postgres','-Fc','-n','public','-n','school_private','-n','auth','-n','storage','postgres']);
  const manifest={version:1,scope:'synthetic-own-local-stack',postgres:sql('show server_version;').trim(),extensions,dump:dump.toString('base64'),dumpHash:hash(dump),files:[{bucket:'avatares',name},{bucket:'portafolio',name:privateName}].map(object=>({...object,bytes:file.toString('base64'),sha256:hash(file)}))};
  const encrypted=encryptBackup(require('node:zlib').gzipSync(Buffer.from(JSON.stringify(manifest))));
  const archive=path.join(root,'.qa','recovery','synthetic-full.enc');fs.mkdirSync(path.dirname(archive),{recursive:true});fs.writeFileSync(archive,encrypted);
@@ -51,6 +53,7 @@ async function main(){try{
  stage='file recovery';
  for(const object of restored.files){const bytes=Buffer.from(object.bytes,'base64');assert.equal(hash(bytes),object.sha256);const uploaded=await f.admin.storage.from(object.bucket).upload(object.name,bytes,{contentType:'image/png',upsert:true});if(uploaded.error){console.error('Local restored Storage upload status '+String(uploaded.error.statusCode??uploaded.error.status??'unknown'));throw Error('Recovered upload failed');}const downloaded=await f.admin.storage.from(object.bucket).download(object.name);if(downloaded.error){console.error('Local restored Storage download status '+String(downloaded.error.statusCode??downloaded.error.status??'unknown'));throw Error('Recovered download failed');}assert.equal(hash(Buffer.from(await downloaded.data.arrayBuffer())),object.sha256);}
  stage='recovered access and RLS';
+ assert.equal(sql("select to_regprocedure('school_private.exam_grade(uuid)') is not null and exists(select 1 from pg_class where oid='public.examen_intentos_visibles'::regclass and reloptions @> array['security_invoker=true','security_barrier=true']) and not has_column_privilege('authenticated','public.examen_intentos','calificacion','SELECT');").trim(),'t','Recovered private grade reader and revoked direct column');
  const {createClient}=require('@supabase/supabase-js');
  const stale=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,{global:{headers:{Authorization:'Bearer '+token}},auth:{persistSession:false,autoRefreshToken:false}});
  assert.equal((await stale.rpc('security_session_alive')).data,false,'Pre-incident JWT session must stay revoked');
@@ -67,9 +70,21 @@ async function main(){try{
  if(Date.now()%30000>22000)await pause(31000-Date.now()%30000);
  assert.equal((await privileged.client.auth.mfa.challengeAndVerify({factorId:privileged.factorId,code:otp(privileged.totp)})).error,null,'Recovered TOTP secret');
  assert.equal((await privileged.client.rpc('security_session_valid')).data,true,'Restored AAL2 access');
- console.log(JSON.stringify({ok:true,postgres:manifest.postgres,authPasswordRecovery:true,originalMfaFactorAndSecret:true,oldSessionsRevoked:true,foreignStudentDenied:true,enrollmentRelations:true,storageBytesHash:true,rlsFunctionsTriggersAndGrants:true,scope:'own synthetic local Supabase',productionRestore:false}));
+ verification={ok:true,postgres:manifest.postgres,authPasswordRecovery:true,originalMfaFactorAndSecret:true,oldSessionsRevoked:true,foreignStudentDenied:true,enrollmentRelations:true,storageBytesHash:true,rlsFunctionsTriggersAndGrants:true,privateGradeReaderRecovered:true,directGradeGrantRetired:true,scope:'own synthetic local Supabase',productionRestore:false,providerManagedRestore:false};
+ console.log(JSON.stringify(verification));
 }catch(e){failed=true;console.error('Full isolated recovery failed at '+stage+'; '+(e.message.startsWith('Native local')?e.message:'sensitive details suppressed.'));throw Error('Full isolated recovery failed at '+stage);}finally{
  if(halted){for(const service of services)try{binary(['start',service]);}catch{}await ready();}
  try{await f.cleanup();}catch{console.error('Isolated recovery fixture cleanup failed; reset only the disposable stack before further tests.');if(!failed)throw Error('Isolated recovery cleanup failed');}
+ if(verification&&!failed){
+   const proof={version:1,...verification,cleanupPass:true,completedAt:new Date().toISOString(),syntheticDurationMs:Date.now()-startedAt,
+     execution:process.env.GITHUB_ACTIONS==='true'&&process.env.RUNNER_ENVIRONMENT==='github-hosted'?'github-hosted-runner':'local-or-other-runner',
+     sourceCommit:/^[0-9a-f]{40}$/.test(process.env.GITHUB_SHA||'')?process.env.GITHUB_SHA:null,
+     githubRunId:/^\d+$/.test(process.env.GITHUB_RUN_ID||'')?process.env.GITHUB_RUN_ID:null};
+   fs.writeFileSync(path.join(root,'.qa/recovery/synthetic-full-proof.json'),JSON.stringify(proof,null,2)+'\n');
+   if(process.env.GITHUB_ACTIONS==='true'&&process.env.GITHUB_STEP_SUMMARY)fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'### Remote synthetic recovery receipt\n\nThis verifies the disposable runner, not a managed school-project restore. No school data, dump, passwords or MFA secrets are attached.\n\n```json\n'+JSON.stringify(proof,null,2)+'\n```\n');
+   console.log('RECOVERY_RECEIPT '+JSON.stringify(proof));
+   console.log('PASS recovery receipt contains only synthetic test results; no dump, passwords, MFA secrets, file bytes or school data.');
+ }
+
 }}
 main().catch(e=>{console.error(e.message);process.exitCode=1;});

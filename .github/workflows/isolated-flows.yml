@@ -34,7 +34,8 @@ jobs:
       - run: npm run test:operation
       - run: npm run test:metrics
       # Fresh Docker Supabase, loopback only; no hosted-project secrets or data.
-      - run: xvfb-run --auto-servernum npm run test:isolated
+      - name: Remote synthetic recovery and school flows (no production secrets)
+        run: xvfb-run --auto-servernum npm run test:isolated
       - if: always()
         timeout-minutes: 5
         run: node scripts/isolated-stack.cjs --stop

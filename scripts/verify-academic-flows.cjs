@@ -124,8 +124,30 @@ async function main() { try {
   assert.equal((await nativeExam(student,{action:'save',attempt_id:start.id,answers:{[question.id]:'falso'}})).status,409);
   await checked(await f.admin.from('examenes').update({mostrar_resultados:false}).eq('id',exam.id),'hide results');
   const hidden=await(await nativeExam(student)).json();assert.equal(hidden.attempt.calificacion,null);
+  // Exercise actual PostgREST/SQL permissions, not only UI/API masking.
+  for(const select of ['calificacion','*'])assert.equal((await student.client.from('examen_intentos').select(select).eq('id',start.id)).error?.code,'42501','Direct grade projection denied');
+  assert.equal((await student.client.from('examen_intentos').select('id').gt('calificacion',0)).error?.code,'42501','Grade filter oracle denied');
+  assert.equal((await student.client.from('examen_intentos').select('id').order('calificacion')).error?.code,'42501','Grade ordering oracle denied');
+  const metadata=await checked(await student.client.from('examen_intentos').select('id,inicio,estado').eq('id',start.id).single(),'safe original attempt metadata');assert.equal(metadata.id,start.id);
+  const hiddenView=await checked(await student.client.from('examen_intentos_visibles').select('*').eq('id',start.id).single(),'masked hidden attempt');assert.equal(hiddenView.calificacion,null);assert.equal(hiddenView.estado,'calificado');
+  assert.equal((await checked(await student.client.from('examen_intentos_visibles').select('id').gt('calificacion',0),'masked filter')).length,0);
+  assert.equal((await checked(await teacher.client.from('examen_intentos_visibles').select('calificacion').eq('id',start.id).single(),'own teacher grade')).calificacion,10);
+  assert.equal((await checked(await administrator.client.from('examen_intentos_visibles').select('calificacion').eq('id',start.id).single(),'AAL2 admin hidden grade')).calificacion,10);
+  assert.equal((await checked(await finance.client.from('examen_intentos_visibles').select('id').eq('id',start.id),'finance cannot read attempts')).length,0);
+  try{await checked(await f.admin.from('perfiles').update({activo:false}).eq('id',student.id),'deactivate own fixture');assert.equal((await checked(await student.client.from('examen_intentos_visibles').select('id').eq('id',start.id),'inactive masked reader')).length,0);}finally{await checked(await f.admin.from('perfiles').update({activo:true}).eq('id',student.id),'reactivate own fixture');}
+  assert.equal((await checked(await counselor.client.from('examen_intentos_visibles').select('id,calificacion').eq('id',start.id),'counselor forbidden grade')).length,0);
+  await f.row('inscripciones',{alumno_id:outsider.studentId,grupo_id:group,ciclo_id:cycle,estatus:'activa'});
+  assert.equal((await checked(await outsider.client.from('examen_intentos_visibles').select('id,calificacion').eq('id',start.id),'same group peer denied')).length,0);
+  const {sql}=require('./isolated-stack.cjs');
+  async function directGrade(account){const jwt=(await account.client.auth.getSession()).data.session.access_token;const claims=JSON.stringify(JSON.parse(Buffer.from(jwt.split('.')[1],'base64url'))).replaceAll("'","''");return sql("BEGIN; SET LOCAL request.jwt.claims='"+claims+"'; SET LOCAL ROLE authenticated; SELECT school_private.exam_grade('"+start.id+"'); ROLLBACK;").trim();}
+  assert.equal(await directGrade(student),'','Private reader cannot disclose hidden own grade');assert.equal(await directGrade(outsider),'','Private reader cannot disclose a peer grade');assert.equal(await directGrade(counselor),'','Counselor cannot bypass attempt scope');assert.equal(await directGrade(teacher),'10.00','Assigned teacher private reader');
+  assert.ok((await student.client.schema('school_private').rpc('exam_grade',{p_attempt_id:start.id})).error,'Private schema must not be exposed by Data API');
+
   await checked(await f.admin.from('examenes').update({mostrar_resultados:true}).eq('id',exam.id),'publish results');
   assert.equal((await(await nativeExam(student)).json()).attempt.calificacion,10);
+  assert.equal((await checked(await student.client.from('examen_intentos_visibles').select('calificacion').eq('id',start.id).single(),'published own grade')).calificacion,10);
+  assert.equal(await directGrade(student),'10.00','Published own SQL reader');
+  console.log('PASS direct grade projection/filter/order denied; RLS metadata preserved, hidden grade null, peer/counselor denied and published owner/assigned teacher allowed.');
   // Closed-cycle guard is shared with web RPCs. Always reopen our own cycle before existing cleanup.
   try {
     await checked(await f.admin.from('ciclos_escolares').update({cerrado_en:new Date().toISOString()}).eq('id',cycle),'close own fixture cycle');

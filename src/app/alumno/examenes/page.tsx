@@ -28,7 +28,7 @@ export default async function ExamenesAlumno() {
     : { data: [] as any[] };
 
   const { data: intentos } = examenes?.length
-    ? await supabase.from('examen_intentos').select('examen_id, estado, calificacion, numero')
+    ? await supabase.from('examen_intentos_visibles').select('examen_id, estado, calificacion, numero')
         .eq('alumno_id', alumno.id).in('examen_id', examenes.map((e: any) => e.id)).order('numero', { ascending: false })
     : { data: [] as any[] };
   const intMap = new Map<string, any[]>();

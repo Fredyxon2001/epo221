@@ -6,7 +6,7 @@ const actor=id(1),student=id(2),exam=id(3),attempt=id(4),question=id(5),cycle=id
 let rows={},errors=new Set(),calls=[],rpcCalls=[],role='alumno',denied=null,limit=true,rpcResult,readyResult={data:true,error:null},readyCalls=0;
 function query(table){let predicates=[],start=0,end=Infinity,single=false;
  const q={select(columns){calls.push({table,columns});return q;},eq(k,v){predicates.push(r=>r[k]===v);return q;},is(k,v){predicates.push(r=>r[k]===v);return q;},in(k,v){predicates.push(r=>v.includes(r[k]));return q;},order(){return q;},limit(n){end=n-1;return q;},range(a,b){start=a;end=b;return q;},maybeSingle(){single=true;return q;},
- then(resolve,reject){let data=(rows[table]||[]).filter(r=>predicates.every(p=>p(r))).slice(start,end+1);return Promise.resolve({data:single?(data[0]??null):data,error:errors.has(table)?{code:'SYNTHETIC'}:null}).then(resolve,reject);}};return q;}
+ then(resolve,reject){let data=(rows[table==='examen_intentos_visibles'?'examen_intentos':table]||[]).filter(r=>predicates.every(p=>p(r))).slice(start,end+1);return Promise.resolve({data:single?(data[0]??null):data,error:errors.has(table)?{code:'SYNTHETIC'}:null}).then(resolve,reject);}};return q;}
 const client={from:query};
 const reply=(error,status)=>Response.json({error},{status,headers:{'Cache-Control':'private, no-store'}});
 const modules={'@/lib/security/mobile':{mobileReply:reply,mobileIdentity:async()=>denied?{response:reply('Denied',denied)}:{user:{id:actor},profile:{rol:role},client,service:{rpc:async(name,args)=>{if(name==='security_mobile_learning_ready'){readyCalls++;return readyResult;}rpcCalls.push({name,args});return rpcResult;}}}},'@/lib/security/rate-limit':{rateLimit:async()=>{if(limit instanceof Error)throw limit;return limit;}}};
@@ -96,6 +96,8 @@ async function main(){
  reset();rows.examen_intentos=[{id:attempt,alumno_id:student,examen_id:exam,estado:'calificado',inicio:'2026-01-01T00:00:00Z',numero:1,calificacion:10}];rows.examen_respuestas=[{pregunta_id:question,intento_id:attempt,respuesta:'A',correcta:true,puntos_obtenidos:10}];
  const detail=await (await request(undefined,'?exam_id='+exam)).json();assert.equal(detail.attempt.calificacion,null);assert.deepEqual(detail.questions[0].opciones,[{clave:'A',texto:'Synthetic'}]);for(const key of ['respuesta_correcta','correcta','puntos_obtenidos'])assert.ok(!JSON.stringify(detail).includes('"'+key+'"'));
  rows.examenes[0].mostrar_resultados=true;assert.equal((await(await request(undefined,'?exam_id='+exam)).json()).attempt.calificacion,10);
+ assert.ok(calls.filter(c=>c.columns.includes('calificacion')).every(c=>c.table==='examen_intentos_visibles'),'Mobile grade reads must use the publication-gated view');
+ reset();errors.add('examen_intentos_visibles');assert.equal((await request(undefined,'?exam_id='+exam)).status,503,'Reader failure must not fall back to raw grades');
  reset();errors.add('examen_preguntas');rows.examen_intentos=[{id:attempt,alumno_id:student,examen_id:exam,estado:'en_curso',inicio:'2026-01-01T00:00:00Z',numero:1}];assert.equal((await request(undefined,'?exam_id='+exam)).status,503);
  reset();rows.ciclos_escolares[0].cerrado_en='2026-01-01T00:00:00Z';assert.equal((await request({action:'start',exam_id:exam})).status,409);assert.equal(rpcCalls.length,0);
  reset();const start=await request({action:'start',exam_id:exam,p_actor_id:id(999)});assert.equal(start.status,404);assert.equal(rpcCalls[0].args.p_actor_id,actor);

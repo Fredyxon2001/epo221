@@ -49,7 +49,7 @@ export async function listMobileExams(client: SupabaseClient, student: string) {
   if (exams.length > 500) throw new MobileExamError('Hay demasiados exámenes. Consulta el portal escolar.', 409);
   const attempts: Attempt[] = [];
   if (exams.length) for (let offset = 0; offset <= 5000; offset += 500) {
-    const batch = checked(await client.from('examen_intentos').select(attemptColumns).eq('alumno_id', student).in('examen_id', exams.map(e => e.id)).order('numero', { ascending: false }).order('id').range(offset, offset + 499)) as Attempt[];
+    const batch = checked(await client.from('examen_intentos_visibles').select(attemptColumns).eq('alumno_id', student).in('examen_id', exams.map(e => e.id)).order('numero', { ascending: false }).order('id').range(offset, offset + 499)) as Attempt[];
     attempts.push(...batch);
     if (attempts.length > 5000) throw new MobileExamError('El historial es demasiado grande. Consulta el portal escolar.', 409);
     if (batch.length < 500) break;
@@ -58,7 +58,7 @@ export async function listMobileExams(client: SupabaseClient, student: string) {
 }
 export async function mobileExamDetail(client: SupabaseClient, student: string, id: string, exactAttempt?: string) {
   const exam = await mobileExam(client, id);
-  let query = client.from('examen_intentos').select(attemptColumns).eq('examen_id', id).eq('alumno_id', student);
+  let query = client.from('examen_intentos_visibles').select(attemptColumns).eq('examen_id', id).eq('alumno_id', student);
   if (exactAttempt) query = query.eq('id', exactAttempt);
   const attempt = checked(await query.order('numero', { ascending: false }).limit(1).maybeSingle()) as Attempt | null;
   if (exactAttempt && !attempt) throw new MobileExamError('Intento no disponible.', 404);
