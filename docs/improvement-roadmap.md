@@ -1,10 +1,14 @@
 # Mejoras escolares — seguimiento al 2026-10-19
 
-## Permisos y recuperación sin pago — actualización19oct
+## Permisos y recuperación sin pago — cierre19oct
 
-Pruebas locales completas web y RNWeb fresco de app vigentes PASS con las dos migraciones nuevas. Lector de notas instalado en escolar (faseA); faseB se activa sólo tras desplegar los consumidores compatibles. Retirada directa comprobada en laboratorio: columna/filtro/orden42501, nota ocultaNULL, propiedad/rol/MFA y publicación autorizada conservadas. No cambia APK15 ni sus fuentes de producto; QA móvil limpia cachéMetro y rechaza el puerto obsoleto detectado en un primer ensayo fallido.
+**Notas protegidas en producción:** migraciones20261020021143/20261020021238 aplicadas una vez en el escolar, después de desplegar consumidores compatibles. SELECT/filtro/orden directo de nota denegados; metadata8campos, RLS, publicación, alumno propio y docente asignado preservados. Prueba alojada de permisosLIMIT0 sin leer notas ni crear fixtures. Web funcional0811d8f en ambos dominios READY, ambasCI SUCCESS;23páginas/13recursos/0fallos. Recibo e ID exactos en AGENTS. Pestañas antiguas requieren recarga; evitar rollback al lector crudo.
 
-Respaldo real de aplicación cifrado, copia local e integridad PASS. Ensayo completoAuth/MFA/Storage en PostgreSQL17.11 aislado PASS y recibo remoto gratuito preparado para el runner existente GitHub, pendiente ejecución CI del commit final. No equivale a restauración gestionada escolar. Presupuesto0: origen2.398GB/1GB, escolar0.074GB, gracia27oct; transferencia a org educativaFree vacía bloqueada expresamente por Supabase y límite2Free impide proyectoDR. No se pagó ni se borró/pausó Inventario. Detalle y recibos finales en AGENTS.md/docs/full-recovery-lab.md. CI/despliegue/faseB se anotarán al cerrar.
+**Web y móvil comprobados:** suite web integral aislada, tipos/seguridad/contratos y RNWeb390 fresco con roles/aprendizaje PASS. AppQA corrigió cachéMetro con --clear y guarda del destinoexacto; ambasCImóvil288a499 SUCCESS. ProductoAPK15/fuente69c93029 sigue vigente; no nuevoEAS/OTA ni pruebaAndroid/iOSnativa por esta migración de backend. Cierre documental móvilbf7573f publicado; CI final se comprobará al terminar.
+
+**Recuperación gratuita ejecutada:** [runnerGitHub39360725548](https://github.com/Fredyxon2001/epo221/actions/runs/39360725548) recuperó datos sintéticos/Auth/contraseña+MFAoriginales/Storage/RLS/grants y limpió fixtures, recibo poscleanupsource0811d8f verificado. No datos escolares ni artifacts/secretos productivos. Respaldo real de aplicación cifrado y copia local íntegraPASS. Estos controles no equivalen a restauración gestionada escolarAuth/infra ni custodiaexterna.
+
+**Pendiente externo sin pago:** origen2.398GB/1GB, escolar0.074GB, gracia27oct. Supabase bloquea transferir mientras la fuente siga en gracia y crear tercerFree por límite2; backup/clonegestionados requierenPro. Org educativaFree vacía preparada, no traslado/noDRoperativo. Responsable del exceso debe revisar/autorizar reducción concreta deStorage; no se borró/pausóInventario ni se pagó. Detalle en AGENTS y docs/full-recovery-lab.md.
 
 ## Recibo anterior
 
