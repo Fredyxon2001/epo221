@@ -15,6 +15,7 @@ function targetOrigin(value='https://epo221.edu.mx') {
 }
 function routeKind(pathname) {
   if(PAGE_SEEDS.includes(pathname))return 'page';
+  if(/^\/publico\/descargas\/lectura\/(?:reglamento-escolar|carta-compromiso)$/.test(pathname))return 'page';
   if(/^\/publico\/(?:noticias|albumes|paginas)\/[a-zA-Z0-9_-]{1,180}$/.test(pathname))return 'page';
   if(FILE.test(pathname)||DOCUMENT.test(pathname))return 'document';
   if(pathname==='/app-movil/descargar')return 'apk';

@@ -30,6 +30,8 @@ jobs:
         run: |
           node scripts/public-quality/verify-audit.cjs
           node scripts/public-quality/verify-derived-ui.cjs
+          node scripts/public-quality/verify-reading-ui.cjs
+          python scripts/public-quality/verify-readings.py
       - run: npx playwright install --with-deps chromium chrome
       - run: npm run test:operation
       - run: npm run test:metrics

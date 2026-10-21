@@ -171,10 +171,13 @@ async function main() { try {
   } finally {
     teacherPage.off('request',recordPasswordRequest); teacherPage.off('requestfinished',finishPasswordRequest); teacherPage.off('requestfailed',finishPasswordRequest); teacherPage.off('response',recordPasswordResponse);
   }
+  // Inputs are controlled by React. Wait for the client bundle before filling
+  // the freshly compiled forced-password page (SSR inputs exist earlier).
+  await teacherPage.waitForLoadState('networkidle');
   const newPassword = crypto.randomBytes(24).toString('base64url');
   await teacherPage.locator('input[name="nueva"]').fill(newPassword);
   await teacherPage.locator('input[name="confirma"]').fill(newPassword);
-  await teacherPage.locator('button[type="submit"]').first().click();
+  await teacherPage.getByRole('button',{name:'Guardar contraseña',exact:true}).click();
   await teacherPage.waitForURL(base+'/profesor');
   const flag = await f.admin.from('perfiles').select('debe_cambiar_password').eq('id',teacher.id).single();
   assert.equal(flag.data.debe_cambiar_password,false);

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { safePublicDocumentUrl } from '@/lib/public-guidance';
 import { historicalPdfWithTitle } from '@/lib/public-derived-documents';
+import { historicalDocumentReading } from '@/lib/public-document-readings';
 
 export const metadata = { title: 'Descargas · EPO 221', description: 'Documentos publicados por la escuela, identificados por ciclo y versión.' };
 export default async function Descargas({ searchParams }: { searchParams: Promise<{ ciclo?: string }> }) {
@@ -31,6 +32,10 @@ export default async function Descargas({ searchParams }: { searchParams: Promis
         const url=doc[format==='pdf'?'pdf_url':'docx_url'];
         return url && safePublicDocumentUrl(url,format) ? <a key={format} href={url} download className="rounded-lg border border-verde px-4 py-3 font-semibold text-verde hover:bg-verde hover:text-white" aria-label={`Descargar ${doc.titulo} en ${format.toUpperCase()}`}>{format==='pdf'?'PDF para leer e imprimir':'DOCX editable'} ↓</a> : null;
       })}</div>
+      {doc.pdf_url && doc.docx_url && historicalDocumentReading(doc.pdf_url, doc.docx_url, doc.titulo) && <div className="space-y-2 border-t border-verde/15 pt-4">
+        <Link href={'/publico/descargas/lectura/' + historicalDocumentReading(doc.pdf_url, doc.docx_url, doc.titulo)!.slug} className="inline-flex min-h-11 items-center rounded-lg border border-teal-800 px-4 py-3 font-semibold text-teal-800 underline" aria-label={`Leer ${doc.titulo} en la página, con texto ampliable`}>Leer en la página</Link>
+        <p className="text-xs text-gray-700">Texto histórico con encabezados y letra ampliable. Conserva su contenido y vigencia; no envía datos ni sustituye el formato para firma.</p>
+      </div>}
       {doc.pdf_url && historicalPdfWithTitle(doc.pdf_url, doc.titulo) && <div className="border-t border-verde/15 pt-4 space-y-2">
         <a href={historicalPdfWithTitle(doc.pdf_url, doc.titulo)!.download} download className="inline-flex min-h-11 items-center rounded-lg border border-teal-800 px-4 py-3 font-semibold text-teal-800 hover:bg-teal-800 hover:text-white" aria-label={`Descargar ${doc.titulo}: PDF con título de documento`}>PDF con título de documento ↓</a>
         <p className="text-xs text-gray-700">Copia del archivo histórico con el título añadido a sus metadatos. Conserva el mismo contenido y vigencia; confirma su uso con Control Escolar. No es una certificación de accesibilidad.</p>

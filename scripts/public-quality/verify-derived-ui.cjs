@@ -26,7 +26,8 @@ function compile(relative,overrides={}){
     'next/link':({href,children,...props})=>React.createElement('a',{href,...props},children),
     '@/lib/supabase/server':{createClient:async()=>client},
     '@/lib/public-guidance':guidance,
-    '@/lib/public-derived-documents':helper
+    '@/lib/public-derived-documents':helper,
+    '@/lib/public-document-readings':compile('src/lib/public-document-readings.ts',{'./public-document-readings.json':require('../../src/lib/public-document-readings.json')})
   });
   const html=renderToStaticMarkup(await page.default({searchParams:Promise.resolve({})}));
   for(const variant of variants){

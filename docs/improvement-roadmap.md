@@ -1,4 +1,12 @@
-# Mejoras escolares — seguimiento al 2026-10-19
+# Mejoras escolares — seguimiento al 2026-10-21
+
+## Avance gratuito del21oct
+
+- Custodia: CLI de lectura de respaldo existente y exportación offline privada con verificación independiente. Copia real21oct/ocho archivos íntegra en segunda carpeta del mismoPC; falta medio/custodio independiente y Auth/infraestructura alojados. No nueva copia remota, retención, contratación ni restauración productiva.
+- Documentos públicos: Reglamento y Carta compromiso tienen107párrafos originales en lectura HTML responsive, listas/encabezados/índice y descarga original. Revalidan publicación y parPDF/DOCX/título. Procedencia, SSR y seis lecturas320/390/1440, zoomCSS200%, teclado, noJS, axe0 y retiro/reemplazo404 PASS aislados. Formularios de inscripción/reinscripción accesibles aprobados y NVDA/Narrador continúan abiertos.
+- Regresión: recuperación integral sintética Auth/TOTP/Storage/RLS/notas, académicos/pagos/APImóvil, navegador privado completo,34estados axe, métricas/consentimiento y quince escenarios cookies/mapa PASS con limpieza. Primer timeout de click contraseña resuelto enQA esperando bundle; no cambio al producto de contraseña. Tipos/build/CI/RNWeb fresco/despliegue final pendientes de recibo al cerrar.
+- Android16/16KiB: imagen oficial gratuita instalada y AVD separado preparado; ejecución del APK15 aún pendiente, no sustituida por alineación estática ni pruebas históricas24/29. Producto móvil no cambió y no solicita EAS/OTA por estas herramientas/documentos.
+- Se conservan presupuesto0 y pendientes externos: cuota compartida/gracia27oct bloquea transferenciaFree; asesores sin acceso actual del conector; ARMfísico/iOS/upgrade1.0 con sesión; aprobación/contacto/contenidos/RPO-RTO y p75 real; herramientas móviles sin parche compatible. No borrar Inventario, inventar datos institucionales ni dar por cerradas esas restricciones.
 
 ## Permisos y recuperación sin pago — cierre19oct
 

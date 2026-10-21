@@ -65,3 +65,22 @@ Respaldo real autorizado de aplicación PASS:70tablas,7342filas,8archivos; snaps
 
 
 La retención automática existente de siete días corresponde a manifiestos remotos. Los objetos cifrados por hash y las copias locales no se purgan automáticamente; su custodia y eliminación necesitan una política institucional y comprobar que ninguna copia conservada los necesita. No se añadió un borrado general de archivos. Los APK publicados en GitHub se custodian además con sus originales y hashes; no entran automáticamente en el respaldo Storage.
+
+
+## Transferencia portátil sin crear respaldos — 21 de octubre de 2026
+
+La CLI scripts/transfer-backup-custody.cjs separa dos operaciones explícitas. --fetch-latest lee el último manifiesto ya existente del proyecto escolar y sus archivos cifrados; no crea copias remotas, sube archivos, aplica retención ni restaura. --export funciona sin red y copia sólo ciphertext a un directorio nuevo fuera del workspace, con permiso privado del usuario/SYSTEM en Windows y comprobación independiente antes de emitir recibo. Rechaza destino existente, anidado, rutas/enlaces fuera de custodia, clave equivocada, corrupción, archivos faltantes, tamaños excesivos y antigüedad mayor a36h. No sustituye copias locales corruptas automáticamente.
+
+Ejemplo PowerShell, desde sistema, usando el entorno servidor ya autorizado y sin incluir claves en argumentos:
+
+~~~powershell
+node --env-file=.env.local scripts/transfer-backup-custody.cjs --fetch-latest --directory=security-backups
+node --env-file=.env.local scripts/transfer-backup-custody.cjs --export --directory=security-backups --snapshot=snapshots/AAAA-MM-DDTHH-mm-ss-sssZ.json.gz.enc --destination=R:/EPO221/custodia-nueva
+node --env-file=.env.local scripts/verify-backup-custody.cjs --directory=R:/EPO221/custodia-nueva --snapshot=snapshots/AAAA-MM-DDTHH-mm-ss-sssZ.json.gz.enc
+~~~
+
+Sustituir el manifiesto y destino por los reales; el directorio padre debe existir, el destino debe ser nuevo y el medio autorizado. Para la exportación offline basta BACKUP_ENCRYPTION_KEY provisionada en el proceso; no requiere service_role ni cargar .env.local. Mantener la clave por un canal independiente. El recibo sólo contiene hash del manifiesto cifrado, totales y alcance; no la clave ni registros. La herramienta no declara que una ruta externa sea otro dispositivo o custodia externa.
+
+Ejecución real autorizada21oct: lectura de snapshots/2026-10-21T05-45-29-745Z.json.gz.enc; ocho archivos/45,191,862bytes originales verificados con AES-GCM/tamaño/SHA256. Exportación privada a C:/Users/Public/epo221-custody-20261021 y segundo verificador offline PASS, manifiesto cifrado SHA256 d136919a8ac375f009dd49d8ba8897f427f9bdb14923848c21512581e7450655. Es el mismo equipo: offsiteCustodyVerified=false, authRecovered=false y providerRecovered=false. No se generó respaldo nuevo ni retención alojada. La antigüedad se evalúa al ejecutar, no permanece vigente por esta nota.
+
+Prueba durable: node scripts/verify-portable-custody.cjs, incluida en test:security; datos y claves sintéticos, limpieza sólo de su temporal propio. La restauración Auth/infraestructura alojados, destino independiente y RPO/RTO institucionales siguen abiertos. El presupuesto sigue en cero.

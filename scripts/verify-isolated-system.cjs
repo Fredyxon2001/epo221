@@ -20,6 +20,7 @@ async function main(){try{
   ['scripts/verify-operation-isolated.cjs','--browser'],
   ['scripts/verify-public-metrics-isolated.cjs','--web'],
   ['scripts/verify-public-axe.cjs'],
+  ['scripts/verify-public-readings-isolated.cjs'],
   ['scripts/verify-metrics-consent-browser.cjs'],
   ['scripts/verify-cookie-map-isolated.cjs'],
  ];

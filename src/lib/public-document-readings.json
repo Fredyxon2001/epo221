@@ -1,0 +1,646 @@
+[
+  {
+    "slug": "reglamento-escolar",
+    "title": "Reglamento escolar",
+    "sourceDocx": "/descargas/reglamento-escolar.docx",
+    "sourcePdf": "/descargas/reglamento-escolar.pdf",
+    "sourceSha256": "031b77920204cfe421ce4865aa5dc624b784338491aaeb4964225949d79ff2ed",
+    "blocks": [
+      {
+        "kind": "heading",
+        "text": "REGLAMENTO ESCOLAR"
+      },
+      {
+        "kind": "paragraph",
+        "text": "El presente Reglamento pretende asegurar la Convivencia Institucional, respetando los Derechos de todos los Integrantes de la Comunidad Escolar, así mismo lograr a Plenitud los Objetivos Educativos y que nuestros alumnos (as) encuentren las condiciones propicias para su formación Integral."
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 55. Se considera Alumnos de la Escuela quienes hayan cumplido formalmente los requisitos de Inscripción o Reinscripción.",
+        "listId": "3",
+        "listStyle": "bullet",
+        "listNumber": 1
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 57. Los Alumnos conservaran su categoría como tales hasta que Obtengan su Certificado Total, Parcial. Se den de Baja Voluntaria o por Infringir el presente reglamento.",
+        "listId": "3",
+        "listStyle": "bullet",
+        "listNumber": 2
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 76. I. La Reinscripción de los Alumnos será Semestral y se sujetara al instructivo del Calendario Escolar Vigente.",
+        "listId": "3",
+        "listStyle": "bullet",
+        "listNumber": 3
+      },
+      {
+        "kind": "paragraph",
+        "text": "II. Tendrán Derecho a Reinscribirse."
+      },
+      {
+        "kind": "item",
+        "text": "Los Alumnos de la Misma Escuela.",
+        "listId": "4",
+        "listStyle": "a",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Los Alumnos Regulares.",
+        "listId": "4",
+        "listStyle": "a",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "Los Alumnos que después del Primer Periodo de Regularización Inmediato al Termino del Semestre Adeuden como Máximo Tres Asignaturas.",
+        "listId": "4",
+        "listStyle": "a",
+        "listNumber": 3
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 94. Se considera Alumnos Irregulares aquellos que no acrediten una o más de las Asignaturas del o de los semestres cursados.",
+        "listId": "5",
+        "listStyle": "bullet",
+        "listNumber": 1
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 95. Se Establecerá el Procedimiento para la Regularización de los Alumnos. (Extraordinario).",
+        "listId": "5",
+        "listStyle": "bullet",
+        "listNumber": 2
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 130. Los Alumnos Inscritos tienen los siguientes Derechos:",
+        "listId": "5",
+        "listStyle": "bullet",
+        "listNumber": 3
+      },
+      {
+        "kind": "item",
+        "text": "Recibir una Educación de Calidad.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Participar Activamente en la Construcción de sus Aprendizajes, mediante Experiencias Significativas coordinadas por el Docente Horas Clase.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "Ser Tratados con Respeto por todos los Integrantes de la Comunidad Escolar.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 3
+      },
+      {
+        "kind": "item",
+        "text": "Recibir la Documentación que lo Acredite como Alumno de la Escuela.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 4
+      },
+      {
+        "kind": "item",
+        "text": "Ser Evaluado en base a la Normatividad Vigente.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 5
+      },
+      {
+        "kind": "item",
+        "text": "Recibir Reconocimientos y Estímulos que otorgue la Escuela u otras instancias, por su Destacada Participación en las diferentes actividades.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 6
+      },
+      {
+        "kind": "item",
+        "text": "Denunciar cualquier hecho que contravenga el Buen Desempeño de las Actividades Académico - Administrativas",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 7
+      },
+      {
+        "kind": "item",
+        "text": "Ser Escuchado por las Autoridades Educativas para la Solución de sus Problemas Académico - Administrativos.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 8
+      },
+      {
+        "kind": "item",
+        "text": "Expresar Libremente y con Respeto sus Opiniones, Siempre y cuando no se perturben las Labores Institucionales.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 9
+      },
+      {
+        "kind": "item",
+        "text": "Justificar sus Inasistencias a plena satisfacción de las Autoridades Educativas.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 10
+      },
+      {
+        "kind": "item",
+        "text": "Ser Evaluados al Justificar sus Inasistencias.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 11
+      },
+      {
+        "kind": "item",
+        "text": "Contar con el Apoyo Necesario cuando Represente Oficialmente a la Escuela, en función de los recursos de la misma.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 12
+      },
+      {
+        "kind": "item",
+        "text": "Obtener los Documentos Oficiales que Acrediten los Estudios Realizados.",
+        "listId": "6",
+        "listStyle": "I",
+        "listNumber": 13
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 131. Son Obligaciones de los Alumnos las siguientes:",
+        "listId": "7",
+        "listStyle": "bullet",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Inscribirse en Tiempo y Forma al Semestre que vaya a cursar.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Asistir Puntualmente a sus Clases y Actividades Escolares. El Horario de Entrada a la Institución es de 6:40 hasta las 7:00 a.m.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "Cumplir debidamente con los Compromisos contraídos al inicio de todos los cursos de las diferentes Asignaturas.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 3
+      },
+      {
+        "kind": "item",
+        "text": "Observar Conducta Respetuosa dentro y fuera de la Escuela.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 4
+      },
+      {
+        "kind": "item",
+        "text": "Respetar dentro y fuera de la Escuela a las Autoridades Educativas y a todo el Personal que labora dentro de la misma.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 5
+      },
+      {
+        "kind": "item",
+        "text": "No ingerir ni vender y/o distribuir sustancias toxicas dentro de la Escuela.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 6
+      },
+      {
+        "kind": "item",
+        "text": "Permanecer en las Instalaciones de la Escuela el tiempo marcado por el Horario Institucional, destinado a clases y a las actividades debidamente autorizadas.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 7
+      },
+      {
+        "kind": "item",
+        "text": "Cuidar el Patrimonio de la Escuela.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 8
+      },
+      {
+        "kind": "item",
+        "text": "Cuidar de su Aspecto e Higiene Individual.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 9
+      },
+      {
+        "kind": "item",
+        "text": "Cubrir los Daños y Perjuicios ocasionados en el Patrimonio de la Escuela, cuando estos",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 10
+      },
+      {
+        "kind": "paragraph",
+        "text": "se den Por conducta culposa o dolosa."
+      },
+      {
+        "kind": "item",
+        "text": "Conocer, acatar y cumplir con todas las disposiciones reglamentarias y los acuerdos de las autoridades educativas.",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 11
+      },
+      {
+        "kind": "item",
+        "text": "Portar el Uniforme Completo para Ingresar y Permanecer en la Institución con las siguientes características:",
+        "listId": "8",
+        "listStyle": "I",
+        "listNumber": 12
+      },
+      {
+        "kind": "paragraph",
+        "text": "MUJERES"
+      },
+      {
+        "kind": "paragraph",
+        "text": "HOMBRES"
+      },
+      {
+        "kind": "item",
+        "text": "Falda o Pantalón de Vestir Azul Marino",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Pantalón de Vestir Azul Marino",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "Blusa Blanca con cuello sport Tipo Escolar lisa",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 3
+      },
+      {
+        "kind": "item",
+        "text": "Camisa Blanca con cuello sport Tipo Escolar lisa",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 4
+      },
+      {
+        "kind": "item",
+        "text": "Suéter Azul Marino",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 5
+      },
+      {
+        "kind": "item",
+        "text": "Suéter Azul Marino",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 6
+      },
+      {
+        "kind": "item",
+        "text": "Calcetas Escolares Azul Marino o Blancas",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 7
+      },
+      {
+        "kind": "item",
+        "text": "Corte de Cabello Casquete Corto o Mediano (No Mohicano, no a Dos Cortes)",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 8
+      },
+      {
+        "kind": "item",
+        "text": "Zapatos de Vestir Negros (solo usaran zapatos tenis, cuando así lo solicite alguna actividad deportiva).",
+        "listId": "11",
+        "listStyle": "bullet",
+        "listNumber": 9
+      },
+      {
+        "kind": "item",
+        "text": "No se podrá acceder a la Escuela con Prendas de Mezclilla de ningún tipo, Gorras, Paliacates, Suéter de otro color, Lentes Obscuros, etc. Ya que se Confiscaran y no se devolverán.",
+        "listId": "10",
+        "listStyle": "bullet",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "No Traer Tintes, Rayos y/o Mechas, Pearcing (s).",
+        "listId": "10",
+        "listStyle": "bullet",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "No traer a la Escuela cualquier tipo de aditamentos No Escolares como: Celulares, Tablet, IPod, Maquillajes, Mascotas, ya que son distractores y la Institución No se hace Responsable de la Pérdida Total o Parcial de Ellos.",
+        "listId": "10",
+        "listStyle": "bullet",
+        "listNumber": 3
+      },
+      {
+        "kind": "item",
+        "text": "Es Responsabilidad de los Padres de Familia y/o Tutores:",
+        "listId": "15",
+        "listStyle": "bullet",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Acudir a las Juntas de Firma de Boletas.",
+        "listId": "12",
+        "listStyle": "1",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Contribuir en el Desarrollo Académico y Conductual de su Hijo (a).",
+        "listId": "12",
+        "listStyle": "1",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "Cubrir en Tiempo y Forma las Cuotas de Inscripción, Reinscripción, Exámenes de Regularización, Reposición de Credencial, Constancias y Expedición de Certificados.",
+        "listId": "12",
+        "listStyle": "1",
+        "listNumber": 3
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 157. Los alumnos que Infrinjan sus Obligaciones se harán acreedores a las siguientes sanciones:",
+        "listId": "7",
+        "listStyle": "bullet",
+        "listNumber": 2
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 163. Llamada de Atención, Prevención Verbal.",
+        "listId": "13",
+        "listStyle": "I",
+        "listNumber": 1
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 163. Severa Llamada de Atención. Prevención Escrita con Motivo de Falta Leve; o Falta de Puntualidad, Asistencia y/o Comportamiento Inadecuado dentro o fuera de la Escuela.",
+        "listId": "13",
+        "listStyle": "I",
+        "listNumber": 2
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 165. Amonestación. Es una Nota Escrita que se registra en el Expediente Personal del Alumno ante las Faltas siguientes:",
+        "listId": "13",
+        "listStyle": "I",
+        "listNumber": 3
+      },
+      {
+        "kind": "item",
+        "text": "No ser Respetuoso con sus Compañeros y Superiores.",
+        "listId": "14",
+        "listStyle": "a",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Hacer Propaganda de Eventos No Institucionales dentro de la Escuela (Bailes, Partidos Políticos, Credos, Comercio)",
+        "listId": "14",
+        "listStyle": "a",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "Salir de la Escuela en horas de actividades académicas sin causa justificada.",
+        "listId": "14",
+        "listStyle": "a",
+        "listNumber": 3
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 165. Suspensión Temporal. Es la Separación Física del Alumno del Proceso Enseñanza-Aprendizaje por acumular Notas de Amonestación y no cumplir con el Artículo 131. XI.",
+        "listId": "13",
+        "listStyle": "I",
+        "listNumber": 4
+      },
+      {
+        "kind": "heading",
+        "text": "Artículo 166.  Suspensión Definitiva. Es la Separación Física del Alumno de la Institución y puede darse por los siguientes hechos:",
+        "listId": "13",
+        "listStyle": "I",
+        "listNumber": 5
+      },
+      {
+        "kind": "item",
+        "text": "Acudir al Plantel en estado de Ebriedad o bajo los Efectos de algún Narcótico.",
+        "listId": "9",
+        "listStyle": "a",
+        "listNumber": 1
+      },
+      {
+        "kind": "item",
+        "text": "Dañar las Instalaciones, el Material Bibliográfico y en general el Patrimonio de la Escuela.",
+        "listId": "9",
+        "listStyle": "a",
+        "listNumber": 2
+      },
+      {
+        "kind": "item",
+        "text": "Liarse a Golpes Dentro y/o Fuera de la Escuela.",
+        "listId": "9",
+        "listStyle": "a",
+        "listNumber": 3
+      },
+      {
+        "kind": "item",
+        "text": "Cometer actos de Vandalismo Dentro o Fuera de la Escuela.",
+        "listId": "9",
+        "listStyle": "a",
+        "listNumber": 4
+      },
+      {
+        "kind": "item",
+        "text": "Alterar o Utilizar Documentos Falsos.",
+        "listId": "9",
+        "listStyle": "a",
+        "listNumber": 5
+      },
+      {
+        "kind": "item",
+        "text": "Cometer actos que impliquen Robo.",
+        "listId": "9",
+        "listStyle": "a",
+        "listNumber": 6
+      },
+      {
+        "kind": "paragraph",
+        "text": "ECATEPEC DE MORELOS A"
+      },
+      {
+        "kind": "paragraph",
+        "text": "DE"
+      },
+      {
+        "kind": "paragraph",
+        "text": "DE"
+      },
+      {
+        "kind": "paragraph",
+        "text": "20"
+      },
+      {
+        "kind": "paragraph",
+        "text": "He Leído y Analizado el Reglamento Interno, estoy de acuerdo con las especificaciones que en él se hacen, y por lo tanto me comprometo a respetarlo y cumplir con mis Derechos y Obligaciones."
+      },
+      {
+        "kind": "paragraph",
+        "text": "DR. RAMIRO CANTORAN QUIROZ"
+      },
+      {
+        "kind": "paragraph",
+        "text": "NOMBRE Y FIRMA DE ALUMNO"
+      },
+      {
+        "kind": "paragraph",
+        "text": "NOMBRE Y FIRMA DEL ORIENTADOR (A)"
+      },
+      {
+        "kind": "paragraph",
+        "text": "NOMBRE Y FIRMA DEL TUTOR                       VO. BO. DIRECTOR ESCOLAR"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Nota: Los Artículos se sustentan en el Reglamento para Escuelas Preparatorias Oficiales del Estado de México.2002"
+      },
+      {
+        "kind": "paragraph",
+        "text": "AV. VALLE DE GUADALQUIVIR S/N, COL. UNIDAD OBRERO HABITACIONAL CTM XIV. ESTADO DE MÉXICO, C.P. 55235. TELS. 51147793"
+      },
+      {
+        "kind": "paragraph",
+        "text": "CORREO ELECTRÓNICO preparatoria221@hotmail.com"
+      }
+    ]
+  },
+  {
+    "slug": "carta-compromiso",
+    "title": "Carta compromiso",
+    "sourceDocx": "/descargas/carta-compromiso.docx",
+    "sourcePdf": "/descargas/carta-compromiso.pdf",
+    "sourceSha256": "9de7763336f3296dca6995c4bd26d085a3d569e58d748c8829d9bb79fbc968c0",
+    "blocks": [
+      {
+        "kind": "heading",
+        "text": "CARTA COMPROMISO DE LOS ALUMNOS"
+      },
+      {
+        "kind": "heading",
+        "text": "Estoy enterado (a) que:"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Los servicios de Orientación y Tutoría han sido creados para mejorar la calidad de mi aprendizaje y que el Orientador Educativo y el Tutor me van a acompañar a lo largo de mis estudios para apoyarme a solucionar cualquier problema académico que se me presente, con la finalidad de concluir exitosamente mis estudios de educación media superior."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Por medio de ese documento Yo"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Alumno (a) del Grupo"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Me comprometo a asistir puntualmente a las sesiones de Orientación Educativa y Tutoría en los horarios asignados."
+      },
+      {
+        "kind": "paragraph",
+        "text": "También me comprometo a hacer mi mejor esfuerzo en la escuela como estudiante y como compañero a partir de ahora. Asimismo, me comprometo a aceptarme y quererme tal como soy, con todas mis cualidades y defectos, por lo tanto, seré sincero (a) en la expresión de mis sentimientos y mis ideas."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Respetaré y aceptaré a mis compañeros tal y como son. Estoy dispuesto a integrarme al trabajo en equipo haciendo a un lado las diferencias personales y apoyaré a todos con quienes trabaje."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Acataré las “Reglas de Convivencia” que se acuerden en mi grupo, con el fin de crear un ambiente agradable de cordialidad dentro y fuera del salón. Cuidaré la salud de mi cuerpo y de mi mente, porque ello me ayuda a crecer con mayor seguridad y confianza."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Aceptaré en forma positiva la organización de los profesores, les evitaré problemas y estaré dispuesto a proponer mejoras y soluciones para mi grupo."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Mientras esté dentro del salón de clases, puedo aprender disfrutado, saludablemente, con compromiso de cada vez ser mejor persona y estudiante. Estoy consciente que el empeño que le dedique a mis estudios de preparatoria es para mí beneficio personal."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Asimismo, manifiesto estar enterado (a) de la importancia de mi asistencia a clases la cual no puede ser menor al 80%, el portar mi uniforme en forma adecuada y por supuesto la puntualidad y respeto a mis horarios de Entrada, Clase y Salida y lo que representa no cumplirlos."
+      },
+      {
+        "kind": "heading",
+        "text": "Estoy de acuerdo:"
+      },
+      {
+        "kind": "paragraph",
+        "text": "ECATEPEC DE MORELOS A"
+      },
+      {
+        "kind": "paragraph",
+        "text": "DE"
+      },
+      {
+        "kind": "paragraph",
+        "text": "DE"
+      },
+      {
+        "kind": "paragraph",
+        "text": "20"
+      },
+      {
+        "kind": "paragraph",
+        "text": "DR. RAMIRO CANTORAN QUIROZ"
+      },
+      {
+        "kind": "paragraph",
+        "text": "NOMBRE Y FIRMA DE ALUMNO"
+      },
+      {
+        "kind": "paragraph",
+        "text": "NOMBRE Y FIRMA DEL ORIENTADOR (A)"
+      },
+      {
+        "kind": "paragraph",
+        "text": "NOMBRE Y FIRMA DEL TUTOR                       VO. BO. DIRECTOR ESCOLAR"
+      },
+      {
+        "kind": "paragraph",
+        "text": "AV. VALLE DE GUADALQUIVIR S/N, COL. UNIDAD OBRERO HABITACIONAL CTM XIV. ESTADO DE MÉXICO, C.P. 55235. TELS. 51147793"
+      },
+      {
+        "kind": "paragraph",
+        "text": "CORREO ELECTRÓNICO preparatoria221@hotmail.com"
+      }
+    ]
+  }
+]
